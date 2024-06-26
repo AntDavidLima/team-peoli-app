@@ -1,14 +1,22 @@
+import tailwindColors from "tailwindcss/colors";
 import { Stack } from "expo-router";
 
 export default function RoutesLayout() {
   return (
     <Stack>
-      <Stack.Screen name="login" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="login"
+        options={{
+          headerShown: false,
+          contentStyle: { backgroundColor: tailwindColors.black },
+          statusBarTranslucent: true,
+        }}
+      />
       <Stack.Screen
         name="(authenticated)"
         options={{
           headerShown: false,
-          contentStyle: { padding: 8 },
+          contentStyle: { paddingTop: 8 },
         }}
       />
     </Stack>

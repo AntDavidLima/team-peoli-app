@@ -1,33 +1,58 @@
 import React from "react";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
-import tailwindColors from "tailwindcss/colors";
 import customColors from "@/tailwind.colors";
+import { withLayoutContext } from "expo-router";
+import {
+  MaterialTopTabNavigationEventMap,
+  MaterialTopTabNavigationOptions,
+  createMaterialTopTabNavigator,
+} from "@react-navigation/material-top-tabs";
+import { ParamListBase, TabNavigationState } from "@react-navigation/native";
 
 function TabBarIcon(props: {
   name: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
   color: string;
 }) {
-  return <MaterialCommunityIcons size={28} {...props} />;
+  return <MaterialCommunityIcons size={26} {...props} />;
 }
+
+const { Navigator } = createMaterialTopTabNavigator();
+
+const Tabs = withLayoutContext<
+  MaterialTopTabNavigationOptions,
+  typeof Navigator,
+  TabNavigationState<ParamListBase>,
+  MaterialTopTabNavigationEventMap
+>(Navigator);
 
 export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
         tabBarStyle: {
           backgroundColor: customColors.darker,
           borderRadius: 8,
-        },
-        tabBarItemStyle: {
           margin: 8,
-          borderRadius: 16,
         },
-        tabBarActiveBackgroundColor: customColors.main,
-        tabBarActiveTintColor: tailwindColors.white,
+        tabBarIndicatorStyle: {
+          position: "absolute",
+          height: 32,
+          width: 64,
+          top: 8,
+          left: 68,
+          borderRadius: 32,
+        },
+        tabBarIconStyle: {
+          marginTop: -4,
+        },
+        swipeEnabled: false,
         tabBarShowLabel: false,
+        tabBarShowIcon: true,
+        tabBarAndroidRipple: {
+          radius: 0,
+        },
       }}
+      tabBarPosition="bottom"
     >
       <Tabs.Screen
         name="index"
@@ -36,7 +61,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="trainings"
+        name="(trainings)"
         options={{
           tabBarIcon: ({ color }) => (
             <TabBarIcon name="dumbbell" color={color} />

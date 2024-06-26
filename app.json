@@ -6,12 +6,12 @@
     "backgroundColor": "#303030",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
-    "scheme": "myapp",
-    "userInterfaceStyle": "automatic",
+    "icon": "./assets/images/logo-without-text.png",
+    "scheme": "team-peoli",
+    "userInterfaceStyle": "dark",
     "splash": {
       "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#303030"
     },
     "assetBundlePatterns": ["**/*"],
@@ -19,19 +19,19 @@
       "supportsTablet": true
     },
     "androidStatusBar": {
-      "backgroundColor": "#303030",
+      "backgroundColor": "#000000",
       "barStyle": "light-content"
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "foregroundImage": "./assets/images/logo-without-text.png",
         "backgroundColor": "#303030"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/logo.png"
     },
     "plugins": ["expo-router", "expo-secure-store"],
     "experiments": {

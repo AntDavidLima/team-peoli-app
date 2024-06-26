@@ -15,6 +15,7 @@ interface LoginForm {
 
 interface CurrentUser {
 	authToken: string;
+	id: number;
 }
 
 interface APIAuthenticateResponse {
@@ -25,12 +26,14 @@ interface AuthenticationContext {
 	login: (loginForm: LoginForm) => Promise<void>;
 	isAuthenticated: boolean;
 	logout: () => Promise<void>;
+	currentUser: null | CurrentUser;
 }
 
 const AuthenticationContext = createContext<AuthenticationContext>({
 	login: async () => { },
 	isAuthenticated: false,
 	logout: async () => { },
+	currentUser: null,
 });
 
 export function useAuthentication() {
@@ -47,9 +50,11 @@ export function AuthenticationProvider({ children }: PropsWithChildren) {
 			const authToken = await getItemAsync("auth_token");
 
 			if (authToken) {
-				setCurrentUser({ authToken });
-
 				api.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
+
+				const me = await fetchMe();
+
+				setCurrentUser({ authToken, id: me.id });
 			}
 		})();
 	}, []);
@@ -60,6 +65,7 @@ export function AuthenticationProvider({ children }: PropsWithChildren) {
 				login,
 				isAuthenticated,
 				logout,
+				currentUser,
 			}}
 		>
 			{children}
@@ -77,12 +83,22 @@ export function AuthenticationProvider({ children }: PropsWithChildren) {
 
 		await setItemAsync("auth_token", data.auth_token);
 
-		setCurrentUser({ authToken: data.auth_token });
+		api.defaults.headers.common["Authorization"] = `Bearer ${data.auth_token}`;
+
+		const me = await fetchMe();
+
+		setCurrentUser({ authToken: data.auth_token, id: me.id });
 	}
 
 	async function logout() {
 		await deleteItemAsync("auth_token");
 
 		setCurrentUser(null);
+	}
+
+	async function fetchMe() {
+		const { data } = await api.get<Omit<CurrentUser, "authToken">>("/me");
+
+		return data;
 	}
 }
