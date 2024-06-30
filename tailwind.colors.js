@@ -4,4 +4,5 @@ module.exports = {
   darker: "#292929",
   card: "#444444",
   disabled: "#818181",
+  subtitle: "#D9D9D9",
 };

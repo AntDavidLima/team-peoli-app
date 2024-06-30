@@ -1,156 +1,375 @@
 import { api } from "@/lib/api";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RawDraftContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
 import { useLocalSearchParams } from "expo-router";
 import {
-  Pressable,
-  Text,
-  TextInput,
-  View,
-  useWindowDimensions,
+	Pressable,
+	ScrollView,
+	Text,
+	TextInput,
+	View,
+	useWindowDimensions,
 } from "react-native";
 import RenderHTML from "react-native-render-html";
 import tailwindColors from "tailwindcss/colors";
 import customColors from "@/tailwind.colors";
+import { useEffect, useMemo, useRef, useState } from "react";
+import PagerView from "react-native-pager-view";
+import { differenceInSeconds } from "date-fns";
 
 interface Training {
-  exercises: TrainingExercise[];
+	exercises: TrainingExercise[];
 }
 
 export interface TrainingExercise {
-  sets: number;
-  reps: number;
-  restTime: number;
-  orientations: RawDraftContentState | null;
-  exercise: Exercise;
+	sets: number;
+	reps: number;
+	restTime: number;
+	orientations: RawDraftContentState | null;
+	exercise: Exercise;
 }
 
 export interface Exercise {
-  id: number;
-  name: string;
-  executionVideoUrl: null | string;
+	id: number;
+	name: string;
+	executionVideoUrl: null | string;
+}
+
+interface Workout {
+	id: number;
+	startTime: Date;
 }
 
 export default function Exercise() {
-  const { id, trainingId } = useLocalSearchParams();
+	const [timeAfterStart, setTimeAfterStart] = useState({
+		seconds: 0,
+		minutes: 0,
+		hours: 0,
+	});
+	const [clock, setClock] = useState<NodeJS.Timeout | null>(null);
 
-  const { data: training, isLoading: loadingExercise } = useQuery({
-    queryFn: fetchExercises,
-    queryKey: ["exercises", id, trainingId],
-  });
+	const { id, trainingId } = useLocalSearchParams();
 
-  const { width } = useWindowDimensions();
+	const queryClient = useQueryClient();
 
-  if (loadingExercise || !training) {
-    return <Text className="text-white">Loading...</Text>;
-  }
+	const { data: training, isLoading: loadingTraining } = useQuery({
+		queryFn: fetchExercises,
+		queryKey: ["exercises", id],
+	});
 
-  const { exercise, orientations, sets, reps, restTime } =
-    training.exercises[0];
+	const { data: workout } = useQuery({
+		queryFn: fetchWorkoutInProgress,
+		queryKey: ["workout", trainingId],
+	});
 
-  return (
-    <View className="px-4">
-      <View className="bg-gray-300 h-48 rounded-lg items-center justify-center mt-6">
-        <MaterialCommunityIcons name="play" size={32} />
-      </View>
-      <View className="mt-2">
-        <View className="flex-row gap-1 items-center">
-          <Text className="text-white font-bold text-lg">{exercise.name}</Text>
-          <View className="flex-row items-center gap-0.5 mt-0.5">
-            <MaterialCommunityIcons
-              name="timer-outline"
-              color={tailwindColors.white}
-              size={14}
-            />
-            <Text className="text-white text-xs">{restTime}s</Text>
-          </View>
-        </View>
-        {orientations && (
-          <View className="mt-2 text-orange-200 bg-orange-400/20 border border-orange-400 p-1">
-            <Text className="text-white font-semibold">Instruções:</Text>
-            <RenderHTML
-              source={{ html: draftToHtml(orientations) }}
-              contentWidth={width}
-              baseStyle={{ color: tailwindColors.white }}
-            />
-          </View>
-        )}
-        <View className="flex-row mt-4 space-x-4 justify-between bg-card p-4 rounded">
-          <View className="gap-5">
-            {Array.from({ length: sets + 1 }).map((_, index) => (
-              <Text className="text-white" key={index}>
-                {index === 0 ? "" : `${index}ª Série`}
-              </Text>
-            ))}
-          </View>
-          <View className="gap-4">
-            {Array.from({ length: sets + 1 }).map((_, index) => {
-              if (index === 0) {
-                return (
-                  <Text className="text-white" key={index}>
-                    Carga
-                  </Text>
-                );
-              }
+	useEffect(() => {
+		if (workout) {
+			const timeAfterStartInSeconds = differenceInSeconds(
+				new Date(),
+				new Date(workout.startTime),
+			);
 
-              return (
-                <TextInput className="border-b border-white h-6 w-12 text-white" />
-              );
-            })}
-          </View>
-          <View className="gap-4">
-            {Array.from({ length: sets + 1 }).map((_, index) => {
-              if (index === 0) {
-                return (
-                  <Text className="text-white" key={index}>
-                    Repetições
-                  </Text>
-                );
-              }
+			const hours = Math.floor(timeAfterStartInSeconds / 3600);
+			const minutes = Math.floor((timeAfterStartInSeconds % 3600) / 60);
+			const seconds = timeAfterStartInSeconds % 60;
 
-              return (
-                <TextInput
-                  className="border-b border-white h-6 text-white w-12"
-                  placeholder={reps.toString()}
-                  placeholderTextColor={customColors.disabled}
-                />
-              );
-            })}
-          </View>
-          <View className="gap-4">
-            {Array.from({ length: sets + 1 }).map((_, index) => {
-              if (index === 1) {
-                return (
-                  <Pressable>
-                    <MaterialCommunityIcons
-                      name="play"
-                      color={tailwindColors.green[500]}
-                      size={26}
-                    />
-                  </Pressable>
-                );
-              }
+			setTimeAfterStart({
+				seconds,
+				minutes,
+				hours,
+			});
 
-              return <Text className="text-white" key={index} />;
-            })}
-          </View>
-        </View>
-      </View>
-    </View>
-  );
+			if (!clock) {
+				setClock(
+					setInterval(() => {
+						setTimeAfterStart((time) => {
+							const newTime = {
+								...time,
+								seconds: time.seconds + 1,
+							};
 
-  async function fetchExercises() {
-    const { data: training } = await api.get<Training>(
-      `/training/${trainingId}`,
-      {
-        params: {
-          exerciseId: id,
-        },
-      },
-    );
+							if (newTime.seconds === 60) {
+								newTime.seconds = 0;
+								newTime.minutes += 1;
+							}
 
-    return training;
-  }
+							if (newTime.minutes === 60) {
+								newTime.minutes = 0;
+								newTime.hours += 1;
+							}
+
+							return newTime;
+						});
+					}, 1000),
+				);
+			}
+		}
+	}, [workout]);
+
+	const pagerViewRef = useRef<PagerView>(null);
+
+	const initalExerciseIndex = training?.exercises.findIndex(
+		(exercise) => exercise.exercise.id === Number(id),
+	);
+
+	const [currentExerciseIndex, setCurrentExerciseIndex] = useState(
+		initalExerciseIndex || 0,
+	);
+
+	const { mutate: startWorkout } = useMutation({
+		mutationFn: createWorkout,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["workout", trainingId] });
+		},
+	});
+
+	const { mutate: finishWorkout } = useMutation({
+		mutationFn: stopWorkout,
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["workout", trainingId] });
+			clearInterval(clock!);
+			setClock(null);
+		},
+	});
+
+	if (loadingTraining || !training) {
+		return <Text className="text-white">Loading...</Text>;
+	}
+
+	return (
+		<>
+			<PagerView
+				className="flex-1"
+				initialPage={initalExerciseIndex}
+				onPageScroll={({ nativeEvent: { position } }) => {
+					setCurrentExerciseIndex(position);
+				}}
+				ref={pagerViewRef}
+			>
+				{training.exercises.map(
+					({ exercise, reps, sets, restTime, orientations }) => (
+						<ScrollView key={exercise.id}>
+							<View className="px-4 mb-14">
+								<View className="bg-gray-300 h-48 rounded-lg items-center justify-center mt-6">
+									<MaterialCommunityIcons name="play" size={32} />
+								</View>
+								<View className="mt-2">
+									<View className="flex-row gap-1 items-center">
+										<Text className="text-white font-bold text-lg">
+											{exercise.name}
+										</Text>
+										<View className="flex-row items-center gap-0.5 mt-0.5">
+											<MaterialCommunityIcons
+												name="timer-outline"
+												color={tailwindColors.white}
+												size={14}
+											/>
+											<Text className="text-white text-xs">{restTime}s</Text>
+										</View>
+									</View>
+									{orientations && (
+										<View className="mt-2 text-sky-400 bg-main/20 border border-main p-1">
+											<Text className="text-white font-semibold">
+												Instruções:
+											</Text>
+											<WebDisplay
+												html={draftToHtml(orientations)}
+												textColor={tailwindColors.white}
+											/>
+										</View>
+									)}
+									<View className="mt-8 rounded -mx-4">
+										<View className="flex-row mb-4">
+											<Text className="text-white w-1/5 text-center">
+												SÉRIE
+											</Text>
+											<Text className="text-white w-1/4 text-center">
+												ANTERIOR
+											</Text>
+											<Text className="text-white w-1/5 text-center">
+												CARGA
+											</Text>
+											<Text className="text-white w-[15%] text-center">
+												REPS
+											</Text>
+											<View className="w-1/5 items-center">
+												<MaterialCommunityIcons
+													name="progress-check"
+													color={tailwindColors.white}
+													size={18}
+												/>
+											</View>
+										</View>
+										{Array.from({ length: sets }).map((_, index) => (
+											<View
+												key={index}
+												className={`flex-row items-center py-2 ${index % 2 === 0 ? "bg-darker" : "bg-transparent"}`}
+											>
+												<Text className="text-white w-1/5 text-center font-extrabold">
+													{index + 1}
+												</Text>
+												<Text className="text-white w-1/4 text-center">
+													— —
+												</Text>
+												<View className="w-1/5 px-1 items-center">
+													<TextInput
+														className="text-white"
+														keyboardType="numeric"
+														placeholderTextColor={customColors.disabled}
+														placeholder="KG"
+													/>
+												</View>
+												<View className="w-[15%] px-1 items-center">
+													<TextInput
+														className="text-white"
+														placeholder="10 - 12"
+														placeholderTextColor={customColors.disabled}
+														keyboardType="numeric"
+													/>
+												</View>
+												<View className="w-1/5 items-center">
+													<Pressable className="w-5 h-5 bg-subtitle rounded-lg items-center justify-center">
+														<MaterialCommunityIcons
+															name="check"
+															size={16}
+															color={customColors.disabled}
+														/>
+													</Pressable>
+												</View>
+											</View>
+										))}
+									</View>
+								</View>
+							</View>
+						</ScrollView>
+					),
+				)}
+			</PagerView>
+			<Pressable
+				className={`absolute right-4 bottom-[88px] p-1.5 rounded-3xl ${clock ? "bg-main" : "bg-green-500"}`}
+				onPress={() => (clock ? finishWorkout() : startWorkout())}
+			>
+				{clock ? (
+					<View className="flex-row items-center space-x-1">
+						<MaterialCommunityIcons
+							name="stop-circle-outline"
+							size={24}
+							color={tailwindColors.white}
+						/>
+						<View className="flex-row items-baseline">
+							{timeAfterStart.hours > 0 && (
+								<Text className="text-white font-bold">
+									{timeAfterStart.hours}:
+								</Text>
+							)}
+							<Text className="text-white font-bold">
+								{timeAfterStart.hours > 0 && timeAfterStart.minutes < 10 && "0"}
+								{timeAfterStart.minutes}:
+							</Text>
+							<Text className="text-white font-bold">
+								{timeAfterStart.seconds < 10 && "0"}
+								{timeAfterStart.seconds}
+							</Text>
+						</View>
+					</View>
+				) : (
+					<View className="flex-row items-center justify-center space-x-1">
+						<MaterialCommunityIcons
+							name="play-circle"
+							size={24}
+							color={tailwindColors.white}
+						/>
+						<Text className="text-white font-bold">INICIAR</Text>
+					</View>
+				)}
+			</Pressable>
+			<View className="flex-row justify-around py-2 bg-darker">
+				<Pressable
+					className="bg-card p-4 rounded-full"
+					disabled={currentExerciseIndex === 0}
+					onPress={() => {
+						pagerViewRef.current?.setPage(currentExerciseIndex - 1);
+					}}
+				>
+					<MaterialCommunityIcons
+						name="chevron-left"
+						color={
+							currentExerciseIndex === 0
+								? customColors.disabled
+								: tailwindColors.white
+						}
+						size={24}
+					/>
+				</Pressable>
+				<Pressable
+					className="bg-card p-4 rounded-full"
+					disabled={currentExerciseIndex === training.exercises.length - 1}
+					onPress={() => {
+						pagerViewRef.current?.setPage(currentExerciseIndex + 1);
+					}}
+				>
+					<MaterialCommunityIcons
+						name="chevron-right"
+						color={
+							currentExerciseIndex === training.exercises.length - 1
+								? customColors.disabled
+								: tailwindColors.white
+						}
+						size={24}
+					/>
+				</Pressable>
+			</View>
+		</>
+	);
+
+	async function fetchExercises() {
+		const { data: training } = await api.get<Training>(
+			`/training/${trainingId}`,
+		);
+
+		return training;
+	}
+
+	async function createWorkout() {
+		const { data: workout } = await api.post("/workout", {
+			trainingId,
+		});
+
+		return workout;
+	}
+
+	async function stopWorkout() {
+		const { data: updatedWorkout } = await api.put(`/workout/${workout?.id}`);
+
+		return updatedWorkout;
+	}
+
+	async function fetchWorkoutInProgress() {
+		const { data: workout } = await api.get<Workout>(`/workout/in-progress`, {
+			params: {
+				trainingId,
+			},
+		});
+
+		return workout;
+	}
+}
+
+function WebDisplay({ html, textColor }: { html: string; textColor: string }) {
+	const { width: contentWidth } = useWindowDimensions();
+	const baseStyle = useMemo(
+		() => ({
+			color: textColor,
+		}),
+		[textColor],
+	);
+	return (
+		<RenderHTML
+			contentWidth={contentWidth}
+			source={{ html }}
+			baseStyle={baseStyle}
+		/>
+	);
 }

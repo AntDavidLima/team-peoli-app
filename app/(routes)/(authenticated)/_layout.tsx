@@ -6,7 +6,7 @@ import { Image, Pressable } from "react-native";
 import customColors from "@/tailwind.colors";
 
 export default function AuthenticatedLayout() {
-  const { isAuthenticated } = useAuthentication();
+  const { isAuthenticated, logout } = useAuthentication();
 
   if (!isAuthenticated) {
     return <Redirect href="/login" />;

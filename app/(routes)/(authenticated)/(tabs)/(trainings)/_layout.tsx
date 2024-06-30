@@ -17,14 +17,14 @@ const Tabs = withLayoutContext<
   MaterialTopTabNavigationEventMap
 >(Navigator);
 
-enum Days {
-  "(sunday)" = "D",
-  "(monday)" = "S",
-  "(tuesday)" = "T",
-  "(wednesday)" = "Q",
-  "(thursday)" = "Q",
-  "(friday)" = "S",
-  "(saturday)" = "S",
+export enum Days {
+  sunday = "D",
+  monday = "S",
+  tuesday = "T",
+  wednesday = "Q",
+  thursday = "Q",
+  friday = "S",
+  saturday = "S",
 }
 
 export default function Trainings() {
@@ -65,7 +65,11 @@ export default function Trainings() {
       }}
     >
       {Object.entries(Days).map(([key, value]) => (
-        <Tabs.Screen key={key} name={key} options={{ tabBarLabel: value }} />
+        <Tabs.Screen
+          key={key}
+          name={`(${key})`}
+          options={{ tabBarLabel: value }}
+        />
       ))}
     </Tabs>
   );
