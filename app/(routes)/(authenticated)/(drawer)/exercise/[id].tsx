@@ -2,22 +2,14 @@ import { api } from "@/lib/api";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RawDraftContentState } from "draft-js";
-import draftToHtml from "draftjs-to-html";
 import { useLocalSearchParams } from "expo-router";
-import {
-	Pressable,
-	ScrollView,
-	Text,
-	TextInput,
-	View,
-	useWindowDimensions,
-} from "react-native";
-import RenderHTML from "react-native-render-html";
+import { Pressable, ScrollView, Text, View } from "react-native";
 import tailwindColors from "tailwindcss/colors";
 import customColors from "@/tailwind.colors";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PagerView from "react-native-pager-view";
 import { differenceInSeconds } from "date-fns";
+import { ExerciseExecution } from "@/components/exercise";
 
 interface Training {
 	exercises: TrainingExercise[];
@@ -40,6 +32,18 @@ export interface Exercise {
 interface Workout {
 	id: number;
 	startTime: Date;
+	exercises: WorkoutExercise[];
+}
+
+interface WorkoutExercise {
+	WorkoutExerciseSets: WorkoutExerciseSet[];
+	exerciseId: number;
+}
+
+interface WorkoutExerciseSet {
+	id: number;
+	load: number;
+	reps: number;
 }
 
 export default function Exercise() {
@@ -110,13 +114,20 @@ export default function Exercise() {
 
 	const pagerViewRef = useRef<PagerView>(null);
 
-	const initalExerciseIndex = training?.exercises.findIndex(
+	const initialExerciseIndex = training?.exercises.findIndex(
 		(exercise) => exercise.exercise.id === Number(id),
 	);
 
 	const [currentExerciseIndex, setCurrentExerciseIndex] = useState(
-		initalExerciseIndex || 0,
+		initialExerciseIndex || 0,
 	);
+
+	useEffect(() => {
+		pagerViewRef.current?.setPage(initialExerciseIndex || 0);
+	}, [initialExerciseIndex]);
+
+	const currentExerciseId =
+		training?.exercises[currentExerciseIndex]?.exercise.id;
 
 	const { mutate: startWorkout } = useMutation({
 		mutationFn: createWorkout,
@@ -142,7 +153,7 @@ export default function Exercise() {
 		<>
 			<PagerView
 				className="flex-1"
-				initialPage={initalExerciseIndex}
+				initialPage={initialExerciseIndex}
 				onPageScroll={({ nativeEvent: { position } }) => {
 					setCurrentExerciseIndex(position);
 				}}
@@ -151,98 +162,24 @@ export default function Exercise() {
 				{training.exercises.map(
 					({ exercise, reps, sets, restTime, orientations }) => (
 						<ScrollView key={exercise.id}>
-							<View className="px-4 mb-14">
-								<View className="bg-gray-300 h-48 rounded-lg items-center justify-center mt-6">
-									<MaterialCommunityIcons name="play" size={32} />
-								</View>
-								<View className="mt-2">
-									<View className="flex-row gap-1 items-center">
-										<Text className="text-white font-bold text-lg">
-											{exercise.name}
-										</Text>
-										<View className="flex-row items-center gap-0.5 mt-0.5">
-											<MaterialCommunityIcons
-												name="timer-outline"
-												color={tailwindColors.white}
-												size={14}
-											/>
-											<Text className="text-white text-xs">{restTime}s</Text>
-										</View>
-									</View>
-									{orientations && (
-										<View className="mt-2 text-sky-400 bg-main/20 border border-main p-1">
-											<Text className="text-white font-semibold">
-												Instruções:
-											</Text>
-											<WebDisplay
-												html={draftToHtml(orientations)}
-												textColor={tailwindColors.white}
-											/>
-										</View>
-									)}
-									<View className="mt-8 rounded -mx-4">
-										<View className="flex-row mb-4">
-											<Text className="text-white w-1/5 text-center">
-												SÉRIE
-											</Text>
-											<Text className="text-white w-1/4 text-center">
-												ANTERIOR
-											</Text>
-											<Text className="text-white w-1/5 text-center">
-												CARGA
-											</Text>
-											<Text className="text-white w-[15%] text-center">
-												REPS
-											</Text>
-											<View className="w-1/5 items-center">
-												<MaterialCommunityIcons
-													name="progress-check"
-													color={tailwindColors.white}
-													size={18}
-												/>
-											</View>
-										</View>
-										{Array.from({ length: sets }).map((_, index) => (
-											<View
-												key={index}
-												className={`flex-row items-center py-2 ${index % 2 === 0 ? "bg-darker" : "bg-transparent"}`}
-											>
-												<Text className="text-white w-1/5 text-center font-extrabold">
-													{index + 1}
-												</Text>
-												<Text className="text-white w-1/4 text-center">
-													— —
-												</Text>
-												<View className="w-1/5 px-1 items-center">
-													<TextInput
-														className="text-white"
-														keyboardType="numeric"
-														placeholderTextColor={customColors.disabled}
-														placeholder="KG"
-													/>
-												</View>
-												<View className="w-[15%] px-1 items-center">
-													<TextInput
-														className="text-white"
-														placeholder="10 - 12"
-														placeholderTextColor={customColors.disabled}
-														keyboardType="numeric"
-													/>
-												</View>
-												<View className="w-1/5 items-center">
-													<Pressable className="w-5 h-5 bg-subtitle rounded-lg items-center justify-center">
-														<MaterialCommunityIcons
-															name="check"
-															size={16}
-															color={customColors.disabled}
-														/>
-													</Pressable>
-												</View>
-											</View>
-										))}
-									</View>
-								</View>
-							</View>
+							<ExerciseExecution
+								reps={reps}
+								sets={sets}
+								setsInfo={
+									workout?.exercises
+										.filter(
+											({ exerciseId }) => exerciseId === currentExerciseId,
+										)
+										.map(({ WorkoutExerciseSets }) => WorkoutExerciseSets)
+										.flat() || []
+								}
+								exercise={exercise}
+								orientations={orientations}
+								restTime={restTime}
+								trainingStarted={clock !== null}
+								workoutId={workout?.id}
+								trainingId={trainingId}
+							/>
 						</ScrollView>
 					),
 				)}
@@ -341,7 +278,9 @@ export default function Exercise() {
 	}
 
 	async function stopWorkout() {
-		const { data: updatedWorkout } = await api.put(`/workout/${workout?.id}`);
+		const { data: updatedWorkout } = await api.put(
+			`/workout/stop/${workout?.id}`,
+		);
 
 		return updatedWorkout;
 	}
@@ -355,21 +294,4 @@ export default function Exercise() {
 
 		return workout;
 	}
-}
-
-function WebDisplay({ html, textColor }: { html: string; textColor: string }) {
-	const { width: contentWidth } = useWindowDimensions();
-	const baseStyle = useMemo(
-		() => ({
-			color: textColor,
-		}),
-		[textColor],
-	);
-	return (
-		<RenderHTML
-			contentWidth={contentWidth}
-			source={{ html }}
-			baseStyle={baseStyle}
-		/>
-	);
 }

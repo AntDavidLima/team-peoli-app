@@ -21,7 +21,7 @@ export function RoutineItem({
 	const { width } = useWindowDimensions();
 
 	return (
-		<>
+		<View className="mb-8">
 			<View className="flex-row items-center gap-4">
 				<View className="flex-1 border h-0 border-white" />
 				<Text className="text-white">{name}</Text>
@@ -140,6 +140,6 @@ export function RoutineItem({
 					</View>
 				))}
 			</View>
-		</>
+		</View>
 	);
 }
