@@ -3,79 +3,82 @@ import { RawDraftContentState } from "draft-js";
 import { RoutineItem } from "./routine";
 
 type Trainings =
-	| {
-		routines: undefined | Routine[];
-		loading: true;
-	}
-	| {
-		routines: Routine[];
-		loading: false;
-	};
+  | {
+      routines: undefined | Routine[];
+      loading: true;
+      day: string;
+    }
+  | {
+      routines: Routine[];
+      loading: false;
+      day: string;
+    };
 
 export interface Routine {
-	id: number;
-	name: string;
-	startDate: Date;
-	endDate: Date | null;
-	trainings: Training[];
-	orientations: RawDraftContentState | null;
+  id: number;
+  name: string;
+  startDate: Date;
+  endDate: Date | null;
+  trainings: Training[];
+  orientations: RawDraftContentState | null;
 }
 
 interface Training {
-	id: number;
-	name: string;
-	exercises: TrainingExercise[];
+  id: number;
+  name: string;
+  exercises: TrainingExercise[];
 }
 
-interface TrainingExercise {
-	sets: number;
-	reps: number;
-	orientations: RawDraftContentState | null;
-	restTime: number;
-	exercise: Exercise;
+export interface TrainingExercise {
+  sets: number;
+  reps: number;
+  orientations: RawDraftContentState | null;
+  restTime: number;
+  exercise: Exercise;
 }
 
 interface Exercise {
-	id: number;
-	name: string;
-	executionVideoUrl: null;
+  id: number;
+  name: string;
+  executionVideoUrl: string | null;
 }
 
-export function Trainings({ routines, loading }: Trainings) {
-	if (loading) {
-		return <Text className="text-white">Loading...</Text>;
-	}
+export function Trainings({ routines, loading, day }: Trainings) {
+  if (loading) {
+    return <Text className="text-white">Loading...</Text>;
+  }
 
-	if (
-		routines
-			.map(({ trainings }) =>
-				trainings.map(({ exercises }) => exercises.map((exercise) => exercise)),
-			)
-			.flat().length === 0
-	) {
-		return (
-			<View className="items-center mt-16">
-				<Text className="text-disabled font-semibold text-lg">
-					Sem treinos hoje por enqanto
-				</Text>
-			</View>
-		);
-	}
+  if (
+    routines
+      .map(({ trainings }) =>
+        trainings.map(({ exercises }) => exercises.map((exercise) => exercise)),
+      )
+      .flat().length === 0
+  ) {
+    return (
+      <View className="items-center mt-16">
+        <Text className="text-disabled font-semibold text-lg">
+          Sem treinos hoje por enqanto
+        </Text>
+      </View>
+    );
+  }
 
-	return (
-		<ScrollView className="px-4">
-			{routines.map(
-				({ name, id, startDate, endDate, orientations, trainings }) => (
-					<RoutineItem
-						key={id}
-						startDate={startDate}
-						endDate={endDate}
-						name={name}
-						trainings={trainings}
-						orientations={orientations}
-					/>
-				),
-			)}
-		</ScrollView>
-	);
+  return (
+    <ScrollView className="px-4">
+      {routines.map(
+        ({ name, id, startDate, endDate, orientations, trainings }) => (
+          <RoutineItem
+            key={id}
+            startDate={startDate}
+            endDate={endDate}
+            name={name}
+            trainings={trainings}
+            orientations={orientations}
+            day={day}
+          />
+        ),
+      )}
+    </ScrollView>
+  );
 }
