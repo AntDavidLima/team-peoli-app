@@ -2,17 +2,21 @@ import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { Redirect, Stack } from "expo-router";
 
 export default function AuthenticatedLayout() {
-  const { isAuthenticated } = useAuthentication();
+	const { isAuthenticated, changedOriginalPassword } = useAuthentication();
 
-  if (!isAuthenticated) {
-    return <Redirect href="/login" />;
-  }
+	if (!isAuthenticated) {
+		return <Redirect href="/login" />;
+	}
 
-  return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
-  );
+	if (!changedOriginalPassword) {
+		return <Redirect href="/change-password" />;
+	}
+
+	return (
+		<Stack
+			screenOptions={{
+				headerShown: false,
+			}}
+		/>
+	);
 }
