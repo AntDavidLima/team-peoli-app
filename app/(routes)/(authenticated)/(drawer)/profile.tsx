@@ -14,6 +14,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import customColors from "@/tailwind.colors";
 import { useEffect, useState } from "react";
+import { phone } from "@/lib/masks";
 
 const profileFormSchema = yup.object({
 	name: yup.string().min(3, "").required("Campo obrigatório"),
@@ -40,12 +41,12 @@ export default function Profile() {
 		confirm: false,
 	});
 
-	const {
-		control,
-		formState: { errors },
-		handleSubmit,
-	} = useForm<ProfileForm>({
+	const { control } = useForm<ProfileForm>({
 		resolver: yupResolver(profileFormSchema),
+		defaultValues: {
+			email: currentUser?.email,
+			phone: currentUser?.phone,
+		},
 	});
 
 	useEffect(() => {
@@ -112,14 +113,18 @@ export default function Profile() {
 					</View>
 					<Controller
 						control={control}
-						render={({ field: { onChange, ...field } }) => (
+						render={({ field: { onChange, value, ...field } }) => (
 							<TextInput
 								placeholder="(99) 9 9999-9999"
 								defaultValue="(11) 9 4241-7655"
 								className="text-base border-b border-b-main text-white"
 								placeholderTextColor={customColors.subtitle}
 								inputMode="tel"
-								onChangeText={onChange}
+								value={phone.mask(value)}
+								onChangeText={(value) => {
+									value = phone.unmask(value);
+									onChange(value);
+								}}
 								{...field}
 							/>
 						)}
