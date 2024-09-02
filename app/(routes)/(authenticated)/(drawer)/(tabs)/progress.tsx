@@ -12,7 +12,7 @@ import {
 } from "victory-native";
 import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
 
-interface Exercise {
+export interface ExerciseWithWorkouts {
 	id: number;
 	name: string;
 	workouts: Workout[];
@@ -25,7 +25,7 @@ interface Workout {
 	};
 }
 
-interface WorkoutExerciseSet {
+export interface WorkoutExerciseSet {
 	id: number;
 	load: number;
 	reps: number;
@@ -181,7 +181,7 @@ export default function Progress() {
 	);
 
 	async function fetchExercises() {
-		const { data: exercises } = await api.get<Exercise[]>(
+		const { data: exercises } = await api.get<ExerciseWithWorkouts[]>(
 			`/user/${currentUser?.id}/exercise`,
 		);
 
