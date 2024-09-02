@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Text, View, useWindowDimensions } from "react-native";
+import { Pressable, Text, View, useWindowDimensions } from "react-native";
 import customColors from "@/tailwind.colors";
 import { Days } from "./(trainings)/_layout";
 import tailwindColors from "tailwindcss/colors";
@@ -19,6 +19,7 @@ import { format } from "date-fns";
 import _ from "lodash";
 import { ptBR } from "date-fns/locale";
 import { Routine } from "@/components/trainings";
+import { Link } from "expo-router";
 
 export default function Home() {
 	const { currentUser } = useAuthentication();
@@ -97,28 +98,42 @@ export default function Home() {
 
 	return (
 		<View className="p-4 mt-6">
-			<View className="bg-card rounded p-2">
-				<View className="flex-row justify-between">
-					<View>
-						<Text className="text-white font-bold text-xl">Iniciar Treino</Text>
-						<Text className="text-subtitle font-semibold mt-1">
-							{format(new Date(), "EEEE", { locale: ptBR })}
-						</Text>
+			<Link
+				href={{
+					pathname: "/(routes)/(authenticated)/exercise/[id]",
+					params: {
+						id: routines?.[0]?.trainings[0].exercises[0].exercise.id,
+						trainingId: routines?.[0]?.trainings[0].id,
+						day: format(new Date(), "EEEE"),
+					},
+				}}
+				asChild
+			>
+				<Pressable className="bg-card rounded p-2">
+					<View className="flex-row justify-between">
+						<View>
+							<Text className="text-white font-bold text-xl">
+								Iniciar Treino
+							</Text>
+							<Text className="text-subtitle font-semibold mt-1">
+								{format(new Date(), "EEEE", { locale: ptBR })}
+							</Text>
+						</View>
+						<MaterialCommunityIcons
+							name="play-circle-outline"
+							color={customColors.main}
+							size={68}
+						/>
 					</View>
-					<MaterialCommunityIcons
-						name="play-circle-outline"
-						color={customColors.main}
-						size={68}
-					/>
-				</View>
-				<View>
-					{routines?.map((routine) =>
-						routine.trainings.map((training) => (
-							<Text className="text-subtitle">{training.name}</Text>
-						)),
-					)}
-				</View>
-			</View>
+					<View>
+						{routines?.map((routine) =>
+							routine.trainings.map((training) => (
+								<Text className="text-subtitle">{training.name}</Text>
+							)),
+						)}
+					</View>
+				</Pressable>
+			</Link>
 			<View className="bg-card rounded p-3 mt-4">
 				<View className="flex-row justify-between">
 					{Object.values(Days).map((day, index) => (
