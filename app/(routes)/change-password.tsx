@@ -167,6 +167,7 @@ export default function ChangePassword() {
 					Toast.show(apiError.message, {
 						backgroundColor: "red",
 						opacity: 0.9,
+						position: Toast.positions.TOP,
 					});
 				}
 			}
