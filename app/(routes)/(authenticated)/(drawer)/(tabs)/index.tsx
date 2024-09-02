@@ -17,6 +17,8 @@ import {
 import { Defs, LinearGradient, Rect, Stop, Svg } from "react-native-svg";
 import { format } from "date-fns";
 import _ from "lodash";
+import { ptBR } from "date-fns/locale";
+import { Routine } from "@/components/trainings";
 
 export default function Home() {
 	const { currentUser } = useAuthentication();
@@ -24,6 +26,11 @@ export default function Home() {
 	const { data: exercises } = useQuery({
 		queryKey: ["progress"],
 		queryFn: fetchExercises,
+	});
+
+	const { data: routines } = useQuery({
+		queryKey: ["trainings", format(new Date(), "EEEE", { locale: ptBR })],
+		queryFn: fetchTrainings,
 	});
 
 	const { width } = useWindowDimensions();
@@ -95,7 +102,7 @@ export default function Home() {
 					<View>
 						<Text className="text-white font-bold text-xl">Iniciar Treino</Text>
 						<Text className="text-subtitle font-semibold mt-1">
-							Quarta-feira
+							{format(new Date(), "EEEE", { locale: ptBR })}
 						</Text>
 					</View>
 					<MaterialCommunityIcons
@@ -104,7 +111,13 @@ export default function Home() {
 						size={68}
 					/>
 				</View>
-				<Text className="text-subtitle">Treino A - Inferiores completos</Text>
+				<View>
+					{routines?.map((routine) =>
+						routine.trainings.map((training) => (
+							<Text className="text-subtitle">{training.name}</Text>
+						)),
+					)}
+				</View>
 			</View>
 			<View className="bg-card rounded p-3 mt-4">
 				<View className="flex-row justify-between">
@@ -292,6 +305,17 @@ export default function Home() {
 		);
 
 		return exercises;
+	}
+
+	async function fetchTrainings() {
+		const { data } = await api.get<Routine[]>("routine", {
+			params: {
+				day: format(new Date(), "EEEE").toUpperCase(),
+				userId: currentUser?.id,
+			},
+		});
+
+		return data;
 	}
 }
 
