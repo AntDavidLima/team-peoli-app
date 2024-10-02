@@ -1,5 +1,11 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Pressable, Text, View, useWindowDimensions } from "react-native";
+import {
+	Pressable,
+	ScrollView,
+	Text,
+	View,
+	useWindowDimensions,
+} from "react-native";
 import customColors from "@/tailwind.colors";
 import { Days } from "./(trainings)/_layout";
 import tailwindColors from "tailwindcss/colors";
@@ -97,20 +103,47 @@ export default function Home() {
 	);
 
 	return (
-		<View className="p-4 mt-6">
-			{routines && routines[0]?.trainings[0] ? (
-				<Link
-					href={{
-						pathname: "/(routes)/(authenticated)/exercise/[id]",
-						params: {
-							id: routines?.[0].trainings[0]?.exercises[0].exercise.id,
-							trainingId: routines?.[0]?.trainings[0]?.id,
-							day: format(new Date(), "EEEE"),
-						},
-					}}
-					asChild
-				>
-					<Pressable className="bg-card rounded p-2">
+		<ScrollView>
+			<View className="p-4 mt-6">
+				{routines && routines[0]?.trainings[0] ? (
+					<Link
+						href={{
+							pathname: "/(routes)/(authenticated)/exercise/[id]",
+							params: {
+								id: routines?.[0].trainings[0]?.exercises[0].exercise.id,
+								trainingId: routines?.[0]?.trainings[0]?.id,
+								day: format(new Date(), "EEEE"),
+							},
+						}}
+						asChild
+					>
+						<Pressable className="bg-card rounded p-2">
+							<View className="flex-row justify-between">
+								<View>
+									<Text className="text-white font-bold text-xl">
+										Iniciar Treino
+									</Text>
+									<Text className="text-subtitle font-semibold mt-1">
+										{format(new Date(), "EEEE", { locale: ptBR })}
+									</Text>
+								</View>
+								<MaterialCommunityIcons
+									name="play-circle-outline"
+									color={customColors.main}
+									size={68}
+								/>
+							</View>
+							<View>
+								{routines?.map((routine) =>
+									routine.trainings.map((training) => (
+										<Text className="text-subtitle">{training.name}</Text>
+									)),
+								)}
+							</View>
+						</Pressable>
+					</Link>
+				) : (
+					<View className="bg-card rounded p-2">
 						<View className="flex-row justify-between">
 							<View>
 								<Text className="text-white font-bold text-xl">
@@ -118,6 +151,11 @@ export default function Home() {
 								</Text>
 								<Text className="text-subtitle font-semibold mt-1">
 									{format(new Date(), "EEEE", { locale: ptBR })}
+								</Text>
+								<Text className="text-subtitle text-xs mt-1 max-w-[80%]">
+									Por enquanto seu professor ainda não cadastrou um treino pro
+									dia de hoje, mas assim que ele cadastrar, você poderá tocar
+									aqui para ir direto para ele!
 								</Text>
 							</View>
 							<MaterialCommunityIcons
@@ -133,217 +171,189 @@ export default function Home() {
 								)),
 							)}
 						</View>
-					</Pressable>
-				</Link>
-			) : (
-				<View className="bg-card rounded p-2">
+					</View>
+				)}
+				<View className="bg-card rounded p-3 mt-4">
 					<View className="flex-row justify-between">
-						<View>
-							<Text className="text-white font-bold text-xl">
-								Iniciar Treino
-							</Text>
-							<Text className="text-subtitle font-semibold mt-1">
-								{format(new Date(), "EEEE", { locale: ptBR })}
-							</Text>
-							<Text className="text-subtitle text-xs mt-1 max-w-[80%]">
-								Por enquanto seu professor ainda não cadastrou um treino pro dia
-								de hoje, mas assim que ele cadastrar, você poderá tocar aqui
-								para ir direto para ele!
-							</Text>
-						</View>
+						{Object.values(Days).map((day, index) => (
+							<View className="items-center gap-1" key={index}>
+								<Text className="text-white font-semibold text-base">
+									{day}
+								</Text>
+								<Text className="bg-disabled rounded-full px-2 py-1.5 text-background">
+									{23 + index}
+								</Text>
+							</View>
+						))}
+					</View>
+					<View className="mt-3 justify-end flex-row items-center space-x-1">
 						<MaterialCommunityIcons
-							name="play-circle-outline"
-							color={customColors.main}
-							size={68}
+							name="flag-outline"
+							size={16}
+							color={tailwindColors.white}
 						/>
-					</View>
-					<View>
-						{routines?.map((routine) =>
-							routine.trainings.map((training) => (
-								<Text className="text-subtitle">{training.name}</Text>
-							)),
-						)}
+						<Text className="text-white">0/1 dias completos</Text>
 					</View>
 				</View>
-			)}
-			<View className="bg-card rounded p-3 mt-4">
-				<View className="flex-row justify-between">
-					{Object.values(Days).map((day, index) => (
-						<View className="items-center gap-1" key={index}>
-							<Text className="text-white font-semibold text-base">{day}</Text>
-							<Text className="bg-disabled rounded-full px-2 py-1.5 text-background">
-								{23 + index}
-							</Text>
-						</View>
-					))}
-				</View>
-				<View className="mt-3 justify-end flex-row items-center space-x-1">
-					<MaterialCommunityIcons
-						name="flag-outline"
-						size={16}
-						color={tailwindColors.white}
-					/>
-					<Text className="text-white">0/1 dias completos</Text>
-				</View>
-			</View>
-			<View className="bg-card rounded mt-4 py-4">
-				<Text className="text-white text-base font-semibold ml-4">
-					Evolução geral
-				</Text>
-				{exercises &&
-					(exercises.length > 0 ? (
-						<>
-							<VictoryChart domain={{ y: [0, 1] }} width={width - 22}>
-								<Gradient />
-								<VictoryAxis
-									dependentAxis
-									tickFormat={(tick) =>
-										(tick * exercisesMetadata!.maxLoad).toFixed(1)
-									}
-									style={{
-										tickLabels: { fill: "white" },
-										axis: { stroke: "#0B69D4", strokeWidth: 4 },
-									}}
-								/>
-								<VictoryAxis
-									dependentAxis
-									tickFormat={(tick) =>
-										(tick * exercisesMetadata!.maxReps).toFixed(1)
-									}
-									offsetX={width - 72}
-									style={{
-										tickLabels: { textAnchor: "start", fill: "white" },
-										ticks: {
-											padding: -20,
-										},
-										axis: { stroke: "#C43343", strokeWidth: 4 },
-									}}
-								/>
-								<VictoryAxis
-									tickValues={exercisesMetadata!.workouts.map(({ startTime }) =>
-										format(new Date(startTime), "d"),
-									)}
-									style={{
-										tickLabels: { fill: "white" },
-										axis: {
-											strokeWidth: 0,
-											stroke: "url(#blue-to-red)",
-										},
-									}}
-								/>
-								<VictoryGroup
-									data={Object.values(
-										_.groupBy(exercisesMetadata!.workouts, ({ startTime }) =>
-											format(startTime, "d/M/y"),
-										),
-									)
-										.reduce(
-											(accumulator, workouts) => {
-												const totalLoad = workouts.reduce(
-													(total, { averageLoad }) => total + averageLoad,
-													0,
-												);
-												const totalReps = workouts.reduce(
-													(total, { averageReps }) => total + averageReps,
-													0,
-												);
-
-												return [
-													...accumulator,
-													{
-														averageLoad: totalLoad / workouts.length,
-														averageReps: totalReps / workouts.length,
-														startTime: workouts[0].startTime,
-													},
-												];
-											},
-											[] as {
-												averageLoad: number;
-												averageReps: number;
-												startTime: string;
-											}[],
-										)
-										.map(({ averageLoad, startTime }) => ({
-											day: format(new Date(startTime), "d"),
-											load: averageLoad,
-										}))}
-									x="day"
-									y={(segment: WorkoutExerciseSet) =>
-										segment.load / exercisesMetadata!.maxLoad
-									}
-									color="#0B69D4"
-								>
-									<VictoryScatter />
-									<VictoryLine />
-								</VictoryGroup>
-								<VictoryGroup
-									data={Object.values(
-										_.groupBy(exercisesMetadata!.workouts, ({ startTime }) =>
-											format(startTime, "d/M/y"),
-										),
-									)
-										.reduce(
-											(accumulator, workouts) => {
-												const totalLoad = workouts.reduce(
-													(total, { averageLoad }) => total + averageLoad,
-													0,
-												);
-												const totalReps = workouts.reduce(
-													(total, { averageReps }) => total + averageReps,
-													0,
-												);
-
-												return [
-													...accumulator,
-													{
-														averageLoad: totalLoad / workouts.length,
-														averageReps: totalReps / workouts.length,
-														startTime: workouts[0].startTime,
-													},
-												];
-											},
-											[] as {
-												averageLoad: number;
-												averageReps: number;
-												startTime: string;
-											}[],
-										)
-										.map(({ startTime, averageReps }) => ({
-											day: format(new Date(startTime), "d"),
-											reps: averageReps,
-										}))}
-									x="day"
-									y={(segment: WorkoutExerciseSet) =>
-										segment.reps / exercisesMetadata!.maxReps
-									}
-									color="#C43343"
-								>
-									<VictoryScatter />
-									<VictoryLine
+				<View className="bg-card rounded mt-4 py-4">
+					<Text className="text-white text-base font-semibold ml-4">
+						Evolução geral
+					</Text>
+					{exercises &&
+						(exercises.length > 0 ? (
+							<>
+								<VictoryChart domain={{ y: [0, 1] }} width={width - 22}>
+									<Gradient />
+									<VictoryAxis
+										dependentAxis
+										tickFormat={(tick) =>
+											(tick * exercisesMetadata!.maxLoad).toFixed(1)
+										}
 										style={{
-											data: { strokeDasharray: "15, 5" },
+											tickLabels: { fill: "white" },
+											axis: { stroke: "#0B69D4", strokeWidth: 4 },
 										}}
 									/>
-								</VictoryGroup>
-							</VictoryChart>
-							<View className="flex-row justify-evenly w-full">
-								<View className="flex-row items-center gap-2">
-									<View className="rounded-full w-4 aspect-square bg-[#0B69D4]" />
-									<Text className="text-white">Carga</Text>
+									<VictoryAxis
+										dependentAxis
+										tickFormat={(tick) =>
+											(tick * exercisesMetadata!.maxReps).toFixed(1)
+										}
+										offsetX={width - 72}
+										style={{
+											tickLabels: { textAnchor: "start", fill: "white" },
+											ticks: {
+												padding: -20,
+											},
+											axis: { stroke: "#C43343", strokeWidth: 4 },
+										}}
+									/>
+									<VictoryAxis
+										tickValues={exercisesMetadata!.workouts.map(
+											({ startTime }) => format(new Date(startTime), "d"),
+										)}
+										style={{
+											tickLabels: { fill: "white" },
+											axis: {
+												strokeWidth: 0,
+												stroke: "url(#blue-to-red)",
+											},
+										}}
+									/>
+									<VictoryGroup
+										data={Object.values(
+											_.groupBy(exercisesMetadata!.workouts, ({ startTime }) =>
+												format(startTime, "d/M/y"),
+											),
+										)
+											.reduce(
+												(accumulator, workouts) => {
+													const totalLoad = workouts.reduce(
+														(total, { averageLoad }) => total + averageLoad,
+														0,
+													);
+													const totalReps = workouts.reduce(
+														(total, { averageReps }) => total + averageReps,
+														0,
+													);
+
+													return [
+														...accumulator,
+														{
+															averageLoad: totalLoad / workouts.length,
+															averageReps: totalReps / workouts.length,
+															startTime: workouts[0].startTime,
+														},
+													];
+												},
+												[] as {
+													averageLoad: number;
+													averageReps: number;
+													startTime: string;
+												}[],
+											)
+											.map(({ averageLoad, startTime }) => ({
+												day: format(new Date(startTime), "d"),
+												load: averageLoad,
+											}))}
+										x="day"
+										y={(segment: WorkoutExerciseSet) =>
+											segment.load / exercisesMetadata!.maxLoad
+										}
+										color="#0B69D4"
+									>
+										<VictoryScatter />
+										<VictoryLine />
+									</VictoryGroup>
+									<VictoryGroup
+										data={Object.values(
+											_.groupBy(exercisesMetadata!.workouts, ({ startTime }) =>
+												format(startTime, "d/M/y"),
+											),
+										)
+											.reduce(
+												(accumulator, workouts) => {
+													const totalLoad = workouts.reduce(
+														(total, { averageLoad }) => total + averageLoad,
+														0,
+													);
+													const totalReps = workouts.reduce(
+														(total, { averageReps }) => total + averageReps,
+														0,
+													);
+
+													return [
+														...accumulator,
+														{
+															averageLoad: totalLoad / workouts.length,
+															averageReps: totalReps / workouts.length,
+															startTime: workouts[0].startTime,
+														},
+													];
+												},
+												[] as {
+													averageLoad: number;
+													averageReps: number;
+													startTime: string;
+												}[],
+											)
+											.map(({ startTime, averageReps }) => ({
+												day: format(new Date(startTime), "d"),
+												reps: averageReps,
+											}))}
+										x="day"
+										y={(segment: WorkoutExerciseSet) =>
+											segment.reps / exercisesMetadata!.maxReps
+										}
+										color="#C43343"
+									>
+										<VictoryScatter />
+										<VictoryLine
+											style={{
+												data: { strokeDasharray: "15, 5" },
+											}}
+										/>
+									</VictoryGroup>
+								</VictoryChart>
+								<View className="flex-row justify-evenly w-full">
+									<View className="flex-row items-center gap-2">
+										<View className="rounded-full w-4 aspect-square bg-[#0B69D4]" />
+										<Text className="text-white">Carga</Text>
+									</View>
+									<View className="flex-row items-center gap-2">
+										<View className="rounded-full w-4 aspect-square bg-[#C43343]" />
+										<Text className="text-white">Repetições</Text>
+									</View>
 								</View>
-								<View className="flex-row items-center gap-2">
-									<View className="rounded-full w-4 aspect-square bg-[#C43343]" />
-									<Text className="text-white">Repetições</Text>
-								</View>
-							</View>
-						</>
-					) : (
-						<Text className="text-disabled text-xl p-4">
-							Sem dados suficientes para gerar o gráfico de evolução.
-						</Text>
-					))}
+							</>
+						) : (
+							<Text className="text-disabled text-xl p-4">
+								Sem dados suficientes para gerar o gráfico de evolução.
+							</Text>
+						))}
+				</View>
 			</View>
-		</View>
+		</ScrollView>
 	);
 
 	async function fetchExercises() {
