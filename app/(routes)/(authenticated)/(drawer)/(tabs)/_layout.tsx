@@ -8,6 +8,7 @@ import {
 	createMaterialTopTabNavigator,
 } from "@react-navigation/material-top-tabs";
 import { ParamListBase, TabNavigationState } from "@react-navigation/native";
+import { useWindowDimensions } from "react-native";
 
 function TabBarIcon(props: {
 	name: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
@@ -26,6 +27,8 @@ const Tabs = withLayoutContext<
 >(Navigator);
 
 export default function TabLayout() {
+	const { width } = useWindowDimensions();
+
 	return (
 		<Tabs
 			screenOptions={{
@@ -37,9 +40,9 @@ export default function TabLayout() {
 				tabBarIndicatorStyle: {
 					position: "absolute",
 					height: 32,
-					width: 64,
+					width: width / 8 + 10,
 					top: 8,
-					left: 34,
+					left: width / 10 - 6,
 					borderRadius: 32,
 				},
 				tabBarIconStyle: {
