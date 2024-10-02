@@ -18,7 +18,8 @@ const passwordFormSchema = yup.object({
 		.min(8, "Mínimo de 8 caracteres"),
 	passwordConfirmation: yup
 		.string()
-		.oneOf([yup.ref("newPassword")], "As senhas não coincidem"),
+		.oneOf([yup.ref("newPassword")], "As senhas não coincidem")
+		.required("Por favor, confirme a nova senha."),
 });
 
 type PasswordForm = yup.InferType<typeof passwordFormSchema>;
