@@ -98,18 +98,45 @@ export default function Home() {
 
 	return (
 		<View className="p-4 mt-6">
-			<Link
-				href={{
-					pathname: "/(routes)/(authenticated)/exercise/[id]",
-					params: {
-						id: routines?.[0]?.trainings[0].exercises[0].exercise.id,
-						trainingId: routines?.[0]?.trainings[0].id,
-						day: format(new Date(), "EEEE"),
-					},
-				}}
-				asChild
-			>
-				<Pressable className="bg-card rounded p-2">
+			{routines && routines[0]?.trainings[0] ? (
+				<Link
+					href={{
+						pathname: "/(routes)/(authenticated)/exercise/[id]",
+						params: {
+							id: routines?.[0].trainings[0]?.exercises[0].exercise.id,
+							trainingId: routines?.[0]?.trainings[0]?.id,
+							day: format(new Date(), "EEEE"),
+						},
+					}}
+					asChild
+				>
+					<Pressable className="bg-card rounded p-2">
+						<View className="flex-row justify-between">
+							<View>
+								<Text className="text-white font-bold text-xl">
+									Iniciar Treino
+								</Text>
+								<Text className="text-subtitle font-semibold mt-1">
+									{format(new Date(), "EEEE", { locale: ptBR })}
+								</Text>
+							</View>
+							<MaterialCommunityIcons
+								name="play-circle-outline"
+								color={customColors.main}
+								size={68}
+							/>
+						</View>
+						<View>
+							{routines?.map((routine) =>
+								routine.trainings.map((training) => (
+									<Text className="text-subtitle">{training.name}</Text>
+								)),
+							)}
+						</View>
+					</Pressable>
+				</Link>
+			) : (
+				<View className="bg-card rounded p-2">
 					<View className="flex-row justify-between">
 						<View>
 							<Text className="text-white font-bold text-xl">
@@ -117,6 +144,11 @@ export default function Home() {
 							</Text>
 							<Text className="text-subtitle font-semibold mt-1">
 								{format(new Date(), "EEEE", { locale: ptBR })}
+							</Text>
+							<Text className="text-subtitle text-xs mt-1 max-w-[80%]">
+								Por enquanto seu professor ainda não cadastrou um treino pro dia
+								de hoje, mas assim que ele cadastrar, você poderá tocar aqui
+								para ir direto para ele!
 							</Text>
 						</View>
 						<MaterialCommunityIcons
@@ -132,8 +164,8 @@ export default function Home() {
 							)),
 						)}
 					</View>
-				</Pressable>
-			</Link>
+				</View>
+			)}
 			<View className="bg-card rounded p-3 mt-4">
 				<View className="flex-row justify-between">
 					{Object.values(Days).map((day, index) => (
