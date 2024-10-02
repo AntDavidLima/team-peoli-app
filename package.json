@@ -39,6 +39,7 @@
     "react-hook-form": "^7.51.3",
     "react-native": "0.74.5",
     "react-native-collapsible": "^1.6.1",
+    "react-native-gesture-handler": "~2.16.1",
     "react-native-pager-view": "6.3.0",
     "react-native-reanimated": "~3.10.1",
     "react-native-render-html": "^6.3.4",
@@ -51,8 +52,7 @@
     "react-native-webview": "13.8.6",
     "react-native-youtube-iframe": "^2.3.0",
     "victory-native": "^37.0.3-next.0",
-    "yup": "^1.4.0",
-    "react-native-gesture-handler": "~2.16.1"
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
