@@ -1,3 +1,4 @@
+import "../components/gesture-handler";
 import { AuthenticationProvider } from "@/contexts/AuthenticationContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useFonts } from "expo-font";
