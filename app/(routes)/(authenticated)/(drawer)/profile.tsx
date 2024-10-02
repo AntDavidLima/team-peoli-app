@@ -81,7 +81,6 @@ export default function Profile() {
 		control,
 		formState: { errors },
 		handleSubmit,
-		reset,
 	} = useForm<ProfileForm>({
 		resolver: yupResolver(profileFormSchema),
 		defaultValues: {
@@ -378,7 +377,6 @@ export default function Profile() {
 				position: Toast.positions.TOP,
 			});
 
-			reset();
 			setChangingPassword(false);
 		} catch (error) {
 			if (error instanceof AxiosError) {
