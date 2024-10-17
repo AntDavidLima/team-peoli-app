@@ -7,6 +7,9 @@ import { Exercise } from "@/app/(routes)/(authenticated)/(drawer)/exercise/[id]"
 import { RawDraftContentState } from "draft-js";
 import { Set } from "./set";
 import YoutubePlayer from "react-native-youtube-iframe";
+import { useAuthentication } from "@/contexts/AuthenticationContext";
+import { api } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 
 interface ExerciseExecution {
 	exercise: Exercise;
@@ -36,6 +39,13 @@ export function ExerciseExecution({
 	setsInfo,
 	trainingIds,
 }: ExerciseExecution) {
+	const { currentUser } = useAuthentication();
+
+	const { data: executions } = useQuery({
+		queryKey: ["exercise", "last-execution", exercise.id, currentUser?.id],
+		queryFn: fetchLastExecution,
+	});
+
 	return (
 		<View className="px-4 mb-14">
 			{exercise.executionVideoUrl && (
@@ -100,6 +110,11 @@ export function ExerciseExecution({
 										load={set?.load}
 										id={set?.id}
 										trainingIds={trainingIds}
+										lastExecution={
+											executions?.WorkoutExerciseSets
+												? `${executions.WorkoutExerciseSets[index].load} x ${executions.WorkoutExerciseSets[index].reps}`
+												: "— —"
+										}
 									/>
 								</View>
 							);
@@ -114,5 +129,11 @@ export function ExerciseExecution({
 			/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
 
 		return url.match(youtubeVideoIdRegex)?.[7];
+	}
+
+	async function fetchLastExecution() {
+		const { data } = await api.get(`exercise/${exercise.id}/last-execution`);
+
+		return data;
 	}
 }

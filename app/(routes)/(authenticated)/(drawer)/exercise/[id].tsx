@@ -156,6 +156,9 @@ export default function Exercise() {
 			queryClient.invalidateQueries({
 				queryKey: ["progress"],
 			});
+			queryClient.invalidateQueries({
+				queryKey: ["exercise", "last-execution"],
+			});
 			clearInterval(clock!);
 			setClock(null);
 		},
