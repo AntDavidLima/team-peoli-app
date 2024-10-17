@@ -44,6 +44,8 @@ export function ExerciseExecution({
 						height={225}
 						videoId={getYoutubeVideoId(exercise.executionVideoUrl)}
 					/>
+					<View className="absolute bottom-40 w-full h-16" />
+					<View className="absolute bottom-3 w-full h-10" />
 				</View>
 			)}
 			<View className="mt-2">
