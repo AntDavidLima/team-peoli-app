@@ -112,7 +112,7 @@ export default function Home() {
 							params: {
 								id: routines?.[0].trainings[0]?.exercises[0].exercise.id,
 								trainingId: routines?.[0]?.trainings[0]?.id,
-								day: format(new Date(), "EEEE"),
+								day: format(new Date(), "EEEE").toUpperCase(),
 							},
 						}}
 						asChild

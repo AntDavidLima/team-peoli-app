@@ -281,14 +281,18 @@ export default function Exercise() {
 	);
 
 	async function fetchTodayTrainings() {
-		const { data } = await api.get<{ id: number }[]>("training", {
-			params: {
-				day,
-				userId: currentUser?.id,
-			},
-		});
+		try {
+			const { data } = await api.get<{ id: number }[]>("training", {
+				params: {
+					day,
+					userId: currentUser?.id,
+				},
+			});
 
-		return data;
+			return data;
+		} catch (error) {
+			console.error(error);
+		}
 	}
 
 	async function fetchExercises() {
@@ -300,11 +304,15 @@ export default function Exercise() {
 	}
 
 	async function createWorkout() {
-		const { data: workout } = await api.post("/workout", {
-			trainingIds: todayTrainings?.map(({ id }) => id),
-		});
+		try {
+			const { data: workout } = await api.post("/workout", {
+				trainingIds: todayTrainings?.map(({ id }) => id),
+			});
 
-		return workout;
+			return workout;
+		} catch (error) {
+			console.error(error);
+		}
 	}
 
 	async function stopWorkout() {
