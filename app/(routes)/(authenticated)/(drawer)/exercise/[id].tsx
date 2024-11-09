@@ -62,7 +62,7 @@ export default function Exercise() {
 
 	const { data: training, isLoading: loadingTraining } = useQuery({
 		queryFn: fetchExercises,
-		queryKey: ["exercises", id],
+		queryKey: ["exercises", id, day],
 	});
 
 	const { data: todayTrainings } = useQuery({
