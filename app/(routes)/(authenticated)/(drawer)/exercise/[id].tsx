@@ -198,6 +198,7 @@ export default function Exercise() {
 								trainingStarted={clock !== null}
 								workoutId={workout?.id}
 								trainingIds={todayTrainings?.map(({ id }) => id) || []}
+								day={day as string}
 							/>
 						</ScrollView>
 					),

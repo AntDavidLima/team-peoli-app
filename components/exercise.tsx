@@ -21,6 +21,7 @@ interface ExerciseExecution {
 	workoutId: number | undefined;
 	setsInfo: SetsInfo[];
 	trainingIds: number[];
+	day: string;
 }
 
 interface SetsInfo {
@@ -38,11 +39,12 @@ export function ExerciseExecution({
 	workoutId,
 	setsInfo,
 	trainingIds,
+	day,
 }: ExerciseExecution) {
 	const { currentUser } = useAuthentication();
 
 	const { data: executions } = useQuery({
-		queryKey: ["exercise", "last-execution", exercise.id, currentUser?.id],
+		queryKey: ["exercise", "last-execution", exercise.id, currentUser?.id, day],
 		queryFn: fetchLastExecution,
 	});
 
@@ -132,7 +134,11 @@ export function ExerciseExecution({
 	}
 
 	async function fetchLastExecution() {
-		const { data } = await api.get(`exercise/${exercise.id}/last-execution`);
+		const { data } = await api.get(`exercise/${exercise.id}/last-execution`, {
+			params: {
+				day,
+			}
+		});
 
 		return data;
 	}
