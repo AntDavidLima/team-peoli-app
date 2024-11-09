@@ -111,7 +111,7 @@ export function ExerciseExecution({
 										id={set?.id}
 										trainingIds={trainingIds}
 										lastExecution={
-											executions?.WorkoutExerciseSets
+											executions?.WorkoutExerciseSets && executions.WorkoutExerciseSets[index]
 												? `${executions.WorkoutExerciseSets[index].load} x ${executions.WorkoutExerciseSets[index].reps}`
 												: "— —"
 										}
