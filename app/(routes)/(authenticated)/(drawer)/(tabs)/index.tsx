@@ -195,51 +195,54 @@ export default function Home() {
 						<Text className="text-white">0/1 dias completos</Text>
 					</View>
 				</View>
-				<View className="bg-card rounded mt-4 py-4">
+				<View className="bg-card rounded mt-4 py-4 relative">
 					<Text className="text-white text-base font-semibold ml-4">
 						Evolução geral
 					</Text>
 					{exercises &&
 						(exercises.length > 0 ? (
-							<>
 								<VictoryChart domain={{ y: [0, 1] }} width={width - 22}>
-									<Gradient />
 									<VictoryAxis
 										dependentAxis
-										tickFormat={(tick) =>
-											(tick * exercisesMetadata!.maxLoad).toFixed(1)
-										}
+										tickFormat={() => ''}
 										style={{
-											tickLabels: { fill: "white" },
 											axis: { stroke: "#0B69D4", strokeWidth: 4 },
+											grid: {
+												stroke: customColors.disabled,
+												strokeDasharray: 4,
+											},
+											axisLabel: {
+												fill: "#FFF",
+												padding: 18,
+											}
 										}}
+										label="Carga"
 									/>
 									<VictoryAxis
 										dependentAxis
-										tickFormat={(tick) =>
-											(tick * exercisesMetadata!.maxReps).toFixed(1)
-										}
-										offsetX={width - 72}
+										tickFormat={() => ''}
 										style={{
-											tickLabels: { textAnchor: "start", fill: "white" },
-											ticks: {
-												padding: -20,
-											},
-											axis: { stroke: "#C43343", strokeWidth: 4 },
+											axis: {stroke: "#C43343", strokeWidth: 4},
+											axisLabel: {
+												padding: 12,
+												fill: "#FFF",
+											}
 										}}
+										label="Repetições"
+										orientation="right"
 									/>
 									<VictoryAxis
 										tickValues={exercisesMetadata!.workouts.map(
-											({ startTime }) => format(new Date(startTime), "d"),
+											({ startTime }) => format(new Date(startTime), "d/M/yy"),
 										)}
 										style={{
-											tickLabels: { fill: "white" },
+											tickLabels: { fill: "white", angle: 45, padding: 8, fontSize: 10, textAnchor: 'start' },
 											axis: {
 												strokeWidth: 0,
-												stroke: "url(#blue-to-red)",
 											},
 										}}
 									/>
+									<Gradient />
 									<VictoryGroup
 										data={Object.values(
 											_.groupBy(exercisesMetadata!.workouts, ({ startTime }) =>
@@ -273,7 +276,7 @@ export default function Home() {
 												}[],
 											)
 											.map(({ averageLoad, startTime }) => ({
-												day: format(new Date(startTime), "d"),
+												day: format(new Date(startTime), "d/M/yy"),
 												load: averageLoad,
 											}))}
 										x="day"
@@ -318,7 +321,7 @@ export default function Home() {
 												}[],
 											)
 											.map(({ startTime, averageReps }) => ({
-												day: format(new Date(startTime), "d"),
+												day: format(new Date(startTime), "d/M/yy"),
 												reps: averageReps,
 											}))}
 										x="day"
@@ -335,17 +338,6 @@ export default function Home() {
 										/>
 									</VictoryGroup>
 								</VictoryChart>
-								<View className="flex-row justify-evenly w-full">
-									<View className="flex-row items-center gap-2">
-										<View className="rounded-full w-4 aspect-square bg-[#0B69D4]" />
-										<Text className="text-white">Carga</Text>
-									</View>
-									<View className="flex-row items-center gap-2">
-										<View className="rounded-full w-4 aspect-square bg-[#C43343]" />
-										<Text className="text-white">Repetições</Text>
-									</View>
-								</View>
-							</>
 						) : (
 							<Text className="text-disabled text-xl p-4">
 								Sem dados suficientes para gerar o gráfico de evolução.
@@ -391,9 +383,9 @@ function Gradient() {
 				</LinearGradient>
 			</Defs>
 			<Rect
-				x="12.3%"
+				x="13.2%"
 				y="83%"
-				width="75.4%"
+				width="73.6%"
 				height="4px"
 				fill="url(#blue-to-red)"
 			/>

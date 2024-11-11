@@ -10,7 +10,8 @@ import {
 	VictoryLine,
 	VictoryScatter,
 } from "victory-native";
-import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg";
+import Svg, { Defs, LinearGradient, Rect, Stop } from "react-native-svg"
+import customColors from "@/tailwind.colors";
 
 export interface ExerciseWithWorkouts {
 	id: number;
@@ -91,7 +92,7 @@ export default function Progress() {
 				);
 
 				return (
-					<View key={id} className="bg-card rounded pt-4">
+					<View key={id} className="bg-card rounded py-4">
 						<Text className="text-white text-base text-center font-semibold">
 							{name}
 						</Text>
@@ -105,6 +106,10 @@ export default function Progress() {
 								style={{
 									tickLabels: { fill: "white" },
 									axis: { stroke: "#0B69D4", strokeWidth: 4 },
+									grid: {
+										stroke: customColors.disabled,
+										strokeDasharray: 4,
+									}
 								}}
 							/>
 							<VictoryAxis
@@ -112,21 +117,21 @@ export default function Progress() {
 								tickFormat={(tick) =>
 									(tick * workoutMetadata.maxReps).toFixed(1)
 								}
-								offsetX={width - 72}
+								orientation="right"
 								style={{
 									tickLabels: { textAnchor: "start", fill: "white" },
 									ticks: {
-										padding: -20,
+										padding: -4,
 									},
 									axis: { stroke: "#C43343", strokeWidth: 4 },
 								}}
 							/>
 							<VictoryAxis
 								tickValues={workouts.map(({ workout }) =>
-									format(new Date(workout.startTime), "d"),
+									format(new Date(workout.startTime), "d/M/yy"),
 								)}
 								style={{
-									tickLabels: { fill: "white" },
+									tickLabels: { fill: "white", angle: 45, padding: 8, fontSize: 10, textAnchor: 'start'},
 									axis: {
 										strokeWidth: 0,
 										stroke: "url(#blue-to-red)",
@@ -135,7 +140,7 @@ export default function Progress() {
 							/>
 							<VictoryGroup
 								data={workouts.map(({ workout, WorkoutExerciseSets }) => ({
-									day: format(new Date(workout.startTime), "d"),
+									day: format(new Date(workout.startTime), "d/M/yy"),
 									load:
 										WorkoutExerciseSets.reduce(
 											(total, set) => total + set.load,
@@ -153,7 +158,7 @@ export default function Progress() {
 							</VictoryGroup>
 							<VictoryGroup
 								data={workouts.map(({ workout, WorkoutExerciseSets }) => ({
-									day: format(new Date(workout.startTime), "d"),
+									day: format(new Date(workout.startTime), "d/M/yy"),
 									reps:
 										WorkoutExerciseSets.reduce(
 											(total, set) => total + set.reps,
@@ -204,9 +209,9 @@ function Gradient() {
 				</LinearGradient>
 			</Defs>
 			<Rect
-				x="12.3%"
+				x="13.2%"
 				y="83%"
-				width="75.4%"
+				width="73.6%"
 				height="4px"
 				fill="url(#blue-to-red)"
 			/>
