@@ -1,15 +1,17 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Text, View } from "react-native";
-import { WebDisplay } from "./web-display";
+import {MaterialCommunityIcons} from "@expo/vector-icons";
+import {Text, useWindowDimensions, View} from "react-native";
+import {WebDisplay} from "./web-display";
 import draftToHtml from "draftjs-to-html";
 import tailwindColors from "tailwindcss/colors";
-import { Exercise } from "@/app/(routes)/(authenticated)/(drawer)/exercise/[id]";
-import { RawDraftContentState } from "draft-js";
-import { Set } from "./set";
-import YoutubePlayer from "react-native-youtube-iframe";
-import { useAuthentication } from "@/contexts/AuthenticationContext";
-import { api } from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
+import {Exercise} from "@/app/(routes)/(authenticated)/(drawer)/exercise/[id]";
+import {RawDraftContentState} from "draft-js";
+import {Set} from "./set";
+import {useAuthentication} from "@/contexts/AuthenticationContext";
+import {api} from "@/lib/api";
+import {useQuery} from "@tanstack/react-query";
+import VideoPlayer from "expo-video-player";
+import {ResizeMode} from "expo-av";
+import {useState} from "react";
 
 interface ExerciseExecution {
 	exercise: Exercise;
@@ -41,6 +43,8 @@ export function ExerciseExecution({
 	trainingIds,
 	day,
 }: ExerciseExecution) {
+	const [isVideoFullScreen, setIsVideoFullScreen] = useState(false);
+
 	const { currentUser } = useAuthentication();
 
 	const { data: executions } = useQuery({
@@ -48,16 +52,30 @@ export function ExerciseExecution({
 		queryFn: fetchLastExecution,
 	});
 
+	const { height } = useWindowDimensions();
+
 	return (
 		<View className="px-4 mb-14">
 			{exercise.executionVideoUrl && (
 				<View className="mt-6">
-					<YoutubePlayer
-						height={225}
-						videoId={getYoutubeVideoId(exercise.executionVideoUrl)}
+					<VideoPlayer
+						videoProps={{
+							source: { uri: exercise.executionVideoUrl },
+							resizeMode: ResizeMode.CONTAIN,
+						}}
+						style={{
+							height: isVideoFullScreen ? height - 225 : 200,
+						}}
+						fullscreen={{
+							inFullscreen: isVideoFullScreen,
+							enterFullscreen: () => {
+								setIsVideoFullScreen(true)
+							},
+							exitFullscreen: () => {
+								setIsVideoFullScreen(false)
+							}
+						}}
 					/>
-					<View className="absolute bottom-40 w-full h-16" />
-					<View className="absolute bottom-3 w-full h-10" />
 				</View>
 			)}
 			<View className="mt-2">
@@ -125,13 +143,6 @@ export function ExerciseExecution({
 			</View>
 		</View>
 	);
-
-	function getYoutubeVideoId(url: string) {
-		const youtubeVideoIdRegex =
-			/^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-
-		return url.match(youtubeVideoIdRegex)?.[7];
-	}
 
 	async function fetchLastExecution() {
 		const { data } = await api.get(`exercise/${exercise.id}/last-execution`, {

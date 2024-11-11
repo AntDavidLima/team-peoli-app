@@ -205,7 +205,7 @@ export default function Exercise() {
 				)}
 			</PagerView>
 			<Pressable
-				className={`absolute right-4 bottom-[88px] p-1.5 rounded-3xl ${clock ? "bg-main" : "bg-green-500"}`}
+				className={`absolute left-4 bottom-[88px] p-1.5 rounded-3xl ${clock ? "bg-main" : "bg-green-500"}`}
 				onPress={() => (clock ? finishWorkout() : startWorkout())}
 			>
 				{clock ? (
