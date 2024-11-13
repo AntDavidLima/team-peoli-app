@@ -9,8 +9,7 @@ import {Set} from "./set";
 import {useAuthentication} from "@/contexts/AuthenticationContext";
 import {api} from "@/lib/api";
 import {useQuery} from "@tanstack/react-query";
-import VideoPlayer from "expo-video-player";
-import {ResizeMode} from "expo-av";
+import {ResizeMode, Video} from "expo-av";
 import {useState} from "react";
 
 interface ExerciseExecution {
@@ -52,29 +51,17 @@ export function ExerciseExecution({
 		queryFn: fetchLastExecution,
 	});
 
-	const { height } = useWindowDimensions();
+	const { height, width } = useWindowDimensions();
 
 	return (
 		<View className="px-4 mb-14">
 			{exercise.executionVideoUrl && (
 				<View className="mt-6">
-					<VideoPlayer
-						videoProps={{
-							source: { uri: exercise.executionVideoUrl },
-							resizeMode: ResizeMode.CONTAIN,
-						}}
-						style={{
-							height: isVideoFullScreen ? height - 225 : 200,
-						}}
-						fullscreen={{
-							inFullscreen: isVideoFullScreen,
-							enterFullscreen: () => {
-								setIsVideoFullScreen(true)
-							},
-							exitFullscreen: () => {
-								setIsVideoFullScreen(false)
-							}
-						}}
+					<Video
+						source={{ uri: exercise.executionVideoUrl }}
+						resizeMode={ResizeMode.CONTAIN}
+						useNativeControls
+						className="w-full aspect-video"
 					/>
 				</View>
 			)}
