@@ -55,17 +55,7 @@ export function ExerciseExecution({
 
 	return (
 		<View className="px-4 mb-14">
-			{exercise.executionVideoUrl && (
-				<View className="mt-6">
-					<Video
-						source={{ uri: exercise.executionVideoUrl }}
-						resizeMode={ResizeMode.CONTAIN}
-						useNativeControls
-						className="w-full aspect-video"
-					/>
-				</View>
-			)}
-			<View className="mt-2">
+			<View className="mt-6">
 				<View className="flex-row gap-1 items-center">
 					<Text className="text-white font-bold text-lg">{exercise.name}</Text>
 					<View className="flex-row items-center gap-0.5 mt-0.5">
@@ -77,6 +67,16 @@ export function ExerciseExecution({
 						<Text className="text-white text-xs">{restTime}s</Text>
 					</View>
 				</View>
+				{exercise.executionVideoUrl && (
+					<View className="mt-2 bg-card rounded">
+						<Video
+							source={{ uri: exercise.executionVideoUrl }}
+							resizeMode={ResizeMode.CONTAIN}
+							useNativeControls
+							className="w-full aspect-video"
+						/>
+					</View>
+				)}
 				{orientations?.blocks[0].text.trim() !== "" && (
 					<View className="mt-2 text-sky-400 bg-main/20 border border-main p-1">
 						<Text className="text-white font-semibold">Instruções:</Text>
