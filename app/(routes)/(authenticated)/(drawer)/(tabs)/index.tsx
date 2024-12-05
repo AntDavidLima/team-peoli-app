@@ -204,9 +204,9 @@ export default function Home() {
 								<VictoryChart domain={{ y: [0, 1] }} width={width - 22}>
 									<VictoryAxis
 										dependentAxis
-										tickFormat={() => ''}
+										tickFormat={() => '#C43343'}
 										style={{
-											axis: { stroke: "#0B69D4", strokeWidth: 4 },
+											axis: { stroke: "", strokeWidth: 4 },
 											grid: {
 												stroke: customColors.disabled,
 												strokeDasharray: 4,
@@ -222,7 +222,7 @@ export default function Home() {
 										dependentAxis
 										tickFormat={() => ''}
 										style={{
-											axis: {stroke: "#C43343", strokeWidth: 4},
+											axis: {stroke: "#0B69D4", strokeWidth: 4},
 											axisLabel: {
 												padding: 12,
 												fill: "#FFF",
@@ -283,7 +283,7 @@ export default function Home() {
 										y={(segment: WorkoutExerciseSet) =>
 											segment.load / exercisesMetadata!.maxLoad
 										}
-										color="#0B69D4"
+										color="#C43343"
 									>
 										<VictoryScatter />
 										<VictoryLine />
@@ -328,7 +328,7 @@ export default function Home() {
 										y={(segment: WorkoutExerciseSet) =>
 											segment.reps / exercisesMetadata!.maxReps
 										}
-										color="#C43343"
+										color="#0B69D4"
 									>
 										<VictoryScatter />
 										<VictoryLine
@@ -373,13 +373,13 @@ function Gradient() {
 		<Svg>
 			<Defs>
 				<LinearGradient
-					id="blue-to-red"
+					id="red-to-blue"
 					x1="0%"
 					x2="100%"
 					gradientUnits="userSpaceOnUse"
 				>
-					<Stop offset="0%" stopColor="#0B69D4" />
-					<Stop offset="100%" stopColor="#C43343" />
+					<Stop offset="0%" stopColor="#C43343" />
+					<Stop offset="100%" stopColor="#0B69D4" />
 				</LinearGradient>
 			</Defs>
 			<Rect
@@ -387,7 +387,7 @@ function Gradient() {
 				y="83%"
 				width="73.6%"
 				height="4px"
-				fill="url(#blue-to-red)"
+				fill="url(#red-to-blue)"
 			/>
 		</Svg>
 	);

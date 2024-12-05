@@ -60,11 +60,11 @@ export default function Progress() {
 			</Text>
 			<View className="flex-row justify-evenly w-full">
 				<View className="flex-row items-center gap-2">
-					<View className="rounded-full w-4 aspect-square bg-[#0B69D4]" />
+					<View className="rounded-full w-4 aspect-square bg-[#C43343]" />
 					<Text className="text-white">Carga</Text>
 				</View>
 				<View className="flex-row items-center gap-2">
-					<View className="rounded-full w-4 aspect-square bg-[#C43343]" />
+					<View className="rounded-full w-4 aspect-square bg-[#0B69D4]" />
 					<Text className="text-white">Repetições</Text>
 				</View>
 			</View>
@@ -105,7 +105,7 @@ export default function Progress() {
 								}
 								style={{
 									tickLabels: { fill: "white" },
-									axis: { stroke: "#0B69D4", strokeWidth: 4 },
+									axis: { stroke: "#C43343", strokeWidth: 4 },
 									grid: {
 										stroke: customColors.disabled,
 										strokeDasharray: 4,
@@ -123,7 +123,7 @@ export default function Progress() {
 									ticks: {
 										padding: -4,
 									},
-									axis: { stroke: "#C43343", strokeWidth: 4 },
+									axis: { stroke: "#0B69D4", strokeWidth: 4 },
 								}}
 							/>
 							<VictoryAxis
@@ -134,7 +134,6 @@ export default function Progress() {
 									tickLabels: { fill: "white", angle: 45, padding: 8, fontSize: 10, textAnchor: 'start'},
 									axis: {
 										strokeWidth: 0,
-										stroke: "url(#blue-to-red)",
 									},
 								}}
 							/>
@@ -151,7 +150,7 @@ export default function Progress() {
 								y={(segment: WorkoutExerciseSet) =>
 									segment.load / workoutMetadata.maxLoad
 								}
-								color="#0B69D4"
+								color="#C43343"
 							>
 								<VictoryScatter />
 								<VictoryLine />
@@ -169,7 +168,7 @@ export default function Progress() {
 								y={(segment: WorkoutExerciseSet) =>
 									segment.reps / workoutMetadata.maxReps
 								}
-								color="#C43343"
+								color="#0B69D4"
 							>
 								<VictoryScatter />
 								<VictoryLine
@@ -199,13 +198,13 @@ function Gradient() {
 		<Svg>
 			<Defs>
 				<LinearGradient
-					id="blue-to-red"
+					id="red-to-blue"
 					x1="0%"
 					x2="100%"
 					gradientUnits="userSpaceOnUse"
 				>
-					<Stop offset="0%" stopColor="#0B69D4" />
-					<Stop offset="100%" stopColor="#C43343" />
+					<Stop offset="0%" stopColor="#C43343" />
+					<Stop offset="100%" stopColor="#0B69D4" />
 				</LinearGradient>
 			</Defs>
 			<Rect
@@ -213,7 +212,7 @@ function Gradient() {
 				y="83%"
 				width="73.6%"
 				height="4px"
-				fill="url(#blue-to-red)"
+				fill="url(#red-to-blue)"
 			/>
 		</Svg>
 	);
