@@ -204,9 +204,9 @@ export default function Home() {
 								<VictoryChart domain={{ y: [0, 1] }} width={width - 22}>
 									<VictoryAxis
 										dependentAxis
-										tickFormat={() => '#C43343'}
+										tickFormat={() => ''}
 										style={{
-											axis: { stroke: "", strokeWidth: 4 },
+											axis: { stroke: "#C43343", strokeWidth: 4 },
 											grid: {
 												stroke: customColors.disabled,
 												strokeDasharray: 4,
