@@ -19,6 +19,7 @@ import {
   VictoryGroup,
   VictoryLine,
   VictoryScatter,
+  VictoryZoomContainer,
 } from "victory-native";
 import { Defs, LinearGradient, Rect, Stop, Svg } from "react-native-svg";
 import { format } from "date-fns";
@@ -26,13 +27,9 @@ import _ from "lodash";
 import { ptBR } from "date-fns/locale";
 import { Routine } from "@/components/trainings";
 import { Link } from "expo-router";
-import DropDownPicker from "react-native-dropdown-picker";
-import { useState } from "react";
+import React from "react";
 
 export default function Home() {
-  const [progressionRangeOpen, setProgressionRangeOpen] = useState(false);
-  const [progressionRange, setProgressionRange] = useState("last-month");
-
   const { currentUser } = useAuthentication();
 
   const { data: exercises } = useQuery({
@@ -205,96 +202,64 @@ export default function Home() {
             <Text className="text-white text-base font-semibold ml-4 w-1/2">
               Evolução geral
             </Text>
-            <DropDownPicker
-              items={[
-                { label: "Último mês", value: "last-month" },
-                { label: "Último semestre", value: "last-semester" },
-                { label: "Todos", value: "all" },
-              ]}
-              open={progressionRangeOpen}
-              setOpen={setProgressionRangeOpen}
-              setValue={setProgressionRange}
-              value={progressionRange}
-              style={{
-                width: 160,
-                backgroundColor: customColors.background,
-              }}
-              containerStyle={{
-                width: 160,
-              }}
-              listItemContainerStyle={{
-                backgroundColor: customColors.background,
-              }}
-              theme="DARK"
-            />
           </View>
           {exercises &&
             (exercises.length > 0 ? (
-              <ScrollView horizontal>
-                <VictoryChart
-                  domain={{ y: [0, 1] }}
-                  width={
-                    progressionRange === "all"
-                      ? width - 22
-                      : (exercisesMetadata?.workouts.length || 0) * 56 <
-                        width - 22
-                      ? width - 22
-                      : (exercisesMetadata?.workouts.length || 0) * 56
-                  }
-                >
-                  <VictoryAxis
-                    dependentAxis
-                    tickFormat={() => ""}
-                    style={{
-                      axis: { stroke: "#C43343", strokeWidth: 4 },
-                      grid: {
-                        stroke: customColors.disabled,
-                        strokeDasharray: 4,
-                      },
-                      axisLabel: {
-                        fill: "#FFF",
-                        padding: 18,
-                      },
-                    }}
-                    label="Carga"
-                  />
-                  <VictoryAxis
-                    dependentAxis
-                    tickFormat={() => ""}
-                    style={{
-                      axis: { stroke: "#0B69D4", strokeWidth: 4 },
-                      axisLabel: {
-                        padding: 12,
-                        fill: "#FFF",
-                      },
-                    }}
-                    label="Repetições"
-                    orientation="right"
-                  />
-                  <VictoryAxis
-                    tickValues={exercisesMetadata!.workouts.map(
-                      ({ startTime }) => format(new Date(startTime), "d/M/yy")
-                    )}
-                    style={{
-                      tickLabels: {
-                        fill: "white",
-                        padding: 12,
-                        fontSize: 10,
-                        textAnchor: "middle",
-                      },
-                      axis: {
-                        strokeWidth: 0,
-                      },
-                    }}
-                    tickFormat={(value) =>
-                      progressionRange === "all" ? "" : value
-                    }
-                  />
-                  <Gradient />
-                  <VictoryGroup
+              <VictoryChart
+                domain={{ y: [0, 1] }}
+                width={width - 22}
+                scale={{ x: "time" }}
+                containerComponent={<VictoryZoomContainer zoomDimension="x" />}
+              >
+                <VictoryAxis
+                  dependentAxis
+                  tickFormat={() => ""}
+                  style={{
+                    axis: { stroke: "#C43343", strokeWidth: 4 },
+                    grid: {
+                      stroke: customColors.disabled,
+                      strokeDasharray: 4,
+                    },
+                    axisLabel: {
+                      fill: "#FFF",
+                      padding: 18,
+                    },
+                  }}
+                  label="Carga"
+                />
+                <VictoryAxis
+                  dependentAxis
+                  tickFormat={() => ""}
+                  style={{
+                    axis: { stroke: "#0B69D4", strokeWidth: 4 },
+                    axisLabel: {
+                      padding: 12,
+                      fill: "#FFF",
+                    },
+                  }}
+                  label="Repetições"
+                  orientation="right"
+                />
+                <VictoryAxis
+                  style={{
+                    tickLabels: {
+                      fill: "white",
+                      padding: 12,
+                      fontSize: 10,
+                      textAnchor: "middle",
+                    },
+                    axis: {
+                      strokeWidth: 0,
+                    },
+                  }}
+                />
+                <Gradient />
+                <VictoryGroup color="#C43343">
+                  <VictoryScatter
                     data={Object.values(
-                      _.groupBy(exercisesMetadata!.workouts, ({ startTime }) =>
-                        format(startTime, "d/M/y")
+                      _.groupBy(
+                        exercisesMetadata!.workouts,
+                        ({ startTime }) => startTime
                       )
                     )
                       .reduce(
@@ -324,22 +289,63 @@ export default function Home() {
                         }[]
                       )
                       .map(({ averageLoad, startTime }) => ({
-                        day: format(new Date(startTime), "d/M/yy"),
+                        day: new Date(startTime),
                         load: averageLoad,
                       }))}
                     x="day"
                     y={(segment: WorkoutExerciseSet) =>
                       segment.load / exercisesMetadata!.maxLoad
                     }
-                    color="#C43343"
-                  >
-                    <VictoryScatter />
-                    <VictoryLine />
-                  </VictoryGroup>
-                  <VictoryGroup
+                  />
+                  <VictoryLine
                     data={Object.values(
-                      _.groupBy(exercisesMetadata!.workouts, ({ startTime }) =>
-                        format(startTime, "d/M/y")
+                      _.groupBy(
+                        exercisesMetadata!.workouts,
+                        ({ startTime }) => startTime
+                      )
+                    )
+                      .reduce(
+                        (accumulator, workouts) => {
+                          const totalLoad = workouts.reduce(
+                            (total, { averageLoad }) => total + averageLoad,
+                            0
+                          );
+                          const totalReps = workouts.reduce(
+                            (total, { averageReps }) => total + averageReps,
+                            0
+                          );
+
+                          return [
+                            ...accumulator,
+                            {
+                              averageLoad: totalLoad / workouts.length,
+                              averageReps: totalReps / workouts.length,
+                              startTime: workouts[0].startTime,
+                            },
+                          ];
+                        },
+                        [] as {
+                          averageLoad: number;
+                          averageReps: number;
+                          startTime: string;
+                        }[]
+                      )
+                      .map(({ averageLoad, startTime }) => ({
+                        day: new Date(startTime),
+                        load: averageLoad,
+                      }))}
+                    x="day"
+                    y={(segment: WorkoutExerciseSet) =>
+                      segment.load / exercisesMetadata!.maxLoad
+                    }
+                  />
+                </VictoryGroup>
+                <VictoryGroup color="#0B69D4">
+                  <VictoryScatter
+                    data={Object.values(
+                      _.groupBy(
+                        exercisesMetadata!.workouts,
+                        ({ startTime }) => startTime
                       )
                     )
                       .reduce(
@@ -369,24 +375,61 @@ export default function Home() {
                         }[]
                       )
                       .map(({ startTime, averageReps }) => ({
-                        day: format(new Date(startTime), "d/M/yy"),
+                        day: new Date(startTime),
                         reps: averageReps,
                       }))}
                     x="day"
                     y={(segment: WorkoutExerciseSet) =>
                       segment.reps / exercisesMetadata!.maxReps
                     }
-                    color="#0B69D4"
-                  >
-                    <VictoryScatter />
-                    <VictoryLine
-                      style={{
-                        data: { strokeDasharray: "15, 5" },
-                      }}
-                    />
-                  </VictoryGroup>
-                </VictoryChart>
-              </ScrollView>
+                  />
+                  <VictoryLine
+                    style={{
+                      data: { strokeDasharray: "15, 5" },
+                    }}
+                    data={Object.values(
+                      _.groupBy(
+                        exercisesMetadata!.workouts,
+                        ({ startTime }) => startTime
+                      )
+                    )
+                      .reduce(
+                        (accumulator, workouts) => {
+                          const totalLoad = workouts.reduce(
+                            (total, { averageLoad }) => total + averageLoad,
+                            0
+                          );
+                          const totalReps = workouts.reduce(
+                            (total, { averageReps }) => total + averageReps,
+                            0
+                          );
+
+                          return [
+                            ...accumulator,
+                            {
+                              averageLoad: totalLoad / workouts.length,
+                              averageReps: totalReps / workouts.length,
+                              startTime: workouts[0].startTime,
+                            },
+                          ];
+                        },
+                        [] as {
+                          averageLoad: number;
+                          averageReps: number;
+                          startTime: string;
+                        }[]
+                      )
+                      .map(({ startTime, averageReps }) => ({
+                        day: new Date(startTime),
+                        reps: averageReps,
+                      }))}
+                    x="day"
+                    y={(segment: WorkoutExerciseSet) =>
+                      segment.reps / exercisesMetadata!.maxReps
+                    }
+                  />
+                </VictoryGroup>
+              </VictoryChart>
             ) : (
               <Text className="text-disabled text-xl p-4">
                 Sem dados suficientes para gerar o gráfico de evolução.
@@ -433,14 +476,7 @@ export default function Home() {
         <Rect
           x="48"
           y="83%"
-          width={
-            progressionRange === "all"
-              ? width - 118
-              : (exercisesMetadata?.workouts.length || 0) * 56 - 96 <
-                width - 118
-              ? width - 118
-              : (exercisesMetadata?.workouts.length || 0) * 56 - 96
-          }
+          width={width - 118}
           height="4px"
           fill="url(#red-to-blue)"
         />
