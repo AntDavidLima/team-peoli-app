@@ -27,7 +27,6 @@ import _ from "lodash";
 import { ptBR } from "date-fns/locale";
 import { Routine } from "@/components/trainings";
 import { Link } from "expo-router";
-import React from "react";
 
 export default function Home() {
   const { currentUser } = useAuthentication();
