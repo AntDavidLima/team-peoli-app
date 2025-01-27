@@ -251,6 +251,7 @@ export default function Home() {
                       strokeWidth: 0,
                     },
                   }}
+                  tickFormat={tick => format(tick, "d/M/yy")}
                 />
                 <Gradient />
                 <VictoryGroup color="#C43343">
