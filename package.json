@@ -1,7 +1,7 @@
 {
   "name": "team-peoli-app",
   "main": "expo-router/entry",
-  "version": "0.2.6",
+  "version": "0.2.9",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -52,7 +52,7 @@
     "react-native-tab-view": "^3.5.2",
     "react-native-web": "~0.19.6",
     "react-native-webview": "13.8.6",
-    "victory-native": "^37.0.3-next.0",
+    "victory-native": "37.3.6",
     "yup": "^1.4.0"
   },
   "devDependencies": {
