@@ -7,7 +7,7 @@ import customColors from "@/tailwind.colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { api } from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 
 interface Set {
 	index: number;
@@ -19,6 +19,7 @@ interface Set {
 	id: number | undefined;
 	trainingIds: number[];
 	lastExecution: string;
+	recomendedReps: string;
 }
 
 const setFormSchema = yup.object({
@@ -40,6 +41,7 @@ export function Set({
 	id,
 	trainingIds,
 	lastExecution,
+	recomendedReps,
 }: Set) {
 	const {
 		control,
@@ -80,7 +82,7 @@ export function Set({
 	}, [id, load, reps]);
 
 	return (
-		<>
+		<Fragment>
 			<Text className="text-white w-1/5 text-center font-extrabold">
 				{index}
 			</Text>
@@ -116,7 +118,7 @@ export function Set({
 					<View className="w-[15%] px-1 items-center">
 						<TextInput
 							className={`text-center ${errors.reps ? "text-red-500" : "text-white"}`}
-							placeholder="10 - 12"
+							placeholder={recomendedReps}
 							placeholderTextColor={
 								errors.reps ? tailwindColors.rose[500] : customColors.disabled
 							}
@@ -146,7 +148,7 @@ export function Set({
 					/>
 				</Pressable>
 			</View>
-		</>
+		</Fragment>
 	);
 
 	async function updateWorkout({ reps, load }: SetForm) {

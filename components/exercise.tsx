@@ -1,5 +1,5 @@
 import {MaterialCommunityIcons} from "@expo/vector-icons";
-import {Text, useWindowDimensions, View} from "react-native";
+import {Text, View} from "react-native";
 import {WebDisplay} from "./web-display";
 import draftToHtml from "draftjs-to-html";
 import tailwindColors from "tailwindcss/colors";
@@ -10,13 +10,12 @@ import {useAuthentication} from "@/contexts/AuthenticationContext";
 import {api} from "@/lib/api";
 import {useQuery} from "@tanstack/react-query";
 import {ResizeMode, Video} from "expo-av";
-import {useState} from "react";
 
 interface ExerciseExecution {
 	exercise: Exercise;
 	restTime: number;
 	orientations: RawDraftContentState | null;
-	reps: number;
+	reps: string;
 	sets: number;
 	trainingStarted: boolean;
 	workoutId: number | undefined;
@@ -41,17 +40,14 @@ export function ExerciseExecution({
 	setsInfo,
 	trainingIds,
 	day,
+	reps,
 }: ExerciseExecution) {
-	const [isVideoFullScreen, setIsVideoFullScreen] = useState(false);
-
 	const { currentUser } = useAuthentication();
 
 	const { data: executions } = useQuery({
 		queryKey: ["exercise", "last-execution", exercise.id, currentUser?.id, day],
 		queryFn: fetchLastExecution,
 	});
-
-	const { height, width } = useWindowDimensions();
 
 	return (
 		<View className="px-4 mb-14">
@@ -110,6 +106,7 @@ export function ExerciseExecution({
 								>
 									<Set
 										index={index + 1}
+										recomendedReps={reps}
 										trainingStarted={trainingStarted}
 										workoutId={workoutId}
 										exerciseId={exercise.id}

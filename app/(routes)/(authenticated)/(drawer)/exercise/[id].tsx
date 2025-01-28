@@ -6,7 +6,7 @@ import { useLocalSearchParams } from "expo-router";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import tailwindColors from "tailwindcss/colors";
 import customColors from "@/tailwind.colors";
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import PagerView from "react-native-pager-view";
 import { differenceInSeconds } from "date-fns";
 import { ExerciseExecution } from "@/components/exercise";
@@ -18,7 +18,7 @@ interface Training {
 
 export interface TrainingExercise {
 	sets: number;
-	reps: number;
+	reps: string;
 	restTime: number;
 	orientations: RawDraftContentState | null;
 	exercise: Exercise;
@@ -169,7 +169,7 @@ export default function Exercise() {
 	}
 
 	return (
-		<>
+		<Fragment>
 			<PagerView
 				className="flex-1"
 				initialPage={initialExerciseIndex}
@@ -278,7 +278,7 @@ export default function Exercise() {
 					/>
 				</Pressable>
 			</View>
-		</>
+		</Fragment>
 	);
 
 	async function fetchTodayTrainings() {
