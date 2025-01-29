@@ -26,7 +26,7 @@ export default function DrawerLayout() {
             <Pressable
               onPress={() => navigation.goBack()}
               disabled={!navigation.canGoBack()}
-              className={`${navigation.canGoBack() && getDrawerStatusFromState(navigation.getState()) === "closed" ? "opacity-100" : "opacity-0"} transition-all`}
+              className={`${navigation.canGoBack() && getDrawerStatusFromState(navigation.getState()) === "closed" ? "opacity-100" : "opacity-0"} transition-all p-4`}
             >
               <MaterialCommunityIcons
                 name="arrow-left"

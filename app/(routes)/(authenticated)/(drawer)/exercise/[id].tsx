@@ -171,8 +171,10 @@ export default function Exercise() {
 	return (
 		<Fragment>
 			<PagerView
-				className="flex-1"
 				initialPage={initialExerciseIndex}
+				style={{
+					flex: 1
+				}}
 				onPageScroll={({ nativeEvent: { position } }) => {
 					setCurrentExerciseIndex(position);
 				}}

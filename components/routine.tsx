@@ -84,7 +84,7 @@ export function RoutineItem({
 				{trainings.map(({ id, name, exercises }) => (
 					<View key={id}>
 						<Text className="text-white font-bold text-base">{name}</Text>
-						<View className="mt-1 space-y-4">
+						<View className="mt-1 gap-4">
 							{exercises.map(
 								({ reps, orientations, sets, exercise, restTime }) => (
 									<Link

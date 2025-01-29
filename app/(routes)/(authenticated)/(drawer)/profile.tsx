@@ -117,7 +117,7 @@ export default function Profile() {
 				</View>
 			</ImageBackground>
 			<ScrollView className="mt-24 h-[calc(100vh - 96px)]">
-				<KeyboardAvoidingView className="px-4 space-y-6">
+				<KeyboardAvoidingView className="px-4 gap-y-6">
 					<View>
 						<View className="flex-row items-center mb-1 gap-1">
 							<MaterialCommunityIcons
@@ -197,7 +197,7 @@ export default function Profile() {
 							<Text className="text-white font-medium">Alterar senha</Text>
 						</Pressable>
 						{changingPassword && (
-							<View className="space-y-4">
+							<View className="gap-y-4">
 								<View>
 									<Text className="text-white font-medium mb-1">
 										Senha atual

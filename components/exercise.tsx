@@ -119,6 +119,7 @@ export function ExerciseExecution({
 												? `${executions.WorkoutExerciseSets[index].load} x ${executions.WorkoutExerciseSets[index].reps}`
 												: "— —"
 										}
+										restTime={restTime}
 									/>
 								</View>
 							);
