@@ -132,7 +132,7 @@ export function Set({
 
   return (
     <Fragment>
-      <Text className="text-white w-1/5 text-center font-extrabold">
+      <Text className="text-white w-[15%] text-center font-extrabold">
         {index}
       </Text>
       <Text className="text-white w-1/4 text-center">{lastExecution}</Text>
@@ -140,7 +140,7 @@ export function Set({
         control={control}
         name="load"
         render={({ field: { onChange, value, ...field } }) => (
-          <View className="w-1/5 px-1 items-center">
+          <View className="w-[20%] px-1 items-center">
             <TextInput
               className={`text-center p-4 ${
                 errors.reps ? "text-red-500" : "text-white"
@@ -166,7 +166,7 @@ export function Set({
         control={control}
         name="reps"
         render={({ field: { onChange, value, ...field } }) => (
-          <View className="w-[15%] px-1 items-center">
+          <View className="w-[25%] px-1 items-center">
             <TextInput
               className={`text-center p-4 ${
                 errors.reps ? "text-red-500" : "text-white"
@@ -188,7 +188,7 @@ export function Set({
           </View>
         )}
       />
-      <View className="w-1/5 items-center">
+      <View className="w-[15%] items-center">
         <Pressable
           className={`w-10 h-10 rounded-lg items-center justify-center ${
             getValues("done") ? "bg-green-500" : "bg-subtitle"
@@ -204,7 +204,7 @@ export function Set({
         </Pressable>
       </View>
       <Modal visible={isResting} transparent animationType="slide">
-        <View className="w-full h-full">
+        <View className="w-full h-full bg-background/10">
           <View className="relative bg-card w-3/4 m-auto h-96 rounded flex items-center">
             <Text className="mt-4 text-white text-xl font-semibold">
               Descanso
@@ -228,11 +228,28 @@ export function Set({
                 ]}
               />
               <VictoryLabel
+                text={restTime + "s"}
+                textAnchor="middle"
+                x={width * 0.375}
+                y={width * 0.500}
+                style={{ fontSize: 16, fill: tailwindColors.white }}
+              />
+              <MaterialCommunityIcons
+                name="timer-sand"
+                size={20}
+                color={tailwindColors.white}
+                style={{
+                  position: "absolute",
+                  left: (width * 0.375) - 10,
+                  top: width * 0.25 - 10,
+                }}
+              />
+              <VictoryLabel
                 text={restTime - timeInRest}
                 textAnchor="middle"
                 x={width * 0.375}
                 y={width * 0.375}
-                style={{ fontSize: 64, color: tailwindColors.white }}
+                style={{ fontSize: 64, fill: tailwindColors.white }}
               />
               <VictoryAxis
                 tickFormat={() => ""}

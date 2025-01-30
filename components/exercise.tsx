@@ -69,7 +69,10 @@ export function ExerciseExecution({
 							source={{ uri: exercise.executionVideoUrl }}
 							resizeMode={ResizeMode.CONTAIN}
 							useNativeControls
-							className="w-full aspect-video"
+							style={{
+								width: "100%",
+								aspectRatio: 16 / 9,
+							}}
 						/>
 					</View>
 				)}
@@ -84,11 +87,11 @@ export function ExerciseExecution({
 				)}
 				<View className="mt-8 rounded -mx-4">
 					<View className="flex-row mb-4">
-						<Text className="text-white w-1/5 text-center">SÉRIE</Text>
+						<Text className="text-white w-[15%] text-center">SÉRIE</Text>
 						<Text className="text-white w-1/4 text-center">ANTERIOR</Text>
 						<Text className="text-white w-1/5 text-center">CARGA</Text>
-						<Text className="text-white w-[15%] text-center">REPS</Text>
-						<View className="w-1/5 items-center">
+						<Text className="text-white w-[25%] text-center">REPS</Text>
+						<View className="w-[15%] items-center">
 							<MaterialCommunityIcons
 								name="progress-check"
 								color={tailwindColors.white}
