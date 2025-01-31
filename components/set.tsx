@@ -18,6 +18,7 @@ import { Modal } from "react-native";
 import {
   VictoryAxis,
   VictoryChart,
+  VictoryContainer,
   VictoryLabel,
   VictoryPie,
 } from "victory-native";
@@ -128,7 +129,7 @@ export function Set({
     }
   }, [id, load, reps]);
 
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
 
   return (
     <Fragment>
@@ -205,11 +206,11 @@ export function Set({
       </View>
       <Modal visible={isResting} transparent animationType="slide">
         <View className="w-full h-full bg-background/10">
-          <View className="relative bg-card w-3/4 m-auto h-96 rounded flex items-center">
+          <View className="relative bg-card w-3/4 m-auto h-[30rem] rounded flex items-center">
             <Text className="mt-4 text-white text-xl font-semibold">
               Descanso
             </Text>
-            <VictoryChart width={width - 100} height={width - 100}>
+            <VictoryChart width={width * 0.75} height={width * 0.75}>
               <VictoryPie
                 style={{
                   labels: { display: "none" },
@@ -217,7 +218,7 @@ export function Set({
                     fill: ({ datum }) => datum.color,
                   },
                 }}
-                innerRadius={72}
+                innerRadius={width * 0.75 * 0.375}
                 data={[
                   { x: "elapsed", y: timeInRest, color: customColors.main },
                   {
@@ -227,37 +228,40 @@ export function Set({
                   },
                 ]}
               />
-              <VictoryLabel
-                text={restTime + "s"}
-                textAnchor="middle"
-                x={width * 0.375}
-                y={width * 0.500}
-                style={{ fontSize: 16, fill: tailwindColors.white }}
-              />
               <MaterialCommunityIcons
                 name="timer-sand"
                 size={20}
                 color={tailwindColors.white}
                 style={{
                   position: "absolute",
-                  left: (width * 0.375) - 10,
-                  top: width * 0.25 - 10,
+                  left: (width * 0.75) / 2 - 10,
+                  top: (width * 0.75) * 0.5 - 64,
                 }}
               />
               <VictoryLabel
                 text={restTime - timeInRest}
                 textAnchor="middle"
-                x={width * 0.375}
-                y={width * 0.375}
+                verticalAnchor="middle"
+                x={(width * 0.75) / 2}
+                y={(width * 0.75) / 2}
                 style={{ fontSize: 64, fill: tailwindColors.white }}
+              />
+              <VictoryLabel
+                text={restTime + "s"}
+                textAnchor="middle"
+                verticalAnchor="middle"
+                x={(width * 0.75) / 2}
+                y={(width * 0.75) / 2 + 64 - 10}
+                style={{ fontSize: 16, fill: tailwindColors.white }}
               />
               <VictoryAxis
                 tickFormat={() => ""}
                 style={{ axis: { display: "none" } }}
               />
             </VictoryChart>
+            <Text className="text-gray-300 text-lg text-center px-4">O descanso faz parte do treino. Respeite-o!</Text>
             <Pressable
-              className={`absolute top-2 right-2 ${
+              className={`absolute top-2 right-2 p-2 ${
                 submitting && "animate-spin"
               }`}
               disabled={submitting}

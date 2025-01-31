@@ -58,7 +58,7 @@ export function Trainings({ routines, loading, day }: Trainings) {
     return (
       <View className="items-center mt-16">
         <Text className="text-disabled font-semibold text-lg">
-          Sem treinos hoje por enqanto
+          Sem treinos hoje por enquanto
         </Text>
       </View>
     );
