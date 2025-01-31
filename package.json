@@ -32,8 +32,10 @@
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",
     "expo-updates": "~0.25.27",
+    "expo-video-thumbnails": "~8.0.0",
     "expo-web-browser": "~13.0.3",
     "lodash": "^4.17.21",
+    "lottie-react-native": "^7.2.2",
     "nativewind": "^4.1.23",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -53,8 +55,7 @@
     "react-native-web": "~0.19.6",
     "react-native-webview": "13.8.6",
     "victory-native": "37.3.6",
-    "yup": "^1.4.0",
-    "expo-video-thumbnails": "~8.0.0"
+    "yup": "^1.4.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

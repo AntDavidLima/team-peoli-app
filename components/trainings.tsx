@@ -1,6 +1,8 @@
 import { ScrollView, Text, View } from "react-native";
 import { RawDraftContentState } from "draft-js";
 import { RoutineItem } from "./routine";
+import LottieView from "lottie-react-native";
+import LoadingAnimation from "@/assets/animations/loading.json";
 
 type Trainings =
   | {
@@ -45,7 +47,16 @@ interface Exercise {
 
 export function Trainings({ routines, loading, day }: Trainings) {
   if (loading) {
-    return <Text className="text-white">Loading...</Text>;
+    return (
+      <LottieView
+        source={LoadingAnimation}
+        style={{
+          flex: 1,
+        }}
+        autoPlay
+        loop
+      />
+    );
   }
 
   if (
