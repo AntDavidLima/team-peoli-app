@@ -145,7 +145,7 @@ function ChartCard({ id, name, workoutMetadata, workouts }: ChartCard) {
       <View className="flex-row items-center justify-between px-4">
         <Text className="text-white text-base font-semibold">{name}</Text>
       </View>
-      <VictoryChart domain={{ y: [0, 1] }} width={width - 22} containerComponent={<VictoryZoomContainer zoomDimension="x" />}>
+      <VictoryChart domain={{ y: [0, 1] }} width={width - 22} scale={{ x: "time" }} containerComponent={<VictoryZoomContainer zoomDimension="x" />}>
         <Gradient />
         <VictoryAxis
           dependentAxis
@@ -172,7 +172,6 @@ function ChartCard({ id, name, workoutMetadata, workouts }: ChartCard) {
           }}
         />
         <VictoryAxis
-          tickFormat={(tick) => format(tick, "d/M/yy")}
           style={{
             tickLabels: {
               fill: "white",
