@@ -218,7 +218,6 @@ export function Set({
                     fill: ({ datum }) => datum.color,
                   },
                 }}
-                animate={{ duration: 1000 }}
                 innerRadius={width * 0.75 * 0.375}
                 data={[
                   { x: "elapsed", y: timeInRest, color: customColors.main },
