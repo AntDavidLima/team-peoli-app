@@ -4,7 +4,7 @@
     "slug": "team-peoli",
     "privacy": "public",
     "backgroundColor": "#303030",
-    "version": "0.3.23",
+    "version": "0.3.24",
     "orientation": "portrait",
     "icon": "./assets/images/logo-without-text.png",
     "scheme": "team-peoli",
@@ -31,7 +31,7 @@
       },
       "package": "com.davidlima.teampeoli",
       "blockedPermissions": ["android.permission.RECORD_AUDIO"],
-      "versionCode": 13
+      "versionCode": 14
     },
     "web": {
       "bundler": "metro",

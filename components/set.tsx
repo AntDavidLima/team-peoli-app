@@ -204,8 +204,8 @@ export function Set({
           />
         </Pressable>
       </View>
-      <Modal visible={isResting} transparent animationType="slide">
-        <View className="w-full h-full bg-background/10">
+      <Modal visible={isResting} transparent animationType="fade">
+        <View className="w-full h-full" style={{ backgroundColor: "rgba(0,0,0,0.7)" }}>
           <View className="relative bg-card w-3/4 m-auto h-[30rem] rounded flex items-center">
             <Text className="mt-4 text-white text-xl font-semibold">
               Descanso
