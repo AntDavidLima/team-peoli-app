@@ -1,8 +1,7 @@
 import { ScrollView, Text, View } from "react-native";
 import { RawDraftContentState } from "draft-js";
 import { RoutineItem } from "./routine";
-import LottieView from "lottie-react-native";
-import LoadingAnimation from "@/assets/animations/loading.json";
+import { Image } from "expo-image";
 
 type Trainings =
   | {
@@ -48,13 +47,10 @@ interface Exercise {
 export function Trainings({ routines, loading, day }: Trainings) {
   if (loading) {
     return (
-      <LottieView
-        source={LoadingAnimation}
-        style={{
-          flex: 1,
-        }}
-        autoPlay
-        loop
+      <Image
+        source={require("@/assets/animations/loading.gif")}
+        style={{ flex: 1 }}
+        contentFit="contain"
       />
     );
   }
@@ -62,7 +58,7 @@ export function Trainings({ routines, loading, day }: Trainings) {
   if (
     routines
       .map(({ trainings }) =>
-        trainings.map(({ exercises }) => exercises.map((exercise) => exercise)),
+        trainings.map(({ exercises }) => exercises.map((exercise) => exercise))
       )
       .flat().length === 0
   ) {
@@ -88,7 +84,7 @@ export function Trainings({ routines, loading, day }: Trainings) {
             orientations={orientations}
             day={day}
           />
-        ),
+        )
       )}
     </ScrollView>
   );

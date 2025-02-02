@@ -11,8 +11,7 @@ import PagerView from "react-native-pager-view";
 import { differenceInSeconds } from "date-fns";
 import { ExerciseExecution } from "@/components/exercise";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
-import LottieView from "lottie-react-native";
-import LoadingAnimation from "@/assets/animations/loading.json";
+import { Image } from "expo-image";
 
 interface Training {
   exercises: TrainingExercise[];
@@ -168,13 +167,10 @@ export default function Exercise() {
 
   if (loadingTraining || !training) {
     return (
-      <LottieView
-        source={LoadingAnimation}
-        style={{
-          flex: 1,
-        }}
-        autoPlay
-        loop
+      <Image
+        source={require("@/assets/animations/loading.gif")}
+        style={{ flex: 1 }}
+        contentFit="contain"
       />
     );
   }

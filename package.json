@@ -1,7 +1,7 @@
 {
   "name": "team-peoli-app",
   "main": "expo-router/entry",
-  "version": "0.3.18",
+  "version": "0.3.22",
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
@@ -35,7 +35,6 @@
     "expo-video-thumbnails": "~8.0.0",
     "expo-web-browser": "~13.0.3",
     "lodash": "^4.17.21",
-    "lottie-react-native": "^7.2.2",
     "nativewind": "^4.1.23",
     "react": "18.2.0",
     "react-dom": "18.2.0",
@@ -55,7 +54,8 @@
     "react-native-web": "~0.19.6",
     "react-native-webview": "13.8.6",
     "victory-native": "37.3.6",
-    "yup": "^1.4.0"
+    "yup": "^1.4.0",
+    "expo-image": "~1.13.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
