@@ -40,10 +40,10 @@ export function RoutineExercise({
 }: RoutineExercise) {
   const { width } = useWindowDimensions();
 
-  const { data: thumbnail } = useQuery({
-    queryFn: () => generateThumbnail(executionVideoUrl),
-    queryKey: ["thumbnail", executionVideoUrl],
-  });
+  // const { data: thumbnail } = useQuery({
+  //   queryFn: () => generateThumbnail(executionVideoUrl),
+  //   queryKey: ["thumbnail", executionVideoUrl],
+  // });
 
   return (
     <Link
@@ -89,7 +89,7 @@ export function RoutineExercise({
             </View>
           )}
         </View>
-        {executionVideoUrl && (
+        {/* {executionVideoUrl && (
           <View className="h-32 rounded-lg aspect-[9/16]">
             <Image
               source={{
@@ -98,7 +98,7 @@ export function RoutineExercise({
               className="h-full w-full rounded-lg"
             />
           </View>
-        )}
+        )} */}
       </Pressable>
     </Link>
   );
