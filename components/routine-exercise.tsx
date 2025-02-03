@@ -78,11 +78,11 @@ export function RoutineExercise({
               {reps} Repetições
             </Text>
           </View>
-          {orientations && (
+          {orientations?.blocks[0].text.trim() !== "" && (
             <View className="mt-3">
               <Text className="text-white text-xs font-bold">Instruções:</Text>
               <RenderHTML
-                source={{ html: draftToHtml(orientations) }}
+                source={{ html: draftToHtml(orientations!) }}
                 contentWidth={width}
                 baseStyle={{ color: tailwindColors.white }}
               />
