@@ -21,6 +21,7 @@ import {
   VictoryLabel,
   VictoryPie,
 } from "victory-native";
+import Toast from "react-native-root-toast";
 
 interface Set {
   index: number;
@@ -119,6 +120,11 @@ export function Set({
       setIsResting(false);
       clearInterval(clock!);
       setTimeInRest(0);
+      Toast.show('Não foi possível concluir a série, tente novamente.', {
+        backgroundColor: "red",
+        opacity: 0.9,
+        position: Toast.positions.TOP,
+      });
     },
   });
 
