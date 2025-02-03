@@ -56,18 +56,18 @@ export function RoutineExercise({
     >
       <Pressable className="bg-card p-2 rounded flex-row justify-between">
         <View className="flex-1">
-          <View className="flex-row gap-1 items-center">
+          <View>
             <Text className="text-white font-semibold mb-1">
               {exerciseName}
+              <View className="flex-row items-center gap-0.5 pl-1">
+                <MaterialCommunityIcons
+                  name="timer-outline"
+                  color={tailwindColors.white}
+                  size={14}
+                />
+                <Text className="text-white text-xs">{restTime}s</Text>
+              </View>
             </Text>
-            <View className="flex-row items-center gap-0.5 mt-0.5">
-              <MaterialCommunityIcons
-                name="timer-outline"
-                color={tailwindColors.white}
-                size={14}
-              />
-              <Text className="text-white text-xs">{restTime}s</Text>
-            </View>
           </View>
           <View className="flex-row gap-1">
             <Text className="text-white font-semibold text-xs">
