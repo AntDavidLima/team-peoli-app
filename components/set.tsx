@@ -18,7 +18,6 @@ import { Modal } from "react-native";
 import {
   VictoryAxis,
   VictoryChart,
-  VictoryContainer,
   VictoryLabel,
   VictoryPie,
 } from "victory-native";
@@ -116,6 +115,11 @@ export function Set({
     onMutate: () => {
       setIsResting(true);
     },
+    onError: () => {
+      setIsResting(false);
+      clearInterval(clock!);
+      setTimeInRest(0);
+    },
   });
 
   useEffect(() => {
@@ -129,7 +133,7 @@ export function Set({
     }
   }, [id, load, reps]);
 
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
 
   return (
     <Fragment>
@@ -205,7 +209,10 @@ export function Set({
         </Pressable>
       </View>
       <Modal visible={isResting} transparent animationType="fade">
-        <View className="w-full h-full" style={{ backgroundColor: "rgba(0,0,0,0.7)" }}>
+        <View
+          className="w-full h-full"
+          style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+        >
           <View className="relative bg-card w-3/4 m-auto h-[30rem] rounded flex items-center">
             <Text className="mt-4 text-white text-xl font-semibold">
               Descanso
@@ -235,7 +242,7 @@ export function Set({
                 style={{
                   position: "absolute",
                   left: (width * 0.75) / 2 - 10,
-                  top: (width * 0.75) * 0.5 - 64,
+                  top: width * 0.75 * 0.5 - 64,
                 }}
               />
               <VictoryLabel
@@ -259,13 +266,19 @@ export function Set({
                 style={{ axis: { display: "none" } }}
               />
             </VictoryChart>
-            <Text className="text-gray-300 text-lg text-center px-4">O descanso faz parte do treino. Respeite-o!</Text>
+            <Text className="text-gray-300 text-lg text-center px-4">
+              O descanso faz parte do treino. Respeite-o!
+            </Text>
             <Pressable
               className={`absolute top-2 right-2 p-2 ${
                 submitting && "animate-spin"
               }`}
               disabled={submitting}
-              onPress={() => setIsResting(false)}
+              onPress={() => {
+                setIsResting(false);
+                clearInterval(clock!);
+                setTimeInRest(0);
+              }}
             >
               {submitting ? (
                 <MaterialCommunityIcons
