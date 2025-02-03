@@ -42,6 +42,7 @@ interface Exercise {
   id: number;
   name: string;
   executionVideoUrl: string | null;
+  thumbnailUrl: string | null;
 }
 
 export function Trainings({ routines, loading, day }: Trainings) {

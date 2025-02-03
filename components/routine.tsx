@@ -88,7 +88,6 @@ export function RoutineItem({
                 ({ reps, orientations, sets, exercise, restTime }) => (
                   <RoutineExercise
                     day={day}
-                    executionVideoUrl={exercise.executionVideoUrl}
                     exerciseName={exercise.name}
                     idExercise={exercise.id}
                     orientations={orientations}
@@ -97,6 +96,7 @@ export function RoutineItem({
                     sets={sets}
                     trainingId={id}
                     key={exercise.id}
+                    thumbnailUrl={exercise.thumbnailUrl}
                   />
                 )
               )}

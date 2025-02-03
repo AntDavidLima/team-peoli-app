@@ -4,7 +4,6 @@ import { RawDraftContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
 import { Link } from "expo-router";
 import { getThumbnailAsync } from "expo-video-thumbnails";
-import { useState } from "react";
 import {
   Image,
   Pressable,
@@ -13,7 +12,6 @@ import {
   View,
 } from "react-native";
 import RenderHTML from "react-native-render-html";
-import { useQuery } from "@tanstack/react-query";
 
 interface RoutineExercise {
   idExercise: number;
@@ -24,12 +22,11 @@ interface RoutineExercise {
   sets: number;
   reps: number;
   orientations: RawDraftContentState | null;
-  executionVideoUrl: string | null;
+  thumbnailUrl: string | null;
 }
 
 export function RoutineExercise({
   day,
-  executionVideoUrl,
   exerciseName,
   idExercise,
   orientations,
@@ -37,13 +34,9 @@ export function RoutineExercise({
   restTime,
   sets,
   trainingId,
+  thumbnailUrl,
 }: RoutineExercise) {
   const { width } = useWindowDimensions();
-
-  // const { data: thumbnail } = useQuery({
-  //   queryFn: () => generateThumbnail(executionVideoUrl),
-  //   queryKey: ["thumbnail", executionVideoUrl],
-  // });
 
   return (
     <Link
@@ -89,27 +82,17 @@ export function RoutineExercise({
             </View>
           )}
         </View>
-        {/* {executionVideoUrl && (
+        {thumbnailUrl && (
           <View className="h-32 rounded-lg aspect-[9/16]">
             <Image
               source={{
-                uri: thumbnail!,
+                uri: thumbnailUrl,
               }}
               className="h-full w-full rounded-lg"
             />
           </View>
-        )} */}
+        )}
       </Pressable>
     </Link>
   );
-
-  async function generateThumbnail(link: string | null) {
-    if (link) {
-      const { uri } = await getThumbnailAsync(link, { time: 5000 });
-
-      return uri;
-    }
-
-    return null;
-  }
 }
