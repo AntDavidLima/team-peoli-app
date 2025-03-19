@@ -1,7 +1,6 @@
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import { format } from "date-fns";
 import {
   FlatList,
   ScrollView,
@@ -37,7 +36,7 @@ interface Workout {
 
 export interface WorkoutExerciseSet {
   id: number;
-  load: number;
+  load: string;
   reps: number;
 }
 
@@ -86,10 +85,13 @@ export default function Progress() {
             (accumulator, workout) => {
               const localMaxes = workout.WorkoutExerciseSets.reduce(
                 (localAccumulator, set) => ({
-                  maxLoad: Math.max(localAccumulator.maxLoad, set.load),
+                  maxLoad: Math.max(
+                    localAccumulator.maxLoad,
+                    parseFloat(set.load),
+                  ),
                   maxReps: Math.max(localAccumulator.maxReps, set.reps),
                 }),
-                { maxLoad: 0, maxReps: 0 }
+                { maxLoad: 0, maxReps: 0 },
               );
 
               return {
@@ -97,11 +99,11 @@ export default function Progress() {
                 maxReps: Math.max(accumulator.maxReps, localMaxes.maxReps),
                 maxSets: Math.max(
                   accumulator.maxSets,
-                  workout.WorkoutExerciseSets.length
+                  workout.WorkoutExerciseSets.length,
                 ),
               };
             },
-            { maxLoad: 0, maxReps: 0, maxSets: 0 }
+            { maxLoad: 0, maxReps: 0, maxSets: 0 },
           );
 
           return (
@@ -119,7 +121,7 @@ export default function Progress() {
 
   async function fetchExercises() {
     const { data: exercises } = await api.get<ExerciseWithWorkouts[]>(
-      `/user/${currentUser?.id}/exercise`
+      `/user/${currentUser?.id}/exercise`,
     );
 
     return exercises;
@@ -145,7 +147,12 @@ function ChartCard({ id, name, workoutMetadata, workouts }: ChartCard) {
       <View className="flex-row items-center justify-between px-4">
         <Text className="text-white text-base font-semibold">{name}</Text>
       </View>
-      <VictoryChart domain={{ y: [0, 1] }} width={width - 22} scale={{ x: "time" }} containerComponent={<VictoryZoomContainer zoomDimension="x" />}>
+      <VictoryChart
+        domain={{ y: [0, 1] }}
+        width={width - 22}
+        scale={{ x: "time" }}
+        containerComponent={<VictoryZoomContainer zoomDimension="x" />}
+      >
         <Gradient />
         <VictoryAxis
           dependentAxis
@@ -190,13 +197,13 @@ function ChartCard({ id, name, workoutMetadata, workouts }: ChartCard) {
               day: new Date(workout.startTime),
               load:
                 WorkoutExerciseSets.reduce(
-                  (total, set) => total + set.load,
-                  0
+                  (total, set) => total + parseFloat(set.load),
+                  0,
                 ) / WorkoutExerciseSets.length,
             }))}
             x="day"
             y={(segment: WorkoutExerciseSet) =>
-              segment.load / workoutMetadata.maxLoad
+              parseFloat(segment.load) / workoutMetadata.maxLoad
             }
           />
           <VictoryLine
@@ -204,13 +211,13 @@ function ChartCard({ id, name, workoutMetadata, workouts }: ChartCard) {
               day: new Date(workout.startTime),
               load:
                 WorkoutExerciseSets.reduce(
-                  (total, set) => total + set.load,
-                  0
+                  (total, set) => total + parseFloat(set.load),
+                  0,
                 ) / WorkoutExerciseSets.length,
             }))}
             x="day"
             y={(segment: WorkoutExerciseSet) =>
-              segment.load / workoutMetadata.maxLoad
+              parseFloat(segment.load) / workoutMetadata.maxLoad
             }
           />
         </VictoryGroup>
@@ -221,7 +228,7 @@ function ChartCard({ id, name, workoutMetadata, workouts }: ChartCard) {
               reps:
                 WorkoutExerciseSets.reduce(
                   (total, set) => total + set.reps,
-                  0
+                  0,
                 ) / WorkoutExerciseSets.length,
             }))}
             x="day"
@@ -238,7 +245,7 @@ function ChartCard({ id, name, workoutMetadata, workouts }: ChartCard) {
               reps:
                 WorkoutExerciseSets.reduce(
                   (total, set) => total + set.reps,
-                  0
+                  0,
                 ) / WorkoutExerciseSets.length,
             }))}
             x="day"

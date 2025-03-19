@@ -49,12 +49,12 @@ export default function Home() {
         (accumulator, workout) => {
           const localMetadata = workout.WorkoutExerciseSets.reduce(
             (localAccumulator, set) => ({
-              maxLoad: Math.max(localAccumulator.maxLoad, set.load),
+              maxLoad: Math.max(localAccumulator.maxLoad, parseFloat(set.load)),
               maxReps: Math.max(localAccumulator.maxReps, set.reps),
-              totalLoad: localAccumulator.totalLoad + set.load,
+              totalLoad: localAccumulator.totalLoad + parseFloat(set.load),
               totalReps: localAccumulator.totalReps + set.reps,
             }),
-            { maxLoad: 0, maxReps: 0, totalLoad: 0, totalReps: 0 }
+            { maxLoad: 0, maxReps: 0, totalLoad: 0, totalReps: 0 },
           );
 
           const averageLoad =
@@ -83,7 +83,7 @@ export default function Home() {
             averageReps: number;
             startTime: string;
           }[],
-        }
+        },
       );
 
       return {
@@ -100,7 +100,7 @@ export default function Home() {
         averageReps: number;
         startTime: string;
       }[],
-    }
+    },
   );
 
   return (
@@ -138,7 +138,7 @@ export default function Home() {
                 {routines?.map((routine) =>
                   routine.trainings.map((training) => (
                     <Text className="text-subtitle">{training.name}</Text>
-                  ))
+                  )),
                 )}
               </View>
             </Pressable>
@@ -169,7 +169,7 @@ export default function Home() {
               {routines?.map((routine) =>
                 routine.trainings.map((training) => (
                   <Text className="text-subtitle">{training.name}</Text>
-                ))
+                )),
               )}
             </View>
           </View>
@@ -258,18 +258,18 @@ export default function Home() {
                     data={Object.values(
                       _.groupBy(
                         exercisesMetadata!.workouts,
-                        ({ startTime }) => startTime
-                      )
+                        ({ startTime }) => startTime,
+                      ),
                     )
                       .reduce(
                         (accumulator, workouts) => {
                           const totalLoad = workouts.reduce(
                             (total, { averageLoad }) => total + averageLoad,
-                            0
+                            0,
                           );
                           const totalReps = workouts.reduce(
                             (total, { averageReps }) => total + averageReps,
-                            0
+                            0,
                           );
 
                           return [
@@ -285,7 +285,7 @@ export default function Home() {
                           averageLoad: number;
                           averageReps: number;
                           startTime: string;
-                        }[]
+                        }[],
                       )
                       .map(({ averageLoad, startTime }) => ({
                         day: new Date(startTime),
@@ -293,25 +293,25 @@ export default function Home() {
                       }))}
                     x="day"
                     y={(segment: WorkoutExerciseSet) =>
-                      segment.load / exercisesMetadata!.maxLoad
+                      parseFloat(segment.load) / exercisesMetadata!.maxLoad
                     }
                   />
                   <VictoryLine
                     data={Object.values(
                       _.groupBy(
                         exercisesMetadata!.workouts,
-                        ({ startTime }) => startTime
-                      )
+                        ({ startTime }) => startTime,
+                      ),
                     )
                       .reduce(
                         (accumulator, workouts) => {
                           const totalLoad = workouts.reduce(
                             (total, { averageLoad }) => total + averageLoad,
-                            0
+                            0,
                           );
                           const totalReps = workouts.reduce(
                             (total, { averageReps }) => total + averageReps,
-                            0
+                            0,
                           );
 
                           return [
@@ -327,7 +327,7 @@ export default function Home() {
                           averageLoad: number;
                           averageReps: number;
                           startTime: string;
-                        }[]
+                        }[],
                       )
                       .map(({ averageLoad, startTime }) => ({
                         day: new Date(startTime),
@@ -335,7 +335,7 @@ export default function Home() {
                       }))}
                     x="day"
                     y={(segment: WorkoutExerciseSet) =>
-                      segment.load / exercisesMetadata!.maxLoad
+                      parseFloat(segment.load) / exercisesMetadata!.maxLoad
                     }
                   />
                 </VictoryGroup>
@@ -344,18 +344,18 @@ export default function Home() {
                     data={Object.values(
                       _.groupBy(
                         exercisesMetadata!.workouts,
-                        ({ startTime }) => startTime
-                      )
+                        ({ startTime }) => startTime,
+                      ),
                     )
                       .reduce(
                         (accumulator, workouts) => {
                           const totalLoad = workouts.reduce(
                             (total, { averageLoad }) => total + averageLoad,
-                            0
+                            0,
                           );
                           const totalReps = workouts.reduce(
                             (total, { averageReps }) => total + averageReps,
-                            0
+                            0,
                           );
 
                           return [
@@ -371,7 +371,7 @@ export default function Home() {
                           averageLoad: number;
                           averageReps: number;
                           startTime: string;
-                        }[]
+                        }[],
                       )
                       .map(({ startTime, averageReps }) => ({
                         day: new Date(startTime),
@@ -389,18 +389,18 @@ export default function Home() {
                     data={Object.values(
                       _.groupBy(
                         exercisesMetadata!.workouts,
-                        ({ startTime }) => startTime
-                      )
+                        ({ startTime }) => startTime,
+                      ),
                     )
                       .reduce(
                         (accumulator, workouts) => {
                           const totalLoad = workouts.reduce(
                             (total, { averageLoad }) => total + averageLoad,
-                            0
+                            0,
                           );
                           const totalReps = workouts.reduce(
                             (total, { averageReps }) => total + averageReps,
-                            0
+                            0,
                           );
 
                           return [
@@ -416,7 +416,7 @@ export default function Home() {
                           averageLoad: number;
                           averageReps: number;
                           startTime: string;
-                        }[]
+                        }[],
                       )
                       .map(({ startTime, averageReps }) => ({
                         day: new Date(startTime),
@@ -441,7 +441,7 @@ export default function Home() {
 
   async function fetchExercises() {
     const { data: exercises } = await api.get<ExerciseWithWorkouts[]>(
-      `/user/${currentUser?.id}/exercise`
+      `/user/${currentUser?.id}/exercise`,
     );
 
     return exercises;

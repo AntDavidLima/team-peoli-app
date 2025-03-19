@@ -138,9 +138,16 @@ export default function Login() {
           onPress={handleSubmit(onSubmit)}
         >
           {isLoggingIn ? (
-            <MaterialCommunityIcons name="loading" size={16} color={tailwindColors.white} className="animate-spin" />
+            <MaterialCommunityIcons
+              name="loading"
+              size={16}
+              color={tailwindColors.white}
+              className="animate-spin"
+            />
           ) : (
-            <Text className="text-white font-semibold text-base animate-none">Acessar</Text>
+            <Text className="text-white font-semibold text-base animate-none">
+              Acessar
+            </Text>
           )}
         </TouchableOpacity>
       </KeyboardAvoidingView>
