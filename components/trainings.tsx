@@ -55,7 +55,7 @@ export function Trainings({ routines, loading, day }: Trainings) {
       />
     );
   }
-
+  console.log(routines)
   if (
     routines
       .map(({ trainings }) =>

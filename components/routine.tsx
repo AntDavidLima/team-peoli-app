@@ -12,6 +12,7 @@ import RenderHTML from "react-native-render-html";
 import tailwindColors from "tailwindcss/colors";
 import { Routine } from "./trainings";
 import { RoutineExercise } from "./routine-exercise";
+import customColors from "@/tailwind.colors";
 
 export function RoutineItem({
   orientations,
@@ -26,46 +27,62 @@ export function RoutineItem({
 
   const { width } = useWindowDimensions();
 
+  const dayStart : any = new Date(startDate);
+  const dayEnd : any = endDate ? new Date(endDate) : null;
+  const totalWeeks = dayEnd ? Math.round((dayEnd - dayStart) / (7 * 24 * 60 * 60 * 1000)) : 1;
+
   return (
     <View className="mb-8">
-      <View className="flex-row items-center gap-4">
-        <View className="flex-1 border h-0 border-white" />
-        <Text className="text-white">{name}</Text>
-        <View className="flex-1 border h-0 border-white" />
-      </View>
-      <View className="flex-row gap-1">
-        <MaterialCommunityIcons
-          name="calendar-month-outline"
-          color={tailwindColors.white}
-          size={18}
-        />
-        <Text className="text-white">
-          {new Date(startDate).toLocaleDateString("pt-BR")}
-        </Text>
-        {endDate && (
-          <Text className="text-white">
-            - {new Date(endDate).toLocaleDateString("pt-BR")}
+      <View className="bg-lightBackground rounded-2xl p-4">
+        <View className="flex-row gap-1 mb-2">
+          <MaterialCommunityIcons
+            name="calendar-month-outline"
+            color={customColors.secondary}
+            size={18}
+          />
+          <Text className="text-white font-bold">{name}</Text>
+          <View className="w-[1px] h-[100%] bg-white mx-1"/>
+          <MaterialCommunityIcons
+            name="calendar-month-outline"
+            color={customColors.secondary}
+            size={18}
+          />
+          <Text className="text-disabled">{totalWeeks + " Semana" + (totalWeeks > 1 ? "s" : "")}</Text>
+        </View>
+        <View className="flex-row gap-1">
+          <MaterialCommunityIcons
+            name="calendar-month-outline"
+            color={customColors.secondary}
+            size={18}
+          />
+          <Text className="text-disabled">
+            {dayStart.toLocaleDateString("pt-BR")}
           </Text>
-        )}
+          {dayEnd && (
+            <Text className="text-disabled">
+              - {dayEnd.toLocaleDateString("pt-BR")}
+            </Text>
+          )}
+        </View>
       </View>
       {orientations?.blocks[0].text.trim() !== "" && (
         <Pressable
-          className="bg-main/25 border border-main p-1 mt-3"
+          className="bg-main rounded-2xl mt-4"
           onPress={() => setOrientationCollapsed((collapsed) => !collapsed)}
         >
-          <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center p-4 justify-between">
             <View className="flex-row items-center gap-1">
               <MaterialCommunityIcons
                 name="alert-outline"
-                color={tailwindColors.sky[400]}
+                color={tailwindColors.white}
                 size={16}
               />
-              <Text className="text-sky-400">Orientações gerais</Text>
+              <Text className="text-white">Orientações gerais</Text>
             </View>
             <View className={orientationCollapsed ? "rotate-0" : "rotate-180"}>
               <MaterialCommunityIcons
                 name="chevron-down"
-                color={tailwindColors.sky[400]}
+                color={tailwindColors.white}
                 size={16}
               />
             </View>
@@ -74,7 +91,11 @@ export function RoutineItem({
             <RenderHTML
               source={{ html: draftToHtml(orientations!) }}
               contentWidth={width}
-              baseStyle={{ color: tailwindColors.white }}
+              baseStyle={{ 
+                color: tailwindColors.white, 
+                backgroundColor: customColors.lightBackground,
+                paddingHorizontal: 12,
+              }}
             />
           </Collapsible>
         </Pressable>
@@ -82,8 +103,8 @@ export function RoutineItem({
       <View className="mt-4">
         {trainings.map(({ id, name, exercises }) => (
           <View key={id}>
-            <Text className="text-white font-bold text-base">{name}</Text>
-            <View className="mt-1 gap-4">
+            <Text className="text-white text-center font-bold text-4xl mb-4">{name}</Text>
+            <View className="gap-4">
               {exercises.map(
                 ({ reps, orientations, sets, exercise, restTime }) => (
                   <RoutineExercise

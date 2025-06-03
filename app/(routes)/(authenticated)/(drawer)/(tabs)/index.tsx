@@ -27,6 +27,7 @@ import _ from "lodash";
 import { ptBR } from "date-fns/locale";
 import { Routine } from "@/components/trainings";
 import { Link } from "expo-router";
+// import Fire from "@/assets/svgs/fire.svg";
 
 export default function Home() {
   const { currentUser } = useAuthentication();
@@ -102,10 +103,9 @@ export default function Home() {
       }[],
     },
   );
-
   return (
     <ScrollView>
-      <View className="p-4 mt-6">
+      <View className="px-4">
         {routines && routines[0]?.trainings[0] ? (
           <Link
             href={{
@@ -118,36 +118,39 @@ export default function Home() {
             }}
             asChild
           >
-            <Pressable className="bg-card rounded p-2">
-              <View className="flex-row justify-between">
+            <Pressable className="bg-lightBackground rounded-2xl rounded p-2">
+              <View className="flex-row px-4 py-4 justify-between">
                 <View>
-                  <Text className="text-white font-bold text-xl">
-                    Iniciar Treino
-                  </Text>
-                  <Text className="text-subtitle font-semibold mt-1">
-                    {format(new Date(), "EEEE", { locale: ptBR })}
-                  </Text>
+                  <View>
+                    <Text className="text-white font-bold text-2xl">
+                      Iniciar Treino
+                    </Text>
+                    <Text className="text-disabled font-semibold mt-1">
+                      {format(new Date(), "EEEE", { locale: ptBR })}
+                    </Text>
+                    {/* {routines?.map((routine) => */}
+                      {/* routine.trainings.map((training) => ( */}
+                        <Text className="text-secondary font-bold text-2xl">{routines[0]?.trainings[0].name}</Text>
+                      {/* )), */}
+                    {/* )} */}
+                  </View>
                 </View>
-                <MaterialCommunityIcons
-                  name="play-circle-outline"
-                  color={customColors.main}
-                  size={68}
-                />
-              </View>
-              <View>
-                {routines?.map((routine) =>
-                  routine.trainings.map((training) => (
-                    <Text className="text-subtitle">{training.name}</Text>
-                  )),
-                )}
+                <View>
+                  {/* <Fire width={40} height={40} /> */}
+                  <MaterialCommunityIcons
+                    name="play-circle-outline"
+                    color={customColors.main}
+                    size={68}
+                  />
+                </View>
               </View>
             </Pressable>
           </Link>
         ) : (
-          <View className="bg-card rounded p-2">
-            <View className="flex-row justify-between">
+          <View className="bg-lightBackground rounded-2xl p-2">
+            <View className="flex-row px-4 py-4 justify-between">
               <View>
-                <Text className="text-white font-bold text-xl">
+                <Text style={{fontFamily: 'Inter_400Regular'}} className="text-white font-bold text-xl">
                   Iniciar Treino
                 </Text>
                 <Text className="text-subtitle font-semibold mt-1">
@@ -174,32 +177,28 @@ export default function Home() {
             </View>
           </View>
         )}
-        <View className="bg-card rounded p-3 mt-4">
+        <View className="rounded p-3 mt-4">
           <View className="flex-row justify-between">
             {Object.values(Days).map((day, index) => (
-              <View className="items-center gap-1" key={index}>
-                <Text className="text-white font-semibold text-base">
+              <View className={`${index == new Date().getDay() ? ('bg-main') : ('bg-lightBackground')} 
+                items-center w-12 rounded-3xl`} key={index}>
+                <Text className="text-gray-400 pt-1 font-semibold text-base">
                   {day}
                 </Text>
-                <Text className="bg-disabled rounded-full px-2 py-1.5 text-background">
-                  {23 + index}
+                <Text className="px-2 pb-1 text-white">
+                  {new Date().getDate() - new Date().getDay() + (new Date().getDay() === 0 ? -6 : 0) + index}
                 </Text>
               </View>
             ))}
           </View>
-          <View className="mt-3 justify-end flex-row items-center space-x-1">
-            <MaterialCommunityIcons
-              name="flag-outline"
-              size={16}
-              color={tailwindColors.white}
-            />
+          <View className="mt-3 flex-row justify-center">
             <Text className="text-white">0/1 dias completos</Text>
           </View>
         </View>
-        <View className="bg-card rounded mt-4 py-4 relative overflow-hidden">
+        <View className="bg-lightBackground rounded-xl mt-4 py-4 relative overflow-hidden">
           <View className="flex-row items-center">
-            <Text className="text-white text-base font-semibold ml-4 w-1/2">
-              Evolução geral
+            <Text className="text-white text-base text-2xl font-bold ml-4">
+              Status de Progressão Geral
             </Text>
           </View>
           {exercises &&

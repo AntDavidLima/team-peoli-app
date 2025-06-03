@@ -4,14 +4,32 @@ import { Drawer } from "expo-router/drawer";
 import {
   DrawerContentScrollView,
   DrawerItemList,
+  DrawerItem,
   getDrawerStatusFromState,
 } from "@react-navigation/drawer";
-import { Image, ImageBackground, Pressable, Text, View } from "react-native";
+import { Image, Linking, Pressable, Text, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api";
 
 export default function DrawerLayout() {
   const { logout, currentUser } = useAuthentication();
+  const [professorPhone, setProfessorPhone] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchProfessorPhone() {
+      try {
+        const { data } = await api.get("/user/prof");
+        if (data) {
+          setProfessorPhone(data.phone);
+        }
+      } catch (error) {
+        setProfessorPhone(null);
+      }
+    }
+    fetchProfessorPhone();
+  }, []);
 
   return (
     <Drawer
@@ -34,11 +52,14 @@ export default function DrawerLayout() {
                 color={tailwindColors.white}
               />
             </Pressable>
-            <Image source={require("@/assets/images/logo-horizontal.png")} />
-            <Pressable onPress={() => navigation.openDrawer()}>
+            <Image 
+              className="mb-16 w-44 h-14 mt-4"
+              source={require("@/assets/images/logo.png")} />
+            <Pressable onPress={() => navigation.openDrawer()}
+              className="-mt-12">
               <MaterialCommunityIcons
                 name="menu"
-                color={customColors.main}
+                color="white"
                 size={32}
               />
             </Pressable>
@@ -46,33 +67,34 @@ export default function DrawerLayout() {
         ),
       }}
       drawerContent={(props) => (
-        <View className="flex-1">
-          <ImageBackground
-            className="items-center py-8 rounded-full"
-            source={require("@/assets/images/login-background.jpg")}
-            blurRadius={8}
-          >
+        <View className="flex-1 bg-lightBackground">
+          <View className="items-center mt-8 py-8 rounded">
             <Pressable onPress={() => props.navigation.navigate("profile")}>
-              <View className="w-24 aspect-square rounded-full bg-disabled mb-4 items-center justify-center">
+              <View className="w-32 bg-white aspect-square rounded-full bg-disabled items-center justify-center">
                 <MaterialCommunityIcons
                   name="camera-plus-outline"
-                  size={32}
-                  color={tailwindColors.white}
+                  size={36}
+                  color={tailwindColors.black}
                 />
               </View>
             </Pressable>
-            <Text className="text-white text-base font-semibold">
+            <Text className="text-white font-bold text-2xl mt-4">
               {currentUser?.name}
             </Text>
-          </ImageBackground>
+          </View>
           <DrawerContentScrollView {...props}>
             <DrawerItemList {...props} />
+            <DrawerItem
+              label={professorPhone ? "Falar com o professor" : ""}
+              onPress={() => {Linking.openURL(professorPhone ? `https://wa.me/55${professorPhone}` : "")}}
+            />
           </DrawerContentScrollView>
           <Pressable
-            className="bg-main p-3 flex-row space-x-1 m-2 rounded"
+            className="bg-red-400 p-3 flex-row space-x-1 m-2 rounded-xl m-3"
             onPress={logout}
           >
             <MaterialCommunityIcons
+             className="mx-2"
               name="logout-variant"
               size={24}
               color={tailwindColors.white}
@@ -88,6 +110,7 @@ export default function DrawerLayout() {
         options={{ drawerItemStyle: { display: "none" } }}
       />
       <Drawer.Screen name="profile" options={{ title: "Meu perfil" }} />
-    </Drawer>
+    </Drawer>  
+    
   );
 }

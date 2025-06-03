@@ -32,18 +32,22 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        tabBarActiveTintColor: customColors.main,
         tabBarStyle: {
-          backgroundColor: customColors.darker,
-          borderRadius: 8,
-          margin: 8,
+          backgroundColor: customColors.background,
+          margin: 0,
+          marginTop: 20,
+          marginBottom: 20,
+          elevation: 0,
         },
         tabBarIndicatorStyle: {
           position: "absolute",
-          height: 32,
-          width: width / 8 + 10,
-          top: 8,
-          left: width / 10 - 6,
-          borderRadius: 32,
+          height: 50,
+          width: width / 10 + 10,
+          top: -1,
+          left: width / 10 + 2,
+          borderRadius: 64,
+          backgroundColor: 'white',
         },
         tabBarIconStyle: {
           marginTop: -4,

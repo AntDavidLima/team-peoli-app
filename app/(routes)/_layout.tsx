@@ -1,4 +1,5 @@
 import tailwindColors from "tailwindcss/colors";
+import customColors from "@/tailwind.colors";
 import { Stack } from "expo-router";
 
 export default function RoutesLayout() {
@@ -8,7 +9,7 @@ export default function RoutesLayout() {
 				name="login"
 				options={{
 					headerShown: false,
-					contentStyle: { backgroundColor: tailwindColors.black },
+					contentStyle: { backgroundColor: customColors.background },
 					statusBarTranslucent: true,
 				}}
 			/>

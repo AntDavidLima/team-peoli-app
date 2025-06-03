@@ -1,5 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Text, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { WebDisplay } from "./web-display";
 import draftToHtml from "draftjs-to-html";
 import tailwindColors from "tailwindcss/colors";
@@ -10,6 +10,9 @@ import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { api } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
 import { ResizeMode, Video } from "expo-av";
+import customColors from "@/tailwind.colors";
+import { useState } from "react";
+import Collapsible from "react-native-collapsible";
 
 interface ExerciseExecution {
   exercise: Exercise;
@@ -43,6 +46,8 @@ export function ExerciseExecution({
   reps,
 }: ExerciseExecution) {
   const { currentUser } = useAuthentication();
+  const [orientationCollapsed, setOrientationCollapsed] =
+    useState<boolean>(true);
 
   const { data: executions } = useQuery({
     queryKey: ["exercise", "last-execution", exercise.id, currentUser?.id, day],
@@ -53,20 +58,20 @@ export function ExerciseExecution({
     <View className="px-4 mb-14">
       <View className="mt-6">
         <View>
-          <Text className="text-white font-bold text-lg">
-            {exercise.name}
-            <View className="flex-row pl-1 mt-1 gap-0.5">
+          <View className="flex-row pl-1 mt-1 gap-0.5">
               <MaterialCommunityIcons
                 name="timer-outline"
-                color={tailwindColors.white}
+                color={customColors.secondary}
                 size={14}
               />
               <Text className="text-white text-xs">{restTime}s</Text>
             </View>
+          <Text className="text-white font-bold text-4xl">
+            {exercise.name}
           </Text>
         </View>
         {exercise.executionVideoUrl && (
-          <View className="mt-2 bg-card rounded">
+          <View className="mt-2 bg-card rounded-2xl">
             <Video
               source={{ uri: exercise.executionVideoUrl }}
               resizeMode={ResizeMode.CONTAIN}
@@ -79,27 +84,36 @@ export function ExerciseExecution({
           </View>
         )}
         {orientations?.blocks[0].text.trim() !== "" && (
-          <View className="mt-2 text-sky-400 bg-main/20 border border-main p-1">
-            <Text className="text-white font-semibold">Instruções:</Text>
-            <WebDisplay
-              html={draftToHtml(orientations!)}
-              textColor={tailwindColors.white}
-            />
-          </View>
+          <Pressable
+            className="bg-main rounded-2xl mt-4"
+            onPress={() => setOrientationCollapsed((collapsed) => !collapsed)}
+          >
+            <View className="p-4">
+              <View className="flex-row justify-between items-center">
+                <Text className="text-white font-semibold">Instruções</Text>
+                <View className={orientationCollapsed ? "rotate-0" : "rotate-180"}>
+                  <MaterialCommunityIcons
+                    name="chevron-down"
+                    color={customColors.secondary}
+                    size={20}
+                  />
+                </View>
+              </View>
+              <Collapsible collapsed={orientationCollapsed}>
+                  <WebDisplay
+                    html={draftToHtml(orientations!)}
+                    textColor={tailwindColors.white}
+                  />
+                </Collapsible>
+            </View>
+          </Pressable>
         )}
-        <View className="mt-8 rounded -mx-4">
+        <View className="mt-8 rounded">
           <View className="flex-row mb-4">
             <Text className="text-white w-[15%] text-center">SÉRIE</Text>
-            <Text className="text-white w-1/4 text-center">ANTERIOR</Text>
+            <Text className="text-white w-1/4 text-center">A SUPERAR</Text>
             <Text className="text-white w-1/5 text-center">CARGA</Text>
             <Text className="text-white w-[25%] text-center">REPS</Text>
-            <View className="w-[15%] items-center">
-              <MaterialCommunityIcons
-                name="progress-check"
-                color={tailwindColors.white}
-                size={18}
-              />
-            </View>
           </View>
           {Array.from({ length: sets })
             .map((_, index) => setsInfo[index])
@@ -107,9 +121,7 @@ export function ExerciseExecution({
               return (
                 <View
                   key={index}
-                  className={`flex-row items-center py-2 ${
-                    index % 2 === 0 ? "bg-darker" : "bg-transparent"
-                  }`}
+                  className="flex-row items-center py-2 bg-lightBackground rounded-2xl mb-2"
                 >
                   <Set
                     index={index + 1}

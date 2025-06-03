@@ -1,7 +1,7 @@
 import "../components/gesture-handler";
 import { AuthenticationProvider } from "@/contexts/AuthenticationContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useFonts } from "expo-font";
+import { useFonts, Inter_400Regular } from "@expo-google-fonts/inter";
 import { Slot, SplashScreen } from "expo-router";
 import { useEffect } from "react";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
@@ -26,6 +26,7 @@ export const unstable_settings = {
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     ...MaterialCommunityIcons.font,
+    Inter_400Regular
   });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.

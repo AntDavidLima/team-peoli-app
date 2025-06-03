@@ -1,7 +1,6 @@
 import tailwindColors from "tailwindcss/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
-	ImageBackground,
 	KeyboardAvoidingView,
 	Pressable,
 	ScrollView,
@@ -97,44 +96,46 @@ export default function Profile() {
 	}, []);
 
 	return (
-		<View className="bg-background relative flex-1">
-			<ImageBackground
-				className="bg-main items-center h-40 relative -mt-20"
-				source={require("@/assets/images/login-background.jpg")}
-				blurRadius={16}
-			>
+		<View className="bg-background relative px-4 flex-1">
+			<View className="items-center h-40 relative -mt-20">
 				<View className="absolute -bottom-20">
-					<View className="w-24 aspect-square rounded-full bg-disabled items-center justify-center">
+					<View className="w-36 bg-white aspect-square rounded-full bg-disabled items-center justify-center">
 						<MaterialCommunityIcons
 							name="camera-plus-outline"
-							size={32}
-							color={tailwindColors.white}
+							size={48}
+							color={tailwindColors.black}
 						/>
 					</View>
-					<Text className="text-white text-base font-semibold mt-2">
+						<MaterialCommunityIcons
+							className="absolute top-24 right-1"
+							name="pencil-circle"
+							size={42}
+							color="#2764E4"
+						/>
+					<Text className="text-white text-center text-base font-bold mt-2 text-3xl">
 						{currentUser?.name}
 					</Text>
 				</View>
-			</ImageBackground>
+			</View>
 			<ScrollView className="mt-24 h-[calc(100vh - 96px)]">
 				<KeyboardAvoidingView className="px-4 gap-y-6">
 					<View>
-						<View className="flex-row items-center mb-1 gap-1">
+						<View className="flex-row items-center mb-3 gap-1">
 							<MaterialCommunityIcons
-								name="email-outline"
-								size={16}
-								color="white"
+								name="email"
+								size={20}
+								color="#64A4EB"
 							/>
-							<Text className="text-white font-medium">E-mail</Text>
+							<Text className="text-[white] text-base font-medium">E-mail</Text>
 						</View>
 						<Controller
 							control={control}
 							render={({ field: { onChange, ...field } }) => (
 								<TextInput
 									placeholder="seuemail@exemplo.com"
+                  					placeholderTextColor="#AAAAAA" 
 									defaultValue="claraelenita130@gmail.com"
-									className="text-base border-b border-b-main text-white"
-									placeholderTextColor={customColors.subtitle}
+									className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 									inputMode="email"
 									autoCapitalize="none"
 									onChangeText={onChange}
@@ -150,22 +151,22 @@ export default function Profile() {
 						)}
 					</View>
 					<View>
-						<View className="flex-row items-center mb-1 gap-1">
+						<View className="flex-row items-center mb-3 gap-1">
 							<MaterialCommunityIcons
 								name="phone-outline"
-								size={16}
-								color="white"
+								size={20}
+								color="#64A4EB"
 							/>
-							<Text className="text-white font-medium">Telefone</Text>
+							<Text className="text-[white] text-base font-medium">E-mail</Text>
 						</View>
 						<Controller
 							control={control}
 							render={({ field: { onChange, value, ...field } }) => (
 								<TextInput
 									placeholder="(99) 9 9999-9999"
+                  					placeholderTextColor="#AAAAAA" 
 									defaultValue="(11) 9 4241-7655"
-									className="text-base border-b border-b-main text-white"
-									placeholderTextColor={customColors.subtitle}
+									className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 									inputMode="tel"
 									value={phone.mask(value)}
 									onChangeText={(value) => {
@@ -183,10 +184,10 @@ export default function Profile() {
 							</Text>
 						)}
 					</View>
-					<View className="bg-card p-2 rounded">
+					<View className="bg-secondary bg-opacity-50 rounded mt-10">
 						<Pressable
 							onPress={() => setChangingPassword(true)}
-							className="w-full items-center justify-center flex-row space-x-1"
+							className="h-14 px-12 w-full items-center justify-center flex-row space-x-1"
 							disabled={changingPassword}
 						>
 							<MaterialCommunityIcons
@@ -194,7 +195,7 @@ export default function Profile() {
 								size={16}
 								color="white"
 							/>
-							<Text className="text-white font-medium">Alterar senha</Text>
+							<Text className="text-white font-medium">{" "}Alterar senha</Text>
 						</Pressable>
 						{changingPassword && (
 							<View className="gap-y-4">
@@ -343,10 +344,17 @@ export default function Profile() {
 						)}
 					</View>
 					<TouchableOpacity
-						className="bg-main rounded h-10 items-center justify-center w-full mb-4"
+						className="bg-main rounded h-14 items-center justify-center w-full px-12"
 						onPress={handleSubmit(onSubmit)}
 					>
-						<Text className="text-white font-semibold text-base">Salvar</Text>
+						<View className="flex-row">
+							<MaterialCommunityIcons
+								name="form-textbox-password"
+								size={16}
+								color="white"
+							/>
+							<Text className="text-white font-semibold text-base">{" "}Salvar</Text>
+						</View>
 					</TouchableOpacity>
 				</KeyboardAvoidingView>
 			</ScrollView>
