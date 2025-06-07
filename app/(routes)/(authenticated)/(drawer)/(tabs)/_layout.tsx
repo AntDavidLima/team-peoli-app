@@ -9,13 +9,9 @@ import {
 } from "@react-navigation/material-top-tabs";
 import { ParamListBase, TabNavigationState } from "@react-navigation/native";
 import { useWindowDimensions } from "react-native";
-
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
-  color: string;
-}) {
-  return <MaterialCommunityIcons size={25} {...props} />;
-}
+import HomeIcon from "@/assets/icons/home2.svg";
+import TrainingIcon from "@/assets/icons/training.svg";
+import StatsIcon from "@/assets/icons/stats.svg";
 
 const { Navigator } = createMaterialTopTabNavigator();
 
@@ -68,23 +64,19 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          tabBarIcon: () => <HomeIcon width={25} height={25} />,
         }}
       />
       <Tabs.Screen
         name="(trainings)"
         options={{
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="dumbbell" color={color} />
-          ),
+          tabBarIcon: () => <TrainingIcon width={25} height={25} />,
         }}
       />
       <Tabs.Screen
         name="progress"
         options={{
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="chart-timeline-variant" color={color} />
-          ),
+          tabBarIcon: () => <StatsIcon width={25} height={25} />,
         }}
       />
     </Tabs>

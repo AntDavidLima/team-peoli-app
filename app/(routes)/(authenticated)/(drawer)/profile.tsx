@@ -1,5 +1,12 @@
 import tailwindColors from "tailwindcss/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import PasswordIcon from "@/assets/icons/password.svg";
+import PasswordIcon2 from "@/assets/icons/password2.svg";
+import EmailIcon from "@/assets/icons/email.svg";
+import PhoneIcon from "@/assets/icons/phone.svg";
+import SaveIcon from "@/assets/icons/save.svg";
+import SeeIcon from "@/assets/icons/see.svg";
+import CameraIcon from "@/assets/icons/camera.svg";
 import {
 	KeyboardAvoidingView,
 	Pressable,
@@ -100,11 +107,7 @@ export default function Profile() {
 			<View className="items-center h-40 relative -mt-20">
 				<View className="absolute -bottom-20">
 					<View className="w-36 bg-white aspect-square rounded-full bg-disabled items-center justify-center">
-						<MaterialCommunityIcons
-							name="camera-plus-outline"
-							size={48}
-							color={tailwindColors.black}
-						/>
+						<CameraIcon width={48} height={48} />
 					</View>
 						<MaterialCommunityIcons
 							className="absolute top-24 right-1"
@@ -120,12 +123,8 @@ export default function Profile() {
 			<ScrollView className="mt-24 h-[calc(100vh - 96px)]">
 				<KeyboardAvoidingView className="px-4 gap-y-6">
 					<View>
-						<View className="flex-row items-center mb-3 gap-1">
-							<MaterialCommunityIcons
-								name="email"
-								size={20}
-								color="#64A4EB"
-							/>
+						<View className="flex-row items-center mb-3 gap-2">
+							<EmailIcon width={20} height={20} />
 							<Text className="text-[white] text-base font-medium">E-mail</Text>
 						</View>
 						<Controller
@@ -151,13 +150,9 @@ export default function Profile() {
 						)}
 					</View>
 					<View>
-						<View className="flex-row items-center mb-3 gap-1">
-							<MaterialCommunityIcons
-								name="phone-outline"
-								size={20}
-								color="#64A4EB"
-							/>
-							<Text className="text-[white] text-base font-medium">E-mail</Text>
+						<View className="flex-row items-center mb-3 gap-2">
+							<PhoneIcon width={20} height={20} />
+							<Text className="text-[white] text-base font-medium">Telefone</Text>
 						</View>
 						<Controller
 							control={control}
@@ -184,25 +179,24 @@ export default function Profile() {
 							</Text>
 						)}
 					</View>
-					<View className="bg-secondary bg-opacity-50 rounded mt-10">
+					<View className={changingPassword ? `bg-opacity-0` :  `bg-secondary/40` + " rounded mt-10"}>
 						<Pressable
 							onPress={() => setChangingPassword(true)}
 							className="h-14 px-12 w-full items-center justify-center flex-row space-x-1"
 							disabled={changingPassword}
 						>
-							<MaterialCommunityIcons
-								name="form-textbox-password"
-								size={16}
-								color="white"
-							/>
-							<Text className="text-white font-medium">{" "}Alterar senha</Text>
+							<PasswordIcon2 width={20} height={20}/>
+							<Text className="text-white font-medium">{"   "}Alterar senha</Text>
 						</Pressable>
 						{changingPassword && (
 							<View className="gap-y-4">
 								<View>
-									<Text className="text-white font-medium mb-1">
-										Senha atual
-									</Text>
+									<View className="flex-row items-center mb-3 gap-2">
+										<PasswordIcon width={20} height={20} fill="#64A4EB" />
+										<Text className="text-white font-medium mb-1">
+											Senha atual
+										</Text>
+									</View>
 									<View className="relative">
 										<Controller
 											control={control}
@@ -210,8 +204,8 @@ export default function Profile() {
 												<TextInput
 													placeholder="••••••••••••"
 													placeholderTextColor={customColors.disabled}
-													className="bg-darker rounded w-full px-2 text-base py-1.5 text-white"
-													inputMode="text"
+													className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
+									 				inputMode="text"
 													autoCapitalize="none"
 													secureTextEntry={!passwordVisible.current}
 													onChangeText={onChange}
@@ -221,7 +215,7 @@ export default function Profile() {
 											name="currentPassword"
 										/>
 										<TouchableOpacity
-											className="absolute right-2 top-1/4"
+											className="absolute right-2 top-1/4 mr-2"
 											onPress={() =>
 												setPasswordVisible((prev) => ({
 													...prev,
@@ -229,15 +223,12 @@ export default function Profile() {
 												}))
 											}
 										>
-											<MaterialCommunityIcons
-												name={
-													passwordVisible.current
-														? "eye-off-outline"
-														: "eye-outline"
-												}
-												size={20}
-												color="gray"
-											/>
+											{passwordVisible.current ? <MaterialCommunityIcons
+											name={"eye-off-outline"}
+											size={20}
+											color="gray"
+											/> :
+											<SeeIcon width={20} height={20} />}
 										</TouchableOpacity>
 									</View>
 									{errors.currentPassword && (
@@ -247,9 +238,12 @@ export default function Profile() {
 									)}
 								</View>
 								<View>
-									<Text className="text-white font-medium mb-1">
-										Nova senha
-									</Text>
+									<View className="flex-row items-center mb-3 gap-2">
+										<PasswordIcon width={20} height={20} fill="#64A4EB" />
+										<Text className="text-white font-medium mb-1">
+											Nova senha
+										</Text>
+									</View>
 									<View className="relative">
 										<Controller
 											control={control}
@@ -257,7 +251,7 @@ export default function Profile() {
 												<TextInput
 													placeholder="••••••••••••"
 													placeholderTextColor={customColors.disabled}
-													className="bg-darker rounded w-full px-2 text-base py-1.5 text-white"
+													className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 													inputMode="text"
 													autoCapitalize="none"
 													secureTextEntry={!passwordVisible.new}
@@ -268,7 +262,7 @@ export default function Profile() {
 											name="newPassword"
 										/>
 										<TouchableOpacity
-											className="absolute right-2 top-1/4"
+											className="absolute right-2 top-1/4 mr-2"
 											onPress={() =>
 												setPasswordVisible((prev) => ({
 													...prev,
@@ -276,15 +270,12 @@ export default function Profile() {
 												}))
 											}
 										>
-											<MaterialCommunityIcons
-												name={
-													passwordVisible.new
-														? "eye-off-outline"
-														: "eye-outline"
-												}
-												size={20}
-												color="gray"
-											/>
+											{passwordVisible.new ? <MaterialCommunityIcons
+											name={"eye-off-outline"}
+											size={20}
+											color="gray"
+											/> :
+											<SeeIcon width={20} height={20} />}
 										</TouchableOpacity>
 									</View>
 									{errors.newPassword && (
@@ -294,9 +285,12 @@ export default function Profile() {
 									)}
 								</View>
 								<View>
-									<Text className="text-white font-medium mb-1">
-										Confirme a nova senha
-									</Text>
+									<View className="flex-row items-center mb-3 gap-2">
+										<PasswordIcon width={20} height={20} fill="#64A4EB" />
+										<Text className="text-white font-medium mb-1">
+											Confirme a nova senha
+										</Text>
+									</View>
 									<View className="relative">
 										<Controller
 											control={control}
@@ -304,7 +298,7 @@ export default function Profile() {
 												<TextInput
 													placeholder="••••••••••••"
 													placeholderTextColor={customColors.disabled}
-													className="bg-darker rounded w-full px-2 text-base py-1.5 text-white"
+													className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 													inputMode="text"
 													autoCapitalize="none"
 													secureTextEntry={!passwordVisible.confirm}
@@ -315,7 +309,7 @@ export default function Profile() {
 											name="passwordConfirmation"
 										/>
 										<TouchableOpacity
-											className="absolute right-2 top-1/4"
+											className="absolute right-2 top-1/4 mr-2"
 											onPress={() =>
 												setPasswordVisible((prev) => ({
 													...prev,
@@ -323,15 +317,12 @@ export default function Profile() {
 												}))
 											}
 										>
-											<MaterialCommunityIcons
-												name={
-													passwordVisible.confirm
-														? "eye-off-outline"
-														: "eye-outline"
-												}
-												size={20}
-												color="gray"
-											/>
+											{passwordVisible.confirm ? <MaterialCommunityIcons
+											name={"eye-off-outline"}
+											size={20}
+											color="gray"
+											/> :
+											<SeeIcon width={20} height={20} />}
 										</TouchableOpacity>
 									</View>
 									{errors.passwordConfirmation && (
@@ -348,12 +339,8 @@ export default function Profile() {
 						onPress={handleSubmit(onSubmit)}
 					>
 						<View className="flex-row">
-							<MaterialCommunityIcons
-								name="form-textbox-password"
-								size={16}
-								color="white"
-							/>
-							<Text className="text-white font-semibold text-base">{" "}Salvar</Text>
+							<SaveIcon width={20} height={20}/>
+							<Text className="text-white font-semibold text-base">{"   "}Salvar</Text>
 						</View>
 					</TouchableOpacity>
 				</KeyboardAvoidingView>

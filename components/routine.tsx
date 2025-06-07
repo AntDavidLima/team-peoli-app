@@ -1,4 +1,8 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import InfoIcon from "@/assets/icons/info.svg";
+import ExerciseIcon from "@/assets/icons/exercise.svg";
+import DateIcon from "@/assets/icons/date.svg";
+import TimeIcon from "@/assets/icons/time.svg";
 import draftToHtml from "draftjs-to-html";
 import { useState } from "react";
 import {
@@ -33,28 +37,16 @@ export function RoutineItem({
 
   return (
     <View className="mb-8">
-      <View className="bg-lightBackground rounded-2xl p-4">
-        <View className="flex-row gap-1 mb-2">
-          <MaterialCommunityIcons
-            name="calendar-month-outline"
-            color={customColors.secondary}
-            size={18}
-          />
+      <View className="bg-lightBackground rounded-2xl p-6">
+        <View className="flex-row gap-2 mb-2">
+          <ExerciseIcon width={18} height={18}/>
           <Text className="text-white font-bold">{name}</Text>
           <View className="w-[1px] h-[100%] bg-white mx-1"/>
-          <MaterialCommunityIcons
-            name="calendar-month-outline"
-            color={customColors.secondary}
-            size={18}
-          />
+          <TimeIcon width={18} height={18}/>
           <Text className="text-disabled">{totalWeeks + " Semana" + (totalWeeks > 1 ? "s" : "")}</Text>
         </View>
-        <View className="flex-row gap-1">
-          <MaterialCommunityIcons
-            name="calendar-month-outline"
-            color={customColors.secondary}
-            size={18}
-          />
+        <View className="flex-row gap-2">
+          <DateIcon width={18} height={18}/>
           <Text className="text-disabled">
             {dayStart.toLocaleDateString("pt-BR")}
           </Text>
@@ -70,13 +62,9 @@ export function RoutineItem({
           className="bg-main rounded-2xl mt-4"
           onPress={() => setOrientationCollapsed((collapsed) => !collapsed)}
         >
-          <View className="flex-row items-center p-4 justify-between">
-            <View className="flex-row items-center gap-1">
-              <MaterialCommunityIcons
-                name="alert-outline"
-                color={tailwindColors.white}
-                size={16}
-              />
+          <View className="flex-row items-center p-6 justify-between">
+            <View className="flex-row items-center gap-2">
+              <InfoIcon width={16} height={16}/>
               <Text className="text-white">Orientações gerais</Text>
             </View>
             <View className={orientationCollapsed ? "rotate-0" : "rotate-180"}>

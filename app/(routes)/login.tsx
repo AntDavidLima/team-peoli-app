@@ -1,4 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import EmailIcon from '@/assets/icons/email.svg';
+import PasswordIcon from '@/assets/icons/password.svg';
+import SeeIcon from "@/assets/icons/see.svg";
 import { Link, Redirect } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -52,12 +55,8 @@ export default function Login() {
             className="mb-16 w-60 h-20 self-center"
             source={require("@/assets/images/logo.png")} />
           <View>
-            <View className="flex-row items-center mb-3 gap-1">
-              <MaterialCommunityIcons
-                name="email"
-                size={20}
-                color="#64A4EB"
-              />
+            <View className="flex-row items-center mb-3 gap-2">
+              <EmailIcon width={20} height={20} />
               <Text className="text-[white] text-base font-medium">E-mail</Text>
             </View>
             <Controller
@@ -82,12 +81,8 @@ export default function Login() {
             )}
           </View>
           <View>
-            <View className="flex-row items-center mb-3 gap-1">
-              <MaterialCommunityIcons
-                name="form-textbox-password"
-                size={20}
-                color="#64A4EB"
-              />
+            <View className="flex-row items-center mb-3 gap-2">
+              <PasswordIcon width={20} height={20} />
               <Text className="text-white text-base font-medium">Senha</Text>
             </View>
             <View className="relative">
@@ -108,14 +103,16 @@ export default function Login() {
                 name="password"
               />
               <TouchableOpacity
-                className="absolute right-2 top-1/4"
+                className="absolute right-2 top-1/4 mr-2"
                 onPress={() => setPasswordVisible((current) => !current)}
-              >
+              >{
+                passwordVisible ? <SeeIcon width={20} height={20} /> :
                 <MaterialCommunityIcons
-                  name={passwordVisible ? "eye-off-outline" : "eye-outline"}
+                  name={"eye-off-outline"}
                   size={20}
                   color="gray"
                 />
+                }
               </TouchableOpacity>
             </View>
             {errors.password && (
@@ -125,7 +122,7 @@ export default function Login() {
             )}
             <Link href="/" asChild>
               <Text className="text-[#64A4EB] mt-3 font-medium text-right">
-                Esqueceu sua senha?
+                Esqueceu a senha?
               </Text>
             </Link>
           </View>            

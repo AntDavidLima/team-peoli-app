@@ -153,7 +153,7 @@ export function Set({
         render={({ field: { onChange, value, ...field } }) => (
           <View className="w-[20%] px-1 items-center">
             <TextInput
-              className={`text-center p-4 ${
+              className={`text-center border-gray-300 border-2 rounded-lg border-solid px-8 py-4 ${
                 errors.reps ? "text-red-500" : "text-white"
               }`}
               keyboardType="numeric"
@@ -177,9 +177,9 @@ export function Set({
         control={control}
         name="reps"
         render={({ field: { onChange, value, ...field } }) => (
-          <View className="w-[25%] px-1 items-center">
+          <View className="w-[20%] px-1 mr-2 items-center">
             <TextInput
-              className={`text-center p-4 ${
+              className={`text-center border-gray-300 border-2 rounded-lg border-solid py-4 px-8 ${
                 errors.reps ? "text-red-500" : "text-white"
               }`}
               placeholder={recomendedReps}
@@ -201,7 +201,7 @@ export function Set({
       />
       <View className="w-[15%] items-center">
         <Pressable
-          className={`w-10 h-10 rounded-lg items-center justify-center ${
+          className={`w-16 h-16 rounded-full items-center justify-center ${
             getValues("done") ? "bg-green-500" : "bg-subtitle"
           }`}
           disabled={!trainingStarted || watch("done")}
@@ -209,7 +209,7 @@ export function Set({
         >
           <MaterialCommunityIcons
             name="check"
-            size={16}
+            size={38}
             color={watch("done") ? tailwindColors.white : customColors.disabled}
           />
         </Pressable>

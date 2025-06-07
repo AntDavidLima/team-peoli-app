@@ -9,9 +9,16 @@ import {
 } from "@react-navigation/drawer";
 import { Image, Linking, Pressable, Text, View } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import MenuIcon from "@/assets/icons/menu.svg";
+import CameraIcon from "@/assets/icons/camera.svg";
+import HomeIcon from "@/assets/icons/home.svg";
+import UserIcon from "@/assets/icons/user.svg";
+import WhatsappIcon from "@/assets/icons/whatsapp.svg";
+import LogoutIcon from "@/assets/icons/logout.svg";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import Home from "./(tabs)";
 
 export default function DrawerLayout() {
   const { logout, currentUser } = useAuthentication();
@@ -39,12 +46,19 @@ export default function DrawerLayout() {
         drawerActiveBackgroundColor: customColors.main,
         drawerActiveTintColor: tailwindColors.white,
         drawerType: "slide",
+        drawerItemStyle: {
+          marginHorizontal: 0, 
+          borderRadius: 0,
+          height: 50,
+          paddingLeft: 20,
+          justifyContent: 'center',
+        },
         header: ({ navigation }) => (
           <View className="flex-row justify-between items-center px-4 mt-2">
             <Pressable
               onPress={() => navigation.goBack()}
               disabled={!navigation.canGoBack()}
-              className={`${navigation.canGoBack() && getDrawerStatusFromState(navigation.getState()) === "closed" ? "opacity-100" : "opacity-0"} transition-all p-4`}
+              className={`${navigation.canGoBack() && getDrawerStatusFromState(navigation.getState()) === "closed" ? "opacity-100" : "opacity-0"} transition-all -top-6 p-4`}
             >
               <MaterialCommunityIcons
                 name="arrow-left"
@@ -57,11 +71,7 @@ export default function DrawerLayout() {
               source={require("@/assets/images/logo.png")} />
             <Pressable onPress={() => navigation.openDrawer()}
               className="-mt-12">
-              <MaterialCommunityIcons
-                name="menu"
-                color="white"
-                size={32}
-              />
+              <MenuIcon width={32} height={32}/>
             </Pressable>
           </View>
         ),
@@ -71,11 +81,7 @@ export default function DrawerLayout() {
           <View className="items-center mt-8 py-8 rounded">
             <Pressable onPress={() => props.navigation.navigate("profile")}>
               <View className="w-32 bg-white aspect-square rounded-full bg-disabled items-center justify-center">
-                <MaterialCommunityIcons
-                  name="camera-plus-outline"
-                  size={36}
-                  color={tailwindColors.black}
-                />
+                <CameraIcon width={36} height={36} />
               </View>
             </Pressable>
             <Text className="text-white font-bold text-2xl mt-4">
@@ -85,31 +91,46 @@ export default function DrawerLayout() {
           <DrawerContentScrollView {...props}>
             <DrawerItemList {...props} />
             <DrawerItem
+              style = {{
+                marginHorizontal: 0, 
+                borderRadius: 0,
+                height: 50,
+                paddingLeft: 20,
+                justifyContent: 'center',
+              }}
+              icon={() => <WhatsappIcon width={24} height={24}/>}
               label={professorPhone ? "Falar com o professor" : ""}
               onPress={() => {Linking.openURL(professorPhone ? `https://wa.me/55${professorPhone}` : "")}}
             />
           </DrawerContentScrollView>
           <Pressable
-            className="bg-red-400 p-3 flex-row space-x-1 m-2 rounded-xl m-3"
+            className="bg-red-400 p-3 flex-row space-x-1 m-2 rounded-xl m-3 gap-2"
             onPress={logout}
           >
-            <MaterialCommunityIcons
-             className="mx-2"
-              name="logout-variant"
-              size={24}
-              color={tailwindColors.white}
-            />
+            <LogoutIcon width={24} height={24}/>
             <Text className="text-white font-bold text-base">Sair</Text>
           </Pressable>
         </View>
       )}
     >
-      <Drawer.Screen name="(tabs)" options={{ title: "Início" }} />
+      <Drawer.Screen 
+        name="(tabs)" 
+        options={
+          { 
+            title: "Início",
+            drawerIcon: () => <HomeIcon width={24} height={24} color="white" />
+          }
+        } />
       <Drawer.Screen
         name="exercise/[id]"
         options={{ drawerItemStyle: { display: "none" } }}
       />
-      <Drawer.Screen name="profile" options={{ title: "Meu perfil" }} />
+      <Drawer.Screen name="profile" options={
+        { 
+          title: "Meu perfil",
+          drawerIcon: () => <UserIcon width={24} height={24} color={customColors.background} /> 
+          }
+        } />
     </Drawer>  
     
   );

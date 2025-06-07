@@ -1,5 +1,7 @@
 import { api } from "@/lib/api";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import PowerIcon from "@/assets/icons/power.svg";
+import FinishIcon from "@/assets/icons/finish.svg";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RawDraftContentState } from "draft-js";
 import { useLocalSearchParams } from "expo-router";
@@ -213,19 +215,9 @@ export default function Exercise() {
           )
         )}
       </PagerView>
-      <Pressable
-        className={`absolute left-4 bottom-[88px] p-1.5 rounded-3xl ${
-          clock ? "bg-main" : "bg-green-500"
-        }`}
-        onPress={() => (clock ? finishWorkout() : startWorkout())}
-      >
+      <View className="justify-center items-center">
         {clock ? (
           <View className="flex-row items-center space-x-1">
-            <MaterialCommunityIcons
-              name="stop-circle-outline"
-              size={24}
-              color={tailwindColors.white}
-            />
             <View className="flex-row items-baseline">
               {timeAfterStart.hours > 0 && (
                 <Text className="text-white font-bold">
@@ -243,19 +235,12 @@ export default function Exercise() {
             </View>
           </View>
         ) : (
-          <View className="flex-row items-center justify-center space-x-1">
-            <MaterialCommunityIcons
-              name="play-circle"
-              size={24}
-              color={tailwindColors.white}
-            />
-            <Text className="text-white font-bold">INICIAR</Text>
-          </View>
+          <View></View>
         )}
-      </Pressable>
-      <View className="flex-row justify-around py-2 bg-darker">
+      </View>
+      <View className="h-20 flex-row justify-around py-2">
         <Pressable
-          className="bg-card p-4 rounded-full"
+          className="border-gray-300 border-2 rounded-full border-solid p-4 rounded-full"
           disabled={currentExerciseIndex === 0}
           onPress={() => {
             pagerViewRef.current?.setPage(currentExerciseIndex - 1);
@@ -271,8 +256,25 @@ export default function Exercise() {
             size={24}
           />
         </Pressable>
+        <View className="items-center justify-center mb-1">
+          <Pressable
+              style={{
+                  borderRadius: 30,
+                  shadowColor: clock ? "#F44336" : "#1FB990",
+                  shadowOffset: { width: 0, height: 5 },
+                  shadowOpacity: 0.34,
+                  shadowRadius: 6.27,
+                  elevation: 10,
+              }}
+              onPress={() => (clock ? finishWorkout() : startWorkout())}
+            >
+              {clock ? (<FinishIcon  width={80} height={80} />)
+              :
+              (<PowerIcon width={80} height={80} />)}
+          </Pressable>
+        </View>
         <Pressable
-          className="bg-card p-4 rounded-full"
+          className="border-gray-300 border-2 rounded-full  p-4 rounded-full"
           disabled={currentExerciseIndex === training.exercises.length - 1}
           onPress={() => {
             pagerViewRef.current?.setPage(currentExerciseIndex + 1);

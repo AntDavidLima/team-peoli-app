@@ -27,7 +27,7 @@ import _ from "lodash";
 import { ptBR } from "date-fns/locale";
 import { Routine } from "@/components/trainings";
 import { Link } from "expo-router";
-// import Fire from "@/assets/svgs/fire.svg";
+import FireIcon from "@/assets/icons/fire.svg";
 
 export default function Home() {
   const { currentUser } = useAuthentication();
@@ -136,12 +136,7 @@ export default function Home() {
                   </View>
                 </View>
                 <View>
-                  {/* <Fire width={40} height={40} /> */}
-                  <MaterialCommunityIcons
-                    name="play-circle-outline"
-                    color={customColors.main}
-                    size={68}
-                  />
+                  <FireIcon width={40} height={40} />
                 </View>
               </View>
             </Pressable>
@@ -162,11 +157,9 @@ export default function Home() {
                   aqui para ir direto para ele!
                 </Text>
               </View>
-              <MaterialCommunityIcons
-                name="play-circle-outline"
-                color={customColors.main}
-                size={68}
-              />
+              <View className="bg-main rounded-full items-center justify-center h-20 w-20">
+                <FireIcon width={40} height={40} />
+              </View>
             </View>
             <View>
               {routines?.map((routine) =>
@@ -181,7 +174,7 @@ export default function Home() {
           <View className="flex-row justify-between">
             {Object.values(Days).map((day, index) => (
               <View className={`${index == new Date().getDay() ? ('bg-main') : ('bg-lightBackground')} 
-                items-center w-12 rounded-3xl`} key={index}>
+                items-center w-12 rounded-full`} key={index}>
                 <Text className="text-gray-400 pt-1 font-semibold text-base">
                   {day}
                 </Text>

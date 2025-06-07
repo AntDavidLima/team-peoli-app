@@ -13,6 +13,8 @@ import { ResizeMode, Video } from "expo-av";
 import customColors from "@/tailwind.colors";
 import { useState } from "react";
 import Collapsible from "react-native-collapsible";
+import TimerIcon from "@/assets/icons/timer.svg";
+import InfoIcon from "@/assets/icons/info.svg";
 
 interface ExerciseExecution {
   exercise: Exercise;
@@ -58,13 +60,9 @@ export function ExerciseExecution({
     <View className="px-4 mb-14">
       <View className="mt-6">
         <View>
-          <View className="flex-row pl-1 mt-1 gap-0.5">
-              <MaterialCommunityIcons
-                name="timer-outline"
-                color={customColors.secondary}
-                size={14}
-              />
-              <Text className="text-white text-xs">{restTime}s</Text>
+          <View className="flex-row pl-1 mt-1 gap-2">
+              <TimerIcon width={18} height={18} color={customColors.secondary} />
+              <Text className="text-white text-s">{restTime}s</Text>
             </View>
           <Text className="text-white font-bold text-4xl">
             {exercise.name}
@@ -90,7 +88,10 @@ export function ExerciseExecution({
           >
             <View className="p-4">
               <View className="flex-row justify-between items-center">
-                <Text className="text-white font-semibold">Instruções</Text>
+                <View className="flex-row gap-3">
+                  <InfoIcon width={20} height={20} color={customColors.secondary} />
+                  <Text className="text-white font-semibold">Instruções</Text>
+                </View>
                 <View className={orientationCollapsed ? "rotate-0" : "rotate-180"}>
                   <MaterialCommunityIcons
                     name="chevron-down"

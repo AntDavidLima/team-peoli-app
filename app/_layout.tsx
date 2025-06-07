@@ -1,7 +1,7 @@
 import "../components/gesture-handler";
 import { AuthenticationProvider } from "@/contexts/AuthenticationContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useFonts, Inter_400Regular } from "@expo-google-fonts/inter";
+import { useFonts, Inter_400Regular, Inter_700Bold } from "@expo-google-fonts/inter";
 import { Slot, SplashScreen } from "expo-router";
 import { useEffect } from "react";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
@@ -26,7 +26,8 @@ export const unstable_settings = {
 export default function RootLayout() {
   const [loaded, error] = useFonts({
     ...MaterialCommunityIcons.font,
-    Inter_400Regular
+    'Inter-Regular': Inter_400Regular,
+    'Inter-Bold': Inter_700Bold,
   });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.
@@ -36,7 +37,10 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
+      console.log("Fontes carregadas com sucesso!");
       SplashScreen.hideAsync();
+    } else if (!loaded && !error) {
+      console.log("Carregando fontes...");
     }
   }, [loaded]);
 

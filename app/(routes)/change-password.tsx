@@ -1,4 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import PasswordIcon from '@/assets/icons/password.svg';
+import SeeIcon from "@/assets/icons/see.svg";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -63,11 +65,7 @@ export default function ChangePassword() {
 				<View className="space-y-4 w-full">
 					<View>
 						<View className="flex-row items-center my-3 gap-1">
-							<MaterialCommunityIcons
-								name="form-textbox-password"
-								size={20}
-								color="#64A4EB"
-							/>
+							<PasswordIcon width={20} height={20} fill="#64A4EB" />
 							<Text className="text-white font-medium">Nova senha</Text>
 						</View>
 						<View className="relative">
@@ -96,12 +94,12 @@ export default function ChangePassword() {
 									}))
 								}
 							>
+								{passwordVisible.new ? <SeeIcon width={20} height={20} fill="#64A4EB" /> :
 								<MaterialCommunityIcons
-									name={passwordVisible.new ? "eye-off-outline" : "eye-outline"}
-									size={20}
-									className="mx-3"
-									color="white"
-								/>
+								name={"eye-off-outline"}
+								size={20}
+								color="gray"
+								/>}
 							</TouchableOpacity>
 							{errors.newPassword && (
 								<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">
@@ -111,12 +109,8 @@ export default function ChangePassword() {
 						</View>
 					</View>
 					<View>
-						<View className="flex-row items-center my-3 gap-1 ">
-							<MaterialCommunityIcons
-								name="form-textbox-password"
-								size={20}
-								color="#64A4EB"
-							/>
+						<View className="flex-row items-center my-3 gap-2 ">
+							<PasswordIcon width={20} height={20} fill="#64A4EB" />
 							<Text className="text-white font-medium">
 								Confirmar nova senha
 							</Text>
@@ -147,14 +141,12 @@ export default function ChangePassword() {
 									}))
 								}
 							>
+								{passwordVisible.confirm ? <SeeIcon width={20} height={20} fill="#64A4EB" /> :
 								<MaterialCommunityIcons
-									name={
-										passwordVisible.confirm ? "eye-off-outline" : "eye-outline"
-									}
-									size={20}
-									color="white"
-									className="mx-3"
-								/>
+								name={"eye-off-outline"}
+								size={20}
+								color="gray"
+								/>}
 							</TouchableOpacity>
 							{errors.passwordConfirmation && (
 								<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">
