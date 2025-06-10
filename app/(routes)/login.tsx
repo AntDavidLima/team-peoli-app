@@ -106,12 +106,12 @@ export default function Login() {
                 className="absolute right-2 top-1/4 mr-2"
                 onPress={() => setPasswordVisible((current) => !current)}
               >{
-                passwordVisible ? <SeeIcon width={20} height={20} /> :
-                <MaterialCommunityIcons
+                passwordVisible ? <MaterialCommunityIcons
                   name={"eye-off-outline"}
                   size={20}
                   color="gray"
-                />
+                /> :
+                <SeeIcon width={20} height={20} />
                 }
               </TouchableOpacity>
             </View>
