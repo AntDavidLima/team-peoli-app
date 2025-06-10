@@ -18,7 +18,6 @@ import LogoutIcon from "@/assets/icons/logout.svg";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import Home from "./(tabs)";
 
 export default function DrawerLayout() {
   const { logout, currentUser } = useAuthentication();
@@ -81,7 +80,16 @@ export default function DrawerLayout() {
           <View className="items-center mt-8 py-8 rounded">
             <Pressable onPress={() => props.navigation.navigate("profile")}>
               <View className="w-32 bg-white aspect-square rounded-full bg-disabled items-center justify-center">
-                <CameraIcon width={36} height={36} />
+                {
+                  currentUser?.profilePhotoUrl ? (
+                    <Image
+                      className="w-full h-full rounded-full"
+                      src={currentUser.profilePhotoUrl}
+                    />
+                  ) : (
+                    <CameraIcon width={36} height={36} />
+                  )
+                }
               </View>
             </Pressable>
             <Text className="text-white font-bold text-2xl mt-4">

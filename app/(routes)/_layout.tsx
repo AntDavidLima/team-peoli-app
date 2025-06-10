@@ -1,4 +1,3 @@
-import tailwindColors from "tailwindcss/colors";
 import customColors from "@/tailwind.colors";
 import { Stack } from "expo-router";
 

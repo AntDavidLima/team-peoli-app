@@ -3,7 +3,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { RawDraftContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
 import { Link } from "expo-router";
-import { getThumbnailAsync } from "expo-video-thumbnails";
 import {
   Image,
   Pressable,
@@ -65,7 +64,7 @@ export function RoutineExercise({
                   color={customColors.secondary}
                   size={14}
                 />
-                <Text className="text-white text-xs">Descanso: {restTime}s</Text>
+                <Text className="text-disabled">Descanso: {restTime}s</Text>
               </View>
             </View>
             <View className="mt-2 flex-row bg-gray-700 items-center gap-1 p-3 rounded-lg">
@@ -74,11 +73,11 @@ export function RoutineExercise({
                   color={customColors.secondary}
                   size={14}
                 />
-              <Text className="text-white font-semibold text-xs">
+              <Text className="text-disabled">
                 {sets} Séries
               </Text>
-              <Text className="text-white font-semibold text-xs">de</Text>
-              <Text className="text-white font-semibold text-xs">
+              <Text className="text-disabled">de</Text>
+              <Text className="text-disabled">
                 {reps} Repetições
               </Text>
             </View>

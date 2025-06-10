@@ -1,4 +1,3 @@
-import tailwindColors from "tailwindcss/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import PasswordIcon from "@/assets/icons/password.svg";
 import PasswordIcon2 from "@/assets/icons/password2.svg";
@@ -15,6 +14,7 @@ import {
 	TextInput,
 	TouchableOpacity,
 	View,
+	Image,
 } from "react-native";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { Controller, useForm } from "react-hook-form";
@@ -26,6 +26,8 @@ import { phone } from "@/lib/masks";
 import { APIError, api } from "@/lib/api";
 import { AxiosError } from "axios";
 import Toast from "react-native-root-toast";
+import EditIcon from "@/assets/icons/edit.svg";
+import * as ImagePicker from "expo-image-picker";
 
 const profileFormSchema = yup
 	.object({
@@ -39,6 +41,7 @@ const profileFormSchema = yup
 			.matches(/^\d{11}$/, { message: "Telefone inválido" })
 			.length(11, { message: "O telefone deve possuir 11 dígitos" })
 			.required("Campo obrigatório"),
+		profilePhotoUrl: yup.string(),
 	})
 	.test({
 		name: "passwordRequired",
@@ -76,6 +79,7 @@ type ProfileForm = yup.InferType<typeof profileFormSchema>;
 export default function Profile() {
 	const { currentUser, updateMe } = useAuthentication();
 
+	const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
 	const [changingPassword, setChangingPassword] = useState(false);
 	const [passwordVisible, setPasswordVisible] = useState({
 		current: false,
@@ -93,8 +97,36 @@ export default function Profile() {
 			email: currentUser?.email,
 			phone: currentUser?.phone,
 			name: currentUser?.name,
+			profilePhotoUrl: currentUser?.profilePhotoUrl,
 		},
 	});
+
+	const pickImage = async () => {
+		try{
+			const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+			if (permissionResult.granted === false) {
+				Toast.show("É necessário permitir o acesso à galeria para escolher uma foto.", {
+					backgroundColor: "orange",
+					position: Toast.positions.TOP,
+				});
+				return;
+			}
+
+			const result = await ImagePicker.launchImageLibraryAsync({
+				mediaTypes: ImagePicker.MediaTypeOptions.Images,
+				allowsEditing: true,
+				aspect: [1, 1],
+				quality: 1.0,
+			});
+
+			if (!result.canceled && result.assets && result.assets.length > 0) {
+				setSelectedImage(result.assets[0]);
+			}
+		}catch (error) {
+			console.error("Erro ao escolher imagem:", error);
+		}
+	};
+
 
 	useEffect(() => {
 		return () => {
@@ -104,23 +136,34 @@ export default function Profile() {
 
 	return (
 		<View className="bg-background relative px-4 flex-1">
-			<View className="items-center h-40 relative -mt-20">
-				<View className="absolute -bottom-20">
-					<View className="w-36 bg-white aspect-square rounded-full bg-disabled items-center justify-center">
-						<CameraIcon width={48} height={48} />
-					</View>
-						<MaterialCommunityIcons
-							className="absolute top-24 right-1"
-							name="pencil-circle"
-							size={42}
-							color="#2764E4"
+			<View className="items-center h-40 relative -mt-12">
+				<Pressable onPress={pickImage} className="absolute -bottom-20 items-center">
+				<View className="w-36 h-36 rounded-full bg-white items-center justify-center overflow-hidden">
+					{selectedImage ? (
+						<Image
+							className="w-full h-full"
+							source={selectedImage}
 						/>
-					<Text className="text-white text-center text-base font-bold mt-2 text-3xl">
-						{currentUser?.name}
-					</Text>
+					) : currentUser?.profilePhotoUrl ? (
+						<Image
+							className="w-full h-full"
+							src={currentUser.profilePhotoUrl}
+						/>
+					) : (
+						<CameraIcon width={48} height={48} />
+					)}
 				</View>
+				<View
+					className="absolute top-[55%] left-[65%]"
+				>
+					<EditIcon width={36} height={36} />
+				</View>
+				<Text className="text-white text-center font-bold mt-2 text-2xl">
+					{currentUser?.name}
+				</Text>
+			</Pressable>
 			</View>
-			<ScrollView className="mt-24 h-[calc(100vh - 96px)]">
+			<ScrollView className="mt-36 h-[calc(100vh - 96px)]">
 				<KeyboardAvoidingView className="px-4 gap-y-6">
 					<View>
 						<View className="flex-row items-center mb-3 gap-2">
@@ -356,28 +399,41 @@ export default function Profile() {
 		name,
 	}: ProfileForm) {
 		try {
-			await api.patch(`/user/${currentUser?.id}`, {
-				newPassword,
-				email,
-				name,
-				phone,
-				currentPassword,
+			const formData = new FormData();
+			formData.append("name", name);
+			formData.append("email", email);
+			formData.append("phone", phone);
+
+			if(newPassword) {
+				formData.append("newPassword", newPassword);
+			}
+			if(currentPassword){
+				formData.append("currentPassword", currentPassword);
+			}
+			if(selectedImage) {
+				formData.append("profilePhoto", {
+					uri: selectedImage.uri,
+					name: selectedImage.fileName,
+					type: selectedImage.mimeType,
+				} as any);
+				
+			}
+			await api.patch(`/user/${currentUser?.id}`, formData,  {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				}
 			});
 
 			await updateMe({ authToken: currentUser!.authToken });
-
 			Toast.show("Perfil atualizado com sucesso!", {
 				backgroundColor: "green",
 				opacity: 0.9,
 				position: Toast.positions.TOP,
 			});
-
 			setChangingPassword(false);
 		} catch (error) {
 			if (error instanceof AxiosError) {
 				const apiError = error.response?.data as APIError;
-
-				console.log(error.message);
 
 				if (typeof apiError.error === "string") {
 					Toast.show(apiError.message, {

@@ -86,7 +86,7 @@ export default function ChangePassword() {
 								name="newPassword"
 							/>
 							<TouchableOpacity
-								className="absolute right-2 top-1/4"
+								className="absolute right-4 top-1/4"
 								onPress={() =>
 									setPasswordVisible((prev) => ({
 										...prev,
@@ -94,12 +94,13 @@ export default function ChangePassword() {
 									}))
 								}
 							>
-								{passwordVisible.new ? <SeeIcon width={20} height={20} fill="#64A4EB" /> :
-								<MaterialCommunityIcons
+								{passwordVisible.new ? <MaterialCommunityIcons
 								name={"eye-off-outline"}
 								size={20}
 								color="gray"
-								/>}
+								/> :
+								<SeeIcon width={20} height={20} fill="#64A4EB" /> 
+								}
 							</TouchableOpacity>
 							{errors.newPassword && (
 								<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">
@@ -109,7 +110,7 @@ export default function ChangePassword() {
 						</View>
 					</View>
 					<View>
-						<View className="flex-row items-center my-3 gap-2 ">
+						<View className="flex-row items-center mt-4 my-3 gap-2 ">
 							<PasswordIcon width={20} height={20} fill="#64A4EB" />
 							<Text className="text-white font-medium">
 								Confirmar nova senha
@@ -133,7 +134,7 @@ export default function ChangePassword() {
 								name="passwordConfirmation"
 							/>
 							<TouchableOpacity
-								className="absolute right-2 top-1/4"
+								className="absolute right-4 top-1/4"
 								onPress={() =>
 									setPasswordVisible((prev) => ({
 										...prev,
@@ -141,12 +142,13 @@ export default function ChangePassword() {
 									}))
 								}
 							>
-								{passwordVisible.confirm ? <SeeIcon width={20} height={20} fill="#64A4EB" /> :
-								<MaterialCommunityIcons
+								{passwordVisible.confirm ? <MaterialCommunityIcons
 								name={"eye-off-outline"}
 								size={20}
 								color="gray"
-								/>}
+								/> :
+								<SeeIcon width={20} height={20} fill="#64A4EB" />
+								}
 							</TouchableOpacity>
 							{errors.passwordConfirmation && (
 								<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">

@@ -219,8 +219,8 @@ export function Set({
           className="w-full h-full"
           style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
         >
-          <View className="relative bg-card w-3/4 m-auto h-[30rem] rounded flex items-center">
-            <Text className="mt-4 text-white text-xl font-semibold">
+          <View className="relative bg-background w-3/4 m-auto h-[30rem] flex items-center" style={{borderRadius: 30}}>
+            <Text className="mt-4 text-white text-4xl font-semibold">
               Descanso
             </Text>
             <VictoryChart width={width * 0.75} height={width * 0.75}>
@@ -231,24 +231,24 @@ export function Set({
                     fill: ({ datum }) => datum.color,
                   },
                 }}
-                innerRadius={width * 0.75 * 0.375}
+                innerRadius={width * 0.65 * 0.405}
                 data={[
                   { x: "elapsed", y: timeInRest, color: customColors.main },
                   {
                     x: "left",
                     y: restTime - timeInRest,
-                    color: customColors.darker,
+                    color: tailwindColors.white,
                   },
                 ]}
               />
               <MaterialCommunityIcons
-                name="timer-sand"
+                name="clock-time-four-outline"
                 size={20}
-                color={tailwindColors.white}
+                color={customColors.disabled}
                 style={{
                   position: "absolute",
                   left: (width * 0.75) / 2 - 10,
-                  top: width * 0.75 * 0.5 - 64,
+                  top: width * 0.70 * 0.5 - 64,
                 }}
               />
               <VictoryLabel
@@ -257,22 +257,25 @@ export function Set({
                 verticalAnchor="middle"
                 x={(width * 0.75) / 2}
                 y={(width * 0.75) / 2}
-                style={{ fontSize: 64, fill: tailwindColors.white }}
+                style={{ 
+                  fontSize: 90, 
+                  fontWeight: 'bold',
+                  fill: tailwindColors.white }}
               />
               <VictoryLabel
-                text={restTime + "s"}
+                text={"segundos"}
                 textAnchor="middle"
                 verticalAnchor="middle"
                 x={(width * 0.75) / 2}
                 y={(width * 0.75) / 2 + 64 - 10}
-                style={{ fontSize: 16, fill: tailwindColors.white }}
+                style={{ fontSize: 16, fill: customColors.disabled }}
               />
               <VictoryAxis
                 tickFormat={() => ""}
                 style={{ axis: { display: "none" } }}
               />
             </VictoryChart>
-            <Text className="text-gray-300 text-lg text-center px-4">
+            <Text className="text-disabled text-lg text-center px-4">
               O descanso faz parte do treino. Respeite-o!
             </Text>
             <Pressable

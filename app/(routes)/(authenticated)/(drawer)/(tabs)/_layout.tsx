@@ -1,5 +1,4 @@
 import React from "react";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import customColors from "@/tailwind.colors";
 import { withLayoutContext } from "expo-router";
 import {

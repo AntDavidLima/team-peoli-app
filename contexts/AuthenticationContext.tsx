@@ -22,6 +22,7 @@ interface CurrentUser {
   lastPasswordChange: null | Date;
   email: string;
   phone: string;
+  profilePhotoUrl: string;
 }
 
 interface APIAuthenticateResponse {
@@ -129,6 +130,7 @@ export function AuthenticationProvider({ children }: PropsWithChildren) {
       lastPasswordChange: me.lastPasswordChange,
       email: me.email,
       phone: me.phone,
+      profilePhotoUrl: me.profilePhotoUrl,
     });
   }
 

@@ -62,7 +62,7 @@ export function RoutineItem({
           className="bg-main rounded-2xl mt-4"
           onPress={() => setOrientationCollapsed((collapsed) => !collapsed)}
         >
-          <View className="flex-row items-center p-6 justify-between">
+          <View className="flex-row items-center p-4 justify-between">
             <View className="flex-row items-center gap-2">
               <InfoIcon width={16} height={16}/>
               <Text className="text-white">Orientações gerais</Text>
@@ -91,7 +91,7 @@ export function RoutineItem({
       <View className="mt-4">
         {trainings.map(({ id, name, exercises }) => (
           <View key={id}>
-            <Text className="text-white text-center font-bold text-4xl mb-4">{name}</Text>
+            <Text className="text-white text-center font-bold text-2xl mb-4">{name}</Text>
             <View className="gap-4">
               {exercises.map(
                 ({ reps, orientations, sets, exercise, restTime }) => (

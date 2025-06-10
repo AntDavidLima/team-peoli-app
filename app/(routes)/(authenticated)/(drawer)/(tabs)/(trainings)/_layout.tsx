@@ -4,10 +4,10 @@ import {
   createMaterialTopTabNavigator,
 } from "@react-navigation/material-top-tabs";
 import { ParamListBase, TabNavigationState } from "@react-navigation/native";
-import { Link, withLayoutContext } from "expo-router";
+import { withLayoutContext } from "expo-router";
 import customColors from "@/tailwind.colors";
 import tailwindColors from "tailwindcss/colors";
-import { View, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
 
 const { Navigator } = createMaterialTopTabNavigator();
 
