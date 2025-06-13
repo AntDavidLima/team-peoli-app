@@ -5,5 +5,14 @@
 @layer base {
     html, body, :root {
         font-family: theme('fontFamily.sans');
+        margin: 0;
+        padding: 0;
+        flex-direction: column;
+        height: 100%; 
+        overflow: hidden
+    }
+
+    div[data-expo-root] {
+        flex: 1;
     }
 }

@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
-import { WebDisplay } from "./web-display";
+import RenderHTML from "react-native-render-html";
 import draftToHtml from "draftjs-to-html";
 import tailwindColors from "tailwindcss/colors";
 import { Exercise } from "@/app/(routes)/(authenticated)/(drawer)/exercise/[id]";
@@ -62,59 +62,69 @@ export function ExerciseExecution({
         <View>
           <View className="flex-row pl-1 mt-1 gap-2">
               <TimerIcon width={18} height={18} color={customColors.secondary} />
-              <Text className="text-white text-s">{restTime}s</Text>
+              <Text style={{fontFamily: 'Inter-Regular'}}  className="text-gray-400 text-s">{restTime}s</Text>
             </View>
-          <Text className="text-white font-bold text-4xl">
+          <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white mt-4 text-3xl font-extrabold">
             {exercise.name}
           </Text>
         </View>
         {exercise.executionVideoUrl && (
           <View className="mt-2 bg-card rounded-2xl">
             <Video
-              source={{ uri: exercise.executionVideoUrl }}
-              resizeMode={ResizeMode.CONTAIN}
+              source={{ uri: exercise.executionVideoUrl }} resizeMode={ResizeMode.CONTAIN}
               useNativeControls
               style={{
                 width: "100%",
                 aspectRatio: 16 / 9,
+                shadowOffset: {
+                  width: 0,
+                  height: 2,
+                },
+                shadowOpacity: 0.25,
+                shadowRadius: 3.84,
+                elevation: 5,
               }}
             />
           </View>
         )}
         {orientations?.blocks[0].text.trim() !== "" && (
           <Pressable
-            className="bg-main rounded-2xl mt-4"
+            className="bg-main rounded-xl mt-4"
             onPress={() => setOrientationCollapsed((collapsed) => !collapsed)}
           >
-            <View className="p-4">
-              <View className="flex-row justify-between items-center">
+            <View>
+              <View className="flex-row items-center p-4 justify-between">
                 <View className="flex-row gap-3">
                   <InfoIcon width={20} height={20} color={customColors.secondary} />
-                  <Text className="text-white font-semibold">Instruções</Text>
+                  <Text style={{fontFamily: 'Inter-Medium'}}  className=" text-white font-medium">Instruções</Text>
                 </View>
                 <View className={orientationCollapsed ? "rotate-0" : "rotate-180"}>
                   <MaterialCommunityIcons
                     name="chevron-down"
-                    color={customColors.secondary}
-                    size={20}
+                    color={tailwindColors.white}
+                    size={16}
                   />
                 </View>
               </View>
               <Collapsible collapsed={orientationCollapsed}>
-                  <WebDisplay
-                    html={draftToHtml(orientations!)}
-                    textColor={tailwindColors.white}
-                  />
+                  <RenderHTML
+                  source={{ html: draftToHtml(orientations!) }}
+                  baseStyle={{ 
+                    color: tailwindColors.white, 
+                    backgroundColor: customColors.lightBackground,
+                    paddingHorizontal: 12,
+                  }}
+                />
                 </Collapsible>
             </View>
           </Pressable>
         )}
-        <View className="mt-8 rounded">
-          <View className="flex-row mb-4">
-            <Text className="text-white w-[15%] text-center">SÉRIE</Text>
-            <Text className="text-white w-1/4 text-center">A SUPERAR</Text>
-            <Text className="text-white w-1/5 text-center">CARGA</Text>
-            <Text className="text-white w-[25%] text-center">REPS</Text>
+        <View className="mt-6 rounded">
+          <View className="flex-row mb-4 ml-4">
+            <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-[12%] text-center font-medium">SÉRIE</Text>
+            <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-[25%] text-center font-medium">A SUPERAR</Text>
+            <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-[20%] text-center font-medium">CARGA</Text>
+            <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-[25%] text-center font-medium">REPS</Text>
           </View>
           {Array.from({ length: sets })
             .map((_, index) => setsInfo[index])

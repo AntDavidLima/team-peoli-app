@@ -51,22 +51,22 @@ export default function ChangePassword() {
 	return (	
       	<KeyboardAvoidingView
         behavior="padding">
-			<View className="items-center w-full px-8 justify-center h-full">
+			<View className="w-full px-8 justify-center h-full">
 				<Image
-					className="mb-16 w-60 h-20 self-center"
+            		style={{width: 180, height: 60, marginTop: 60}}
+					className="mb-16 self-center"
 					source={require("@/assets/images/logo.png")} />
 				<View className="space-y-2 mb-3">
-					<Text className="text-white text-3xl text-center font-bold">Bem-vindo(a) ao time!</Text>
-					<Text className="text-[#64A4EB] text-base text-center">
-						Antes de começar, altere sua{"\n"}
-						senha provisória.
+					<Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-3xl text-center font-bold">Bem-vindo(a) ao time!</Text>
+					<Text style={{fontFamily: 'Inter-Regular', alignSelf: 'center'}} className="mt-2 text-secondary text-base text-center">
+						Antes de começar, altere sua senha provisória.
 					</Text>
 				</View>
 				<View className="space-y-4 w-full">
 					<View>
 						<View className="flex-row items-center my-3 gap-1">
 							<PasswordIcon width={20} height={20} fill="#64A4EB" />
-							<Text className="text-white font-medium">Nova senha</Text>
+							<Text style={{fontFamily: 'Inter-Medium'}} className="text-white font-medium">Criar Nova senha</Text>
 						</View>
 						<View className="relative">
 							<Controller
@@ -112,7 +112,7 @@ export default function ChangePassword() {
 					<View>
 						<View className="flex-row items-center mt-4 my-3 gap-2 ">
 							<PasswordIcon width={20} height={20} fill="#64A4EB" />
-							<Text className="text-white font-medium">
+							<Text style={{fontFamily: 'Inter-Medium'}} className="text-white font-medium">
 								Confirmar nova senha
 							</Text>
 						</View>
@@ -158,7 +158,8 @@ export default function ChangePassword() {
 						</View>
 					</View>
 					<TouchableOpacity
-						className="bg-main rounded h-14 items-center justify-center w-full px-10 mt-12"
+						style={{marginTop: 50}}
+						className="bg-main rounded h-14 items-center justify-center w-full px-10"
 						onPress={handleSubmit(onSubmit)}
 					>
 						<Text className="text-white font-semibold text-base">Definir Senha</Text>

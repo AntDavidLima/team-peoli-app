@@ -35,6 +35,10 @@ export default function Login() {
     handleSubmit,
   } = useForm<LoginForm>({
     resolver: yupResolver(loginFormSchema),
+    defaultValues: {
+      email: "",
+      password: ""
+    }
   });
 
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -52,7 +56,8 @@ export default function Login() {
       >
         <View className="px-4 gap-y-4">
           <Image 
-            className="mb-16 w-60 h-20 self-center"
+            style={{width: 180, height: 60}}
+            className="mb-14 self-center"
             source={require("@/assets/images/logo.png")} />
           <View>
             <View className="flex-row items-center mb-3 gap-2">
@@ -156,7 +161,7 @@ export default function Login() {
 
         console.log(error.message);
 
-        if (typeof apiError.error === "string") {
+        if (apiError && typeof apiError.error === "string") {
           Toast.show(apiError.message, {
             backgroundColor: "red",
             opacity: 0.9,

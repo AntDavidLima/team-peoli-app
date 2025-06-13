@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link } from "expo-router";
 import { useMemo } from "react";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import {
   VictoryArea,
@@ -28,6 +29,7 @@ import customColors from "@/tailwind.colors";
 import { Days } from "./(trainings)/_layout";
 import { Routine } from "@/components/trainings";
 import FireIcon from "@/assets/icons/fire.svg";
+import tailwindColors from "@/tailwind.colors";
 
 
 export default function Home() {
@@ -74,7 +76,7 @@ export default function Home() {
         day: new Date(dateStr),
         value: volume,
       }))
-      .sort((a, b) => a.day.getTime() - b.day.getTime());
+      .sort((a, b) => a.day.getTime() - b.day.getTime()).slice(-5);
   }, [exercises]);
 
 
@@ -93,20 +95,20 @@ export default function Home() {
             }}
             asChild
           >
-            <Pressable className="bg-lightBackground rounded-2xl p-2">
-              <View className="flex-row px-4 py-4 justify-between">
+            <Pressable className="bg-lightBackground rounded-2xl p-3">
+              <View className="flex-row px-4 py-4 justify-between items-center">
                 <View>
                   <View>
-                    <Text style={{fontFamily: 'Inter-Regular'}} className="text-white font-bold text-2xl">
+                    <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white text-2xl font-extrabold">
                       Iniciar Treino
                     </Text>
-                    <Text className="text-disabled font-semibold mt-1">
+                    <Text style={{fontFamily: 'Inter-Regular'}} className="text-disabled">
                       {format(new Date(), "EEEE", { locale: ptBR })}
                     </Text>
-                    <Text className="text-secondary font-bold text-2xl">{routines[0]?.trainings[0].name}</Text>
+                    <Text style={{fontFamily: 'Inter-Bold'}} className="text-secondary text-xl mt-2 font-bold">{routines[0]?.trainings[0].name}</Text>
                   </View>
                 </View>
-                <View className="bg-main rounded-full items-center justify-center h-20 w-20">
+                <View className="bg-main rounded-full items-center justify-center h-16 w-16">
                   <FireIcon width={40} height={40} />
                 </View>
               </View>
@@ -116,52 +118,64 @@ export default function Home() {
           <View className="bg-lightBackground rounded-2xl p-2">
             <View className="flex-row px-4 py-4 justify-between">
               <View>
-                <Text style={{fontFamily: 'Inter-Regular'}} className="text-white font-bold text-xl">
-                  Iniciar Treino
+                <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white font-extrabold text-xl">
+                  Day Off
                 </Text>
-                <Text className="text-subtitle font-semibold mt-1">
-                  {format(new Date(), "EEEE", { locale: ptBR })}
+                <Text style={{fontFamily: 'Inter-Regular'}} className="text-subtitle mt-1">
+                  {/* {format(new Date(), "EEEE", { locale: ptBR })} */}
+                  Sem treinos programados.
                 </Text>
-                <Text className="text-subtitle text-xs mt-1 max-w-[80%]">
-                  Por enquanto seu professor ainda não cadastrou um treino pro
-                  dia de hoje, mas assim que ele cadastrar, você poderá tocar
-                  aqui para ir direto para ele!
+                <Text 
+                  style={{width: 200}}
+                className="text-subtitle text-xs mt-1">
+                  Utilize o dia para recuperação ou análise do seu progresso!
                 </Text>
               </View>
               <View className="bg-main rounded-full items-center justify-center h-20 w-20">
-                <FireIcon width={40} height={40} />
+                <MaterialCommunityIcons
+                  name="moon-waning-crescent"
+                  size={20}
+                  color="white"
+                  style={{
+                    position: "absolute",
+                    left: (width * 0.75) / 2 - 10,
+                    top: width * 0.70 * 0.5 - 64,
+                  }}
+                />
               </View>
             </View>
-            <View>
+            {/* <View>
               {routines?.map((routine) =>
                 routine.trainings.map((training) => (
                   <Text key={training.id} className="text-subtitle">{training.name}</Text>
                 )),
               )}
-            </View>
+            </View> */}
           </View>
         )}
-        <View className="rounded-full p-3 mt-4">
+        <View className="rounded-full p-3 mt-3">
           <View className="flex-row justify-between items-center">
             {Object.values(Days).map((day, index) => (
-              <View className={`${index == new Date().getDay() ? ('bg-main') : ('bg-lightBackground')} 
-                items-center w-14 h-14 rounded-full p-1`} key={index}>
-                <Text className="text-gray-400 font-semibold text-base">
+              <View
+                style={{width: 45, height: 45}}
+                className={`${index == new Date().getDay() ? ('bg-main') : ('bg-lightBackground')} 
+                items-center rounded-full`} key={index}>
+                <Text style={{fontFamily: 'Inter-Regular'}}  className="text-gray-400 text-base">
                   {day}
                 </Text>
-                <Text className="px-2 pb-1 text-white">
+                <Text style={{fontFamily: 'Inter-SemiBold'}} className="px-2 text-white font-semibold">
                   {new Date().getDate() - new Date().getDay() + (new Date().getDay() === 0 ? -6 : 0) + index}
                 </Text>
               </View>
             ))}
           </View>
-          <View className="mt-3 flex-row justify-center">
+          {/* <View className="mt-3 flex-row justify-center"> */}
             {/* <Text className="text-white">0/1 dias completos</Text> */}
-          </View>
+          {/* </View> */}
         </View>
-        <View className="bg-lightBackground rounded-xl mt-4 py-4 relative overflow-hidden">
+        <View className="bg-lightBackground mt-3 rounded-xl py-2 relative overflow-hidden">
           <View className="flex-row items-center">
-            <Text className="text-white text-3xl font-bold ml-4 px-8 py-4">
+            <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white text-xl ml-2 px-4 py-4 font-extrabold">
               Status de Progressão Geral
             </Text>
           </View>
@@ -185,7 +199,7 @@ export default function Home() {
                   textAnchor="middle"
                   style={{
                     fill: customColors.main,
-                    fontWeight: 'bold'
+                    fontFamily: 'Inter-ExtraBold' 
                   }}
                 />
                 <Defs>

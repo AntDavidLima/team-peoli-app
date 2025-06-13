@@ -143,17 +143,18 @@ export function Set({
 
   return (
     <Fragment>
-      <Text className="text-white w-[15%] text-center font-extrabold">
+      <Text style={{fontFamily: 'Inter-Bold'}} className="text-white w-[15%] text-center font-bold">
         {index}
       </Text>
-      <Text className="text-white w-1/4 text-center">{lastExecution}</Text>
+      <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-1/4 text-center font-medium">{lastExecution}</Text>
       <Controller
         control={control}
         name="load"
         render={({ field: { onChange, value, ...field } }) => (
-          <View className="w-[20%] px-1 items-center">
+          <View className="px-1 items-center w-1/4">
             <TextInput
-              className={`text-center border-gray-300 border-2 rounded-lg border-solid px-8 py-4 ${
+              style={{fontFamily: 'Inter-Regular'}} 
+              className={`text-center w-20 border-2 border-gray-400 rounded-lg border-solid py-4 ${
                 errors.reps ? "text-red-500" : "text-white"
               }`}
               keyboardType="numeric"
@@ -177,9 +178,10 @@ export function Set({
         control={control}
         name="reps"
         render={({ field: { onChange, value, ...field } }) => (
-          <View className="w-[20%] px-1 mr-2 items-center">
+          <View className="px-1 items-center w-1/5">
             <TextInput
-              className={`text-center border-gray-300 border-2 rounded-lg border-solid py-4 px-8 ${
+              style={{fontFamily: 'Inter-Regular'}} 
+              className={`text-center w-20 border-2 border-gray-400 rounded-lg border-solid py-4 ${
                 errors.reps ? "text-red-500" : "text-white"
               }`}
               placeholder={recomendedReps}
@@ -199,9 +201,10 @@ export function Set({
           </View>
         )}
       />
-      <View className="w-[15%] items-center">
+      <View className="w-[20%] items-center">
         <Pressable
-          className={`w-16 h-16 rounded-full items-center justify-center ${
+          style={{marginRight: 5}}
+          className={`w-12 h-12 rounded-full items-center justify-center ${
             getValues("done") ? "bg-green-500" : "bg-subtitle"
           }`}
           disabled={!trainingStarted || watch("done")}
@@ -219,8 +222,8 @@ export function Set({
           className="w-full h-full"
           style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
         >
-          <View className="relative bg-background w-3/4 m-auto h-[30rem] flex items-center" style={{borderRadius: 30}}>
-            <Text className="mt-4 text-white text-4xl font-semibold">
+          <View className="relative bg-background m-auto h-[30rem] w-[20rem] flex items-center" style={{borderRadius: 30}}>
+            <Text className="mt-8 text-white text-4xl font-semibold">
               Descanso
             </Text>
             <VictoryChart width={width * 0.75} height={width * 0.75}>
@@ -258,7 +261,7 @@ export function Set({
                 x={(width * 0.75) / 2}
                 y={(width * 0.75) / 2}
                 style={{ 
-                  fontSize: 90, 
+                  fontSize: 100, 
                   fontWeight: 'bold',
                   fill: tailwindColors.white }}
               />

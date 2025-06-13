@@ -135,7 +135,7 @@ export default function Progress() {
 
   return (
     <Fragment>
-      <Text className="text-white text-4xl font-[900] text-center mt-8">
+      <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white text-2xl text-center mt-8 font-extrabod">
         Estatísticas de Progressão
       </Text>
       <View style={{ zIndex: 1000, marginHorizontal: 16, marginTop: 16 }}>
@@ -247,7 +247,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
         day: new Date(dateStr),
         value: volume,
       }))
-      .sort((a, b) => a.day.getTime() - b.day.getTime());
+      .sort((a, b) => a.day.getTime() - b.day.getTime()).slice(-5);
   }, [workouts]);
 
   if (weeklyVolumeData.length < 1) {
@@ -257,7 +257,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
   return (
     <View key={id} className="bg-lightBackground rounded-2xl py-4">
       <View className="px-8 py-4">
-        <Text className="text-white text-2xl font-bold">{name}</Text>
+        <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white text-xl font-extrabold">{name}</Text>
       </View>
       <VictoryChart
         width={width - 22}
@@ -277,7 +277,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
           textAnchor="middle"
           style={{
             fill: customColors.main,
-            fontWeight: 'bold'
+            fontFamily: 'Inter-ExtraBold'
           }}
         />
         <Defs>

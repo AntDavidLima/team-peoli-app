@@ -31,27 +31,27 @@ export function RoutineItem({
 
   const { width } = useWindowDimensions();
 
-  const dayStart : any = new Date(startDate);
-  const dayEnd : any = endDate ? new Date(endDate) : null;
-  const totalWeeks = dayEnd ? Math.round((dayEnd - dayStart) / (7 * 24 * 60 * 60 * 1000)) : 1;
+  const dayStart : Date = new Date(startDate);
+  const dayEnd : Date | null = endDate ? new Date(endDate) : null;
+  const totalWeeks = dayEnd ? Math.round((dayEnd.getTime() - dayStart.getTime()) / (7 * 24 * 60 * 60 * 1000)) : 1;
 
   return (
     <View className="mb-8">
       <View className="bg-lightBackground rounded-2xl p-6">
         <View className="flex-row gap-2 mb-2">
           <ExerciseIcon width={18} height={18}/>
-          <Text className="text-white font-bold">{name}</Text>
+          <Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold">{name}</Text>
           <View className="w-[1px] h-[100%] bg-white mx-1"/>
           <TimeIcon width={18} height={18}/>
-          <Text className="text-disabled">{totalWeeks + " Semana" + (totalWeeks > 1 ? "s" : "")}</Text>
+          <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">{totalWeeks + " Semana" + (totalWeeks > 1 ? "s" : "")}</Text>
         </View>
         <View className="flex-row gap-2">
           <DateIcon width={18} height={18}/>
-          <Text className="text-disabled">
+          <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">
             {dayStart.toLocaleDateString("pt-BR")}
           </Text>
           {dayEnd && (
-            <Text className="text-disabled">
+            <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">
               - {dayEnd.toLocaleDateString("pt-BR")}
             </Text>
           )}
@@ -59,7 +59,7 @@ export function RoutineItem({
       </View>
       {orientations?.blocks[0].text.trim() !== "" && (
         <Pressable
-          className="bg-main rounded-2xl mt-4"
+          className="bg-main rounded-xl mt-4"
           onPress={() => setOrientationCollapsed((collapsed) => !collapsed)}
         >
           <View className="flex-row items-center p-4 justify-between">
@@ -91,7 +91,7 @@ export function RoutineItem({
       <View className="mt-4">
         {trainings.map(({ id, name, exercises }) => (
           <View key={id}>
-            <Text className="text-white text-center font-bold text-2xl mb-4">{name}</Text>
+            <Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-center font-bold text-xl mb-4">{name}</Text>
             <View className="gap-4">
               {exercises.map(
                 ({ reps, orientations, sets, exercise, restTime }) => (

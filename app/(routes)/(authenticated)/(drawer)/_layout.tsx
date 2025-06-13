@@ -26,7 +26,7 @@ export default function DrawerLayout() {
   useEffect(() => {
     async function fetchProfessorPhone() {
       try {
-        const { data } = await api.get("/user/prof");
+        const { data } = await api.get("/user/professor");
         if (data) {
           setProfessorPhone(data.phone);
         }
@@ -62,14 +62,16 @@ export default function DrawerLayout() {
               <MaterialCommunityIcons
                 name="arrow-left"
                 size={24}
+                style={{marginTop: 30}}
                 color={tailwindColors.white}
               />
             </Pressable>
             <Image 
-              className="mb-16 w-44 h-14 mt-4"
+              style={{marginBottom: 20, width: 130, height: 40, marginTop: 0}}
               source={require("@/assets/images/logo.png")} />
-            <Pressable onPress={() => navigation.openDrawer()}
-              className="-mt-12">
+            <Pressable 
+              style={{marginTop: -20, marginRight: 10}}
+              onPress={() => navigation.openDrawer()}>
               <MenuIcon width={32} height={32}/>
             </Pressable>
           </View>
@@ -77,14 +79,14 @@ export default function DrawerLayout() {
       }}
       drawerContent={(props) => (
         <View className="flex-1 bg-lightBackground">
-          <View className="items-center mt-8 py-8 rounded">
+          <View className="items-center mt-4 py-8 rounded">
             <Pressable onPress={() => props.navigation.navigate("profile")}>
-              <View className="w-32 bg-white aspect-square rounded-full bg-disabled items-center justify-center">
+              <View className="w-36 bg-white aspect-square rounded-full bg-disabled items-center justify-center">
                 {
                   currentUser?.profilePhotoUrl ? (
                     <Image
                       className="w-full h-full rounded-full"
-                      src={currentUser.profilePhotoUrl}
+                      source={{uri: currentUser.profilePhotoUrl}}
                     />
                   ) : (
                     <CameraIcon width={36} height={36} />
@@ -112,7 +114,7 @@ export default function DrawerLayout() {
             />
           </DrawerContentScrollView>
           <Pressable
-            className="bg-red-400 p-3 flex-row space-x-1 m-2 rounded-xl m-3 gap-2"
+            className="bg-red-400 p-3 flex-row space-x-1 rounded-xl m-4 gap-2"
             onPress={logout}
           >
             <LogoutIcon width={24} height={24}/>

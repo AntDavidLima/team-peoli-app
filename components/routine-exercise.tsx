@@ -14,6 +14,8 @@ import Collapsible from "react-native-collapsible";
 import { useState } from "react";
 import RenderHTML from "react-native-render-html";
 import customColors from "@/tailwind.colors";
+import RestTimeIcon from "@/assets/icons/restTime.svg";
+import Training2Icon from "@/assets/icons/training2.svg";
 
 interface RoutineExercise {
   idExercise: number;
@@ -55,29 +57,21 @@ export function RoutineExercise({
         <View className="flex-row items-center">
           <View className="w-[70%] mr-4">
             <View>
-              <Text className="text-white font-semibold mb-1 text-3xl">
+              <Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold mb-2 text-xl">
                 {exerciseName}
               </Text>
               <View className="flex-row bg-gray-700 items-center gap-2 p-3 rounded-lg">
-                <MaterialCommunityIcons
-                  name="timer-outline"
-                  color={customColors.secondary}
-                  size={14}
-                />
-                <Text className="text-disabled">Descanso: {restTime}s</Text>
+                <RestTimeIcon height={20} width={20}/>
+                <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">Descanso: {restTime}s</Text>
               </View>
             </View>
             <View className="mt-2 flex-row bg-gray-700 items-center gap-1 p-3 rounded-lg">
-              <MaterialCommunityIcons
-                  name="timer-outline"
-                  color={customColors.secondary}
-                  size={14}
-                />
-              <Text className="text-disabled">
+               <Training2Icon height={20} width={20}/>
+              <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">
                 {sets} Séries
               </Text>
-              <Text className="text-disabled">de</Text>
-              <Text className="text-disabled">
+              <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">de</Text>
+              <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">
                 {reps} Repetições
               </Text>
             </View>
@@ -102,7 +96,7 @@ export function RoutineExercise({
           >
             <View className="mt-3">
               <View className="flex-row gap-1 py-3 border-b-2 border-gray-700">
-                <Text className="text-secondary text-lg">Ver instruções</Text>
+                <Text style={{fontFamily: 'Inter-Regular'}} className="text-secondary text-lg">Ver instruções</Text>
                 <View className={orientationCollapsed ? "rotate-0" : "rotate-180"}>
                   <MaterialCommunityIcons
                     name="chevron-down"

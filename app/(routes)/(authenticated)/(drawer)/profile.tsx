@@ -29,6 +29,12 @@ import Toast from "react-native-root-toast";
 import EditIcon from "@/assets/icons/edit.svg";
 import * as ImagePicker from "expo-image-picker";
 
+interface ReactNativeFile {
+  uri: string;
+  name: string;
+  type: string;
+}
+
 const profileFormSchema = yup
 	.object({
 		name: yup.string().min(3, "").required("Campo obrigatório"),
@@ -75,6 +81,19 @@ const profileFormSchema = yup
 	});
 
 type ProfileForm = yup.InferType<typeof profileFormSchema>;
+
+const createReactNativeFile = (
+  asset: ImagePicker.ImagePickerAsset
+): ReactNativeFile => {
+  const fileName = asset.fileName || `profile_${Date.now()}`;
+  const mimeType = asset.mimeType || 'image/jpeg';
+  
+  return {
+    uri: asset.uri,
+    name: fileName,
+    type: mimeType,
+  };
+};
 
 export default function Profile() {
 	const { currentUser, updateMe } = useAuthentication();
@@ -147,7 +166,7 @@ export default function Profile() {
 					) : currentUser?.profilePhotoUrl ? (
 						<Image
 							className="w-full h-full"
-							src={currentUser.profilePhotoUrl}
+							source={{uri: currentUser.profilePhotoUrl}}
 						/>
 					) : (
 						<CameraIcon width={48} height={48} />
@@ -158,7 +177,7 @@ export default function Profile() {
 				>
 					<EditIcon width={36} height={36} />
 				</View>
-				<Text className="text-white text-center font-bold mt-2 text-2xl">
+				<Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-center mt-2 text-2xl font-bold">
 					{currentUser?.name}
 				</Text>
 			</Pressable>
@@ -168,7 +187,7 @@ export default function Profile() {
 					<View>
 						<View className="flex-row items-center mb-3 gap-2">
 							<EmailIcon width={20} height={20} />
-							<Text className="text-[white] text-base font-medium">E-mail</Text>
+							<Text style={{fontFamily: 'Inter-Medium'}} className="text-[white] font-medium">E-mail</Text>
 						</View>
 						<Controller
 							control={control}
@@ -176,7 +195,7 @@ export default function Profile() {
 								<TextInput
 									placeholder="seuemail@exemplo.com"
                   					placeholderTextColor="#AAAAAA" 
-									defaultValue="claraelenita130@gmail.com"
+									defaultValue=""
 									className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 									inputMode="email"
 									autoCapitalize="none"
@@ -195,7 +214,7 @@ export default function Profile() {
 					<View>
 						<View className="flex-row items-center mb-3 gap-2">
 							<PhoneIcon width={20} height={20} />
-							<Text className="text-[white] text-base font-medium">Telefone</Text>
+							<Text style={{fontFamily: 'Inter-Medium'}} className="text-[white] font-medium">Telefone</Text>
 						</View>
 						<Controller
 							control={control}
@@ -229,14 +248,14 @@ export default function Profile() {
 							disabled={changingPassword}
 						>
 							<PasswordIcon2 width={20} height={20}/>
-							<Text className="text-white font-medium">{"   "}Alterar senha</Text>
+							<Text style={{fontFamily: 'Inter-SemiBold'}} className="text-white font-semibold">{"   "}Alterar senha</Text>
 						</Pressable>
 						{changingPassword && (
 							<View className="gap-y-4">
 								<View>
 									<View className="flex-row items-center mb-3 gap-2">
 										<PasswordIcon width={20} height={20} fill="#64A4EB" />
-										<Text className="text-white font-medium mb-1">
+										<Text  style={{fontFamily: 'Inter-Medium'}} className="text-white mb-1 font-medium">
 											Senha atual
 										</Text>
 									</View>
@@ -283,7 +302,7 @@ export default function Profile() {
 								<View>
 									<View className="flex-row items-center mb-3 gap-2">
 										<PasswordIcon width={20} height={20} fill="#64A4EB" />
-										<Text className="text-white font-medium mb-1">
+										<Text style={{fontFamily: 'Inter-Medium'}} className="text-white mb-1 font-medium">
 											Nova senha
 										</Text>
 									</View>
@@ -330,7 +349,7 @@ export default function Profile() {
 								<View>
 									<View className="flex-row items-center mb-3 gap-2">
 										<PasswordIcon width={20} height={20} fill="#64A4EB" />
-										<Text className="text-white font-medium mb-1">
+										<Text style={{fontFamily: 'Inter-Medium'}} className="text-white mb-1 font-medium">
 											Confirme a nova senha
 										</Text>
 									</View>
@@ -383,7 +402,7 @@ export default function Profile() {
 					>
 						<View className="flex-row">
 							<SaveIcon width={20} height={20}/>
-							<Text className="text-white font-semibold text-base">{"   "}Salvar</Text>
+							<Text style={{fontFamily: 'Inter-SemiBold'}} className="text-white text-base font-semibold">{"   "}Salvar</Text>
 						</View>
 					</TouchableOpacity>
 				</KeyboardAvoidingView>
@@ -410,14 +429,12 @@ export default function Profile() {
 			if(currentPassword){
 				formData.append("currentPassword", currentPassword);
 			}
-			if(selectedImage) {
-				formData.append("profilePhoto", {
-					uri: selectedImage.uri,
-					name: selectedImage.fileName,
-					type: selectedImage.mimeType,
-				} as any);
-				
+			
+			if (selectedImage) {
+				const file = createReactNativeFile(selectedImage);
+				formData.append("profilePhoto", file as unknown as Blob);
 			}
+
 			await api.patch(`/user/${currentUser?.id}`, formData,  {
 				headers: {
 					'Content-Type': 'multipart/form-data',

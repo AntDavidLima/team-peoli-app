@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import { getItemAsync, setItemAsync, deleteItemAsync } from "expo-secure-store";
+import { storage } from "@/lib/storage";
 import {
   PropsWithChildren,
   createContext,
@@ -62,7 +62,7 @@ export function AuthenticationProvider({ children }: PropsWithChildren) {
 
   useEffect(() => {
     (async () => {
-      const authToken = await getItemAsync("auth_token");
+      const authToken = await storage.getItem("auth_token");
 
       if (authToken) {
         api.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
@@ -111,7 +111,7 @@ export function AuthenticationProvider({ children }: PropsWithChildren) {
       }
     );
 
-    await setItemAsync("auth_token", data.auth_token);
+    await storage.setItem("auth_token", data.auth_token);
 
     api.defaults.headers.common["Authorization"] = `Bearer ${data.auth_token}`;
 
@@ -135,7 +135,7 @@ export function AuthenticationProvider({ children }: PropsWithChildren) {
   }
 
   async function logout() {
-    await deleteItemAsync("auth_token");
+    await storage.deleteItem("auth_token");
 
     setCurrentUser(null);
   }
