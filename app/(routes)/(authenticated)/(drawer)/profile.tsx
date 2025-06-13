@@ -15,6 +15,7 @@ import {
 	TouchableOpacity,
 	View,
 	Image,
+    Platform,
 } from "react-native";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { Controller, useForm } from "react-hook-form";
@@ -44,23 +45,18 @@ const profileFormSchema = yup
 		passwordConfirmation: yup.string().min(8, "Mínimo de 8 caracteres"),
 		phone: yup
 			.string()
-			.matches(/^\d{11}$/, { message: "Telefone inválido" })
-			.length(11, { message: "O telefone deve possuir 11 dígitos" })
+			.matches(/^\d{11}$/, "Telefone inválido")
+			.length(11, "O telefone deve possuir 11 dígitos")
 			.required("Campo obrigatório"),
-		profilePhotoUrl: yup.string(),
+		profilePhotoUrl: yup.string().nullable(),
 	})
 	.test({
 		name: "passwordRequired",
 		test(value, ctx) {
 			const { newPassword, currentPassword } = value;
-
 			if (newPassword && !currentPassword) {
-				return ctx.createError({
-					message: "Informe sua senha atual para poder alterá-la",
-					path: "currentPassword",
-				});
+				return ctx.createError({ message: "Informe sua senha atual para poder alterá-la", path: "currentPassword" });
 			}
-
 			return true;
 		},
 	})
@@ -68,31 +64,19 @@ const profileFormSchema = yup
 		name: "passwordMatch",
 		test(value, ctx) {
 			const { newPassword, passwordConfirmation } = value;
-
 			if (newPassword !== passwordConfirmation) {
-				return ctx.createError({
-					message: "As senhas não coincidem",
-					path: "passwordConfirmation",
-				});
+				return ctx.createError({ message: "As senhas não coincidem", path: "passwordConfirmation" });
 			}
-
 			return true;
 		},
 	});
 
 type ProfileForm = yup.InferType<typeof profileFormSchema>;
 
-const createReactNativeFile = (
-  asset: ImagePicker.ImagePickerAsset
-): ReactNativeFile => {
+const createReactNativeFile = (asset: ImagePicker.ImagePickerAsset): ReactNativeFile => {
   const fileName = asset.fileName || `profile_${Date.now()}`;
   const mimeType = asset.mimeType || 'image/jpeg';
-  
-  return {
-    uri: asset.uri,
-    name: fileName,
-    type: mimeType,
-  };
+  return { uri: asset.uri, name: fileName, type: mimeType };
 };
 
 export default function Profile() {
@@ -100,11 +84,7 @@ export default function Profile() {
 
 	const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
 	const [changingPassword, setChangingPassword] = useState(false);
-	const [passwordVisible, setPasswordVisible] = useState({
-		current: false,
-		new: false,
-		confirm: false,
-	});
+	const [passwordVisible, setPasswordVisible] = useState({ current: false, new: false, confirm: false });
 
 	const {
 		control,
@@ -116,7 +96,7 @@ export default function Profile() {
 			email: currentUser?.email,
 			phone: currentUser?.phone,
 			name: currentUser?.name,
-			profilePhotoUrl: currentUser?.profilePhotoUrl,
+			profilePhotoUrl: currentUser?.profilePhotoUrl ?? undefined,
 		},
 	});
 
@@ -124,63 +104,94 @@ export default function Profile() {
 		try{
 			const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 			if (permissionResult.granted === false) {
-				Toast.show("É necessário permitir o acesso à galeria para escolher uma foto.", {
-					backgroundColor: "orange",
-					position: Toast.positions.TOP,
-				});
+				Toast.show("É necessário permitir o acesso à galeria para escolher uma foto.", { backgroundColor: "orange", position: Toast.positions.TOP });
 				return;
 			}
-
 			const result = await ImagePicker.launchImageLibraryAsync({
 				mediaTypes: ImagePicker.MediaTypeOptions.Images,
 				allowsEditing: true,
 				aspect: [1, 1],
 				quality: 1.0,
 			});
-
 			if (!result.canceled && result.assets && result.assets.length > 0) {
 				setSelectedImage(result.assets[0]);
 			}
-		}catch (error) {
+		} catch (error) {
 			console.error("Erro ao escolher imagem:", error);
 		}
 	};
 
-
 	useEffect(() => {
-		return () => {
-			setChangingPassword(false);
-		};
+		return () => setChangingPassword(false);
 	}, []);
+
+	const appendProfilePhotoToFormData = async (formData: FormData, imageAsset: ImagePicker.ImagePickerAsset) => {
+		if (Platform.OS === 'web') {
+			const response = await fetch(imageAsset.uri);
+			const blob = await response.blob();
+			const fileName = imageAsset.fileName || `profile_${Date.now()}`;
+			formData.append('profilePhoto', blob, fileName);
+		} else {
+			const file = createReactNativeFile(imageAsset);
+			formData.append("profilePhoto", file as unknown as Blob);
+		}
+	};
+
+	async function onSubmit({ newPassword, currentPassword, phone, email, name }: ProfileForm) {
+		try {
+			const formData = new FormData();
+			formData.append("name", name);
+			formData.append("email", email);
+			formData.append("phone", phone);
+
+			if(newPassword) formData.append("newPassword", newPassword);
+			if(currentPassword) formData.append("currentPassword", currentPassword);
+			
+			if (selectedImage) {
+				await appendProfilePhotoToFormData(formData, selectedImage);
+			}
+
+			await api.patch(`/user/${currentUser?.id}`, formData,  {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				}
+			});
+            
+			await updateMe({ authToken: currentUser!.authToken, forceImageRefresh: !!selectedImage });
+			
+			Toast.show("Perfil atualizado com sucesso!", { backgroundColor: "green", opacity: 0.9, position: Toast.positions.TOP });
+			setChangingPassword(false);
+
+		} catch (error) {
+			if (error instanceof AxiosError) {
+				const apiError = error.response?.data as APIError;
+				if (typeof apiError.error === "string") {
+					Toast.show(apiError.message, { backgroundColor: "red", opacity: 0.9, position: Toast.positions.TOP });
+				}
+			}
+		}
+	}
 
 	return (
 		<View className="bg-background relative px-4 flex-1">
 			<View className="items-center h-40 relative -mt-12">
 				<Pressable onPress={pickImage} className="absolute -bottom-20 items-center">
-				<View className="w-36 h-36 rounded-full bg-white items-center justify-center overflow-hidden">
-					{selectedImage ? (
-						<Image
-							className="w-full h-full"
-							source={selectedImage}
-						/>
-					) : currentUser?.profilePhotoUrl ? (
-						<Image
-							className="w-full h-full"
-							source={{uri: currentUser.profilePhotoUrl}}
-						/>
-					) : (
-						<CameraIcon width={48} height={48} />
-					)}
-				</View>
-				<View
-					className="absolute top-[55%] left-[65%]"
-				>
-					<EditIcon width={36} height={36} />
-				</View>
-				<Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-center mt-2 text-2xl font-bold">
-					{currentUser?.name}
-				</Text>
-			</Pressable>
+					<View className="w-36 h-36 rounded-full bg-white items-center justify-center overflow-hidden">
+						{selectedImage ? (
+							<Image className="w-full h-full" source={selectedImage} />
+						) : currentUser?.profilePhotoUrl ? (
+							<Image className="w-full h-full" source={{uri: currentUser.profilePhotoUrl}} />
+						) : (
+							<CameraIcon width={48} height={48} />
+						)}
+					</View>
+					<View className="absolute top-[55%] left-[65%]">
+						<EditIcon width={36} height={36} />
+					</View>
+					<Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-center mt-2 text-2xl font-bold">
+						{currentUser?.name}
+					</Text>
+				</Pressable>
 			</View>
 			<ScrollView className="mt-36 h-[calc(100vh - 96px)]">
 				<KeyboardAvoidingView className="px-4 gap-y-6">
@@ -195,7 +206,7 @@ export default function Profile() {
 								<TextInput
 									placeholder="seuemail@exemplo.com"
                   					placeholderTextColor="#AAAAAA" 
-									defaultValue=""
+									defaultValue={currentUser?.email}
 									className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 									inputMode="email"
 									autoCapitalize="none"
@@ -222,7 +233,7 @@ export default function Profile() {
 								<TextInput
 									placeholder="(99) 9 9999-9999"
                   					placeholderTextColor="#AAAAAA" 
-									defaultValue="(11) 9 4241-7655"
+									defaultValue={currentUser?.phone ? phone.mask(currentUser.phone) : ""}
 									className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 									inputMode="tel"
 									value={phone.mask(value)}
@@ -278,33 +289,17 @@ export default function Profile() {
 										/>
 										<TouchableOpacity
 											className="absolute right-2 top-1/4 mr-2"
-											onPress={() =>
-												setPasswordVisible((prev) => ({
-													...prev,
-													current: !prev.current,
-												}))
-											}
+											onPress={() => setPasswordVisible((prev) => ({ ...prev, current: !prev.current }))}
 										>
-											{passwordVisible.current ? <MaterialCommunityIcons
-											name={"eye-off-outline"}
-											size={20}
-											color="gray"
-											/> :
-											<SeeIcon width={20} height={20} />}
+											{passwordVisible.current ? <MaterialCommunityIcons name={"eye-off-outline"} size={20} color="gray" /> : <SeeIcon width={20} height={20} />}
 										</TouchableOpacity>
 									</View>
-									{errors.currentPassword && (
-										<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">
-											{errors.currentPassword?.message}
-										</Text>
-									)}
+									{errors.currentPassword && <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">{errors.currentPassword?.message}</Text>}
 								</View>
 								<View>
 									<View className="flex-row items-center mb-3 gap-2">
 										<PasswordIcon width={20} height={20} fill="#64A4EB" />
-										<Text style={{fontFamily: 'Inter-Medium'}} className="text-white mb-1 font-medium">
-											Nova senha
-										</Text>
+										<Text style={{fontFamily: 'Inter-Medium'}} className="text-white mb-1 font-medium">Nova senha</Text>
 									</View>
 									<View className="relative">
 										<Controller
@@ -325,33 +320,17 @@ export default function Profile() {
 										/>
 										<TouchableOpacity
 											className="absolute right-2 top-1/4 mr-2"
-											onPress={() =>
-												setPasswordVisible((prev) => ({
-													...prev,
-													new: !prev.new,
-												}))
-											}
+											onPress={() => setPasswordVisible((prev) => ({ ...prev, new: !prev.new }))}
 										>
-											{passwordVisible.new ? <MaterialCommunityIcons
-											name={"eye-off-outline"}
-											size={20}
-											color="gray"
-											/> :
-											<SeeIcon width={20} height={20} />}
+											{passwordVisible.new ? <MaterialCommunityIcons name={"eye-off-outline"} size={20} color="gray" /> : <SeeIcon width={20} height={20} />}
 										</TouchableOpacity>
 									</View>
-									{errors.newPassword && (
-										<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">
-											{errors.newPassword?.message}
-										</Text>
-									)}
+									{errors.newPassword && <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">{errors.newPassword?.message}</Text>}
 								</View>
 								<View>
 									<View className="flex-row items-center mb-3 gap-2">
 										<PasswordIcon width={20} height={20} fill="#64A4EB" />
-										<Text style={{fontFamily: 'Inter-Medium'}} className="text-white mb-1 font-medium">
-											Confirme a nova senha
-										</Text>
+										<Text style={{fontFamily: 'Inter-Medium'}} className="text-white mb-1 font-medium">Confirme a nova senha</Text>
 									</View>
 									<View className="relative">
 										<Controller
@@ -372,26 +351,12 @@ export default function Profile() {
 										/>
 										<TouchableOpacity
 											className="absolute right-2 top-1/4 mr-2"
-											onPress={() =>
-												setPasswordVisible((prev) => ({
-													...prev,
-													confirm: !prev.confirm,
-												}))
-											}
+											onPress={() => setPasswordVisible((prev) => ({ ...prev, confirm: !prev.confirm }))}
 										>
-											{passwordVisible.confirm ? <MaterialCommunityIcons
-											name={"eye-off-outline"}
-											size={20}
-											color="gray"
-											/> :
-											<SeeIcon width={20} height={20} />}
+											{passwordVisible.confirm ? <MaterialCommunityIcons name={"eye-off-outline"} size={20} color="gray" /> : <SeeIcon width={20} height={20} />}
 										</TouchableOpacity>
 									</View>
-									{errors.passwordConfirmation && (
-										<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">
-											{errors.passwordConfirmation?.message}
-										</Text>
-									)}
+									{errors.passwordConfirmation && <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">{errors.passwordConfirmation?.message}</Text>}
 								</View>
 							</View>
 						)}
@@ -409,57 +374,4 @@ export default function Profile() {
 			</ScrollView>
 		</View>
 	);
-
-	async function onSubmit({
-		newPassword,
-		currentPassword,
-		phone,
-		email,
-		name,
-	}: ProfileForm) {
-		try {
-			const formData = new FormData();
-			formData.append("name", name);
-			formData.append("email", email);
-			formData.append("phone", phone);
-
-			if(newPassword) {
-				formData.append("newPassword", newPassword);
-			}
-			if(currentPassword){
-				formData.append("currentPassword", currentPassword);
-			}
-			
-			if (selectedImage) {
-				const file = createReactNativeFile(selectedImage);
-				formData.append("profilePhoto", file as unknown as Blob);
-			}
-
-			await api.patch(`/user/${currentUser?.id}`, formData,  {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-				}
-			});
-
-			await updateMe({ authToken: currentUser!.authToken });
-			Toast.show("Perfil atualizado com sucesso!", {
-				backgroundColor: "green",
-				opacity: 0.9,
-				position: Toast.positions.TOP,
-			});
-			setChangingPassword(false);
-		} catch (error) {
-			if (error instanceof AxiosError) {
-				const apiError = error.response?.data as APIError;
-
-				if (typeof apiError.error === "string") {
-					Toast.show(apiError.message, {
-						backgroundColor: "red",
-						opacity: 0.9,
-						position: Toast.positions.TOP,
-					});
-				}
-			}
-		}
-	}
 }

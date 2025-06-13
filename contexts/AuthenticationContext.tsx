@@ -22,7 +22,7 @@ interface CurrentUser {
   lastPasswordChange: null | Date;
   email: string;
   phone: string;
-  profilePhotoUrl: string;
+  profilePhotoUrl: string | null;
 }
 
 interface APIAuthenticateResponse {
@@ -35,9 +35,15 @@ interface AuthenticationContext {
   logout: () => Promise<void>;
   currentUser: null | CurrentUser;
   changedOriginalPassword: boolean;
-  updateMe: (currentUser: Pick<CurrentUser, "authToken">) => Promise<void>;
+  updateMe: (params: { authToken: string; forceImageRefresh?: boolean }) => Promise<void>;
 	isLoggingIn: boolean;
 }
+
+type UpdateMeParams = {
+  authToken: string;
+  forceImageRefresh?: boolean;
+};
+
 
 const AuthenticationContext = createContext<AuthenticationContext>({
   login: async () => {},
@@ -66,7 +72,6 @@ export function AuthenticationProvider({ children }: PropsWithChildren) {
 
       if (authToken) {
         api.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
-
         updateMe({ authToken });
       }
 
@@ -102,47 +107,53 @@ export function AuthenticationProvider({ children }: PropsWithChildren) {
 
   async function login({ email, password }: LoginForm) {
 		setIsLoggingIn(true);
+    try {
+      const { data } = await api.post<APIAuthenticateResponse>(
+        "/authentication",
+        { email, password }
+      );
 
-    const { data } = await api.post<APIAuthenticateResponse>(
-      "/authentication",
-      {
-        email,
-        password,
-      }
-    );
+      await storage.setItem("auth_token", data.auth_token);
+      api.defaults.headers.common["Authorization"] = `Bearer ${data.auth_token}`;
+      await updateMe({ authToken: data.auth_token });
 
-    await storage.setItem("auth_token", data.auth_token);
-
-    api.defaults.headers.common["Authorization"] = `Bearer ${data.auth_token}`;
-
-    await updateMe({ authToken: data.auth_token });
-
-		setIsLoggingIn(false);
+    } finally {
+      setIsLoggingIn(false);
+    }
   }
 
-  async function updateMe({ authToken }: Pick<CurrentUser, "authToken">) {
-    const me = await fetchMe();
+  async function updateMe({ authToken, forceImageRefresh = false }: UpdateMeParams) {
+    try {
+      const me = await fetchMe();
 
-    setCurrentUser({
-      authToken,
-      id: me.id,
-      name: me.name,
-      lastPasswordChange: me.lastPasswordChange,
-      email: me.email,
-      phone: me.phone,
-      profilePhotoUrl: me.profilePhotoUrl,
-    });
+      if (forceImageRefresh && me.profilePhotoUrl) {
+        me.profilePhotoUrl = `${me.profilePhotoUrl}?t=${new Date().getTime()}`;
+      }
+
+      setCurrentUser({
+        authToken,
+        id: me.id,
+        name: me.name,
+        lastPasswordChange: me.lastPasswordChange,
+        email: me.email,
+        phone: me.phone,
+        profilePhotoUrl: me.profilePhotoUrl,
+      });
+
+    } catch (error) {
+      console.error("Falha ao buscar dados do usuário, fazendo logout.", error);
+      logout();
+    }
   }
 
   async function logout() {
     await storage.deleteItem("auth_token");
-
+    delete api.defaults.headers.common["Authorization"];
     setCurrentUser(null);
   }
 
   async function fetchMe() {
     const { data } = await api.get<Omit<CurrentUser, "authToken">>("/me");
-
     return data;
   }
 }
