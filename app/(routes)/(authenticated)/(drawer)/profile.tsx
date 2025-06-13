@@ -94,7 +94,7 @@ export default function Profile() {
 		resolver: yupResolver(profileFormSchema),
 		defaultValues: {
 			email: currentUser?.email,
-			phone: currentUser?.phone,
+			phone: currentUser?.phone ? phone.mask(currentUser.phone) : "",
 			name: currentUser?.name,
 			profilePhotoUrl: currentUser?.profilePhotoUrl ?? undefined,
 		},
@@ -206,7 +206,6 @@ export default function Profile() {
 								<TextInput
 									placeholder="seuemail@exemplo.com"
                   					placeholderTextColor="#AAAAAA" 
-									defaultValue={currentUser?.email}
 									className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 									inputMode="email"
 									autoCapitalize="none"
@@ -233,7 +232,6 @@ export default function Profile() {
 								<TextInput
 									placeholder="(99) 9 9999-9999"
                   					placeholderTextColor="#AAAAAA" 
-									defaultValue={currentUser?.phone ? phone.mask(currentUser.phone) : ""}
 									className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 									inputMode="tel"
 									value={phone.mask(value)}

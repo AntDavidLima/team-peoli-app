@@ -67,12 +67,12 @@ export function RoutineExercise({
             </View>
             <View className="mt-2 flex-row bg-gray-700 items-center gap-1 p-3 rounded-lg">
                <Training2Icon height={20} width={20}/>
-              <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">
-                {sets} Séries
+              <Text style={{fontFamily: 'Inter-Regular'}} className="ml-1 text-gray-400">
+                {sets} séries
               </Text>
               <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">de</Text>
               <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">
-                {reps} Repetições
+                {reps} repetições
               </Text>
             </View>
           </View>

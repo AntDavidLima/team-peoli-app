@@ -153,7 +153,10 @@ export default function Progress() {
           listMode="SCROLLVIEW"
           theme="DARK"
           style={{ backgroundColor: customColors.lightBackground, borderRadius: 15, borderColor: customColors.lightBackground }}
-          textStyle={{ color: 'white' }}
+          textStyle={{
+            marginLeft: 12, 
+            color: 'white' 
+          }}
           dropDownContainerStyle={{ 
             elevation: 5, 
             backgroundColor: customColors.lightBackground, 
@@ -257,7 +260,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
   return (
     <View key={id} className="bg-lightBackground rounded-2xl py-4">
       <View className="px-8 py-4">
-        <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white text-xl font-extrabold">{name}</Text>
+        <Text style={{fontFamily: 'Inter-ExtraBold'}} className="self-center text-white text-xl font-extrabold">{name}</Text>
       </View>
       <VictoryChart
         width={width - 22}

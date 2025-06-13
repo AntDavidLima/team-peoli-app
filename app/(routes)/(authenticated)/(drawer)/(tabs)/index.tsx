@@ -13,7 +13,6 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link } from "expo-router";
 import { useMemo } from "react";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 import {
   VictoryArea,
@@ -29,6 +28,7 @@ import customColors from "@/tailwind.colors";
 import { Days } from "./(trainings)/_layout";
 import { Routine } from "@/components/trainings";
 import FireIcon from "@/assets/icons/fire.svg";
+import MoonIcon from "@/assets/icons/moon.svg";
 import tailwindColors from "@/tailwind.colors";
 
 
@@ -115,8 +115,8 @@ export default function Home() {
             </Pressable>
           </Link>
         ) : (
-          <View className="bg-lightBackground rounded-2xl p-2">
-            <View className="flex-row px-4 py-4 justify-between">
+          <View className="bg-lightBackground rounded-2xl p-3">
+            <View className="flex-row px-4 py-4 justify-between items-center">
               <View>
                 <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white font-extrabold text-xl">
                   Day Off
@@ -131,17 +131,8 @@ export default function Home() {
                   Utilize o dia para recuperação ou análise do seu progresso!
                 </Text>
               </View>
-              <View className="bg-main rounded-full items-center justify-center h-20 w-20">
-                <MaterialCommunityIcons
-                  name="moon-waning-crescent"
-                  size={20}
-                  color="white"
-                  style={{
-                    position: "absolute",
-                    left: (width * 0.75) / 2 - 10,
-                    top: width * 0.70 * 0.5 - 64,
-                  }}
-                />
+              <View className="bg-main rounded-full items-center justify-center h-16 w-16">
+                <MoonIcon width={40} height={40}/>
               </View>
             </View>
             {/* <View>
@@ -174,8 +165,8 @@ export default function Home() {
           {/* </View> */}
         </View>
         <View className="bg-lightBackground mt-3 rounded-xl py-2 relative overflow-hidden">
-          <View className="flex-row items-center">
-            <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white text-xl ml-2 px-4 py-4 font-extrabold">
+          <View>
+            <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white text-xl ml-2 px-4 py-4 self-center font-extrabold">
               Status de Progressão Geral
             </Text>
           </View>

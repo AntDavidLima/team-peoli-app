@@ -109,7 +109,7 @@ export default function DrawerLayout() {
                 justifyContent: 'center',
               }}
               icon={() => <WhatsappIcon width={24} height={24}/>}
-              label={professorPhone ? "Falar com o professor" : ""}
+              label={professorPhone ? "Falar com o Treinador" : ""}
               onPress={() => {Linking.openURL(professorPhone ? `https://wa.me/55${professorPhone}` : "")}}
             />
           </DrawerContentScrollView>

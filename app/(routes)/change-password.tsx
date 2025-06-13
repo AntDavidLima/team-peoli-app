@@ -57,7 +57,7 @@ export default function ChangePassword() {
 					className="mb-16 self-center"
 					source={require("@/assets/images/logo.png")} />
 				<View className="space-y-2 mb-3">
-					<Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-3xl text-center font-bold">Bem-vindo(a) ao time!</Text>
+					<Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-2xl text-center font-bold">Bem-vindo(a) ao time!</Text>
 					<Text style={{fontFamily: 'Inter-Regular', alignSelf: 'center'}} className="mt-2 text-secondary text-base text-center">
 						Antes de começar, altere sua senha provisória.
 					</Text>

@@ -91,7 +91,7 @@ export function RoutineItem({
       <View className="mt-4">
         {trainings.map(({ id, name, exercises }) => (
           <View key={id}>
-            <Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-center font-bold text-xl mb-4">{name}</Text>
+            <Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-center font-bold text-2xl mb-4">{name}</Text>
             <View className="gap-4">
               {exercises.map(
                 ({ reps, orientations, sets, exercise, restTime }) => (

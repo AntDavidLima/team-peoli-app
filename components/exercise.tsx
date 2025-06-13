@@ -64,7 +64,7 @@ export function ExerciseExecution({
               <TimerIcon width={18} height={18} color={customColors.secondary} />
               <Text style={{fontFamily: 'Inter-Regular'}}  className="text-gray-400 text-s">{restTime}s</Text>
             </View>
-          <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white mt-4 text-3xl font-extrabold">
+          <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white mt-4 text-2xl font-extrabold">
             {exercise.name}
           </Text>
         </View>
