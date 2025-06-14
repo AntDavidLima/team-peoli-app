@@ -26,7 +26,7 @@ export default function DrawerLayout() {
   useEffect(() => {
     async function fetchProfessorPhone() {
       try {
-        const { data } = await api.get("/user/professor");
+        const { data } = await api.get(`/user/${currentUser?.id}/professor`);
         if (data) {
           setProfessorPhone(data.phone);
         }
