@@ -122,7 +122,6 @@ export default function Home() {
                   Day Off
                 </Text>
                 <Text style={{fontFamily: 'Inter-Regular'}} className="text-subtitle mt-1">
-                  {/* {format(new Date(), "EEEE", { locale: ptBR })} */}
                   Sem treinos programados.
                 </Text>
                 <Text 
@@ -135,13 +134,6 @@ export default function Home() {
                 <MoonIcon width={40} height={40}/>
               </View>
             </View>
-            {/* <View>
-              {routines?.map((routine) =>
-                routine.trainings.map((training) => (
-                  <Text key={training.id} className="text-subtitle">{training.name}</Text>
-                )),
-              )}
-            </View> */}
           </View>
         )}
         <View className="rounded-full p-3 mt-3">
@@ -160,9 +152,6 @@ export default function Home() {
               </View>
             ))}
           </View>
-          {/* <View className="mt-3 flex-row justify-center"> */}
-            {/* <Text className="text-white">0/1 dias completos</Text> */}
-          {/* </View> */}
         </View>
         <View className="bg-lightBackground mt-3 rounded-xl py-2 relative overflow-hidden">
           <View>

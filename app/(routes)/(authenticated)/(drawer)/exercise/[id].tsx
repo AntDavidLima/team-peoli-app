@@ -256,7 +256,7 @@ export default function Exercise() {
 				/>
 				</ScrollView>
 				<View className="justify-center items-center">
-					{clock ? (
+					{clock && (
 						<View className="flex-row items-center space-x-1">
 							<View className="flex-row items-baseline">
 								{timeAfterStart.hours > 0 && (
@@ -274,8 +274,6 @@ export default function Exercise() {
 								</Text>
 							</View>
 						</View>
-					) : (
-						<View></View>
 					)}
 				</View>
 				<View className="h-20 mb-2 mt-2 flex-row justify-around py-2 items-center">
@@ -300,15 +298,6 @@ export default function Exercise() {
 					</Pressable>
 					<View className="justify-center rounded-full">
 						<Pressable
-
-							style={{
-								// borderRadius: 30,
-								// shadowColor: clock ? "#F44336" : "#1FB990",
-								// shadowOffset: { width: 0, height: 5 },
-								// shadowOpacity: 0.34,
-								// shadowRadius: 6.27,
-								// elevation: 10,
-							}}
 							onPress={() => (clock ? finishWorkout() : startWorkout())}
 						>
 							{clock ? (
