@@ -18,7 +18,7 @@ jobs:
         run: npm install
 
       - name: Build web application
-        run: EXPO_PUBLIC_API_URL=${{ env.EXPO_PUBLIC_API_URL }} npx expo export:web
+        run: EXPO_PUBLIC_API_URL=${{ env.EXPO_PUBLIC_API_URL }} npx expo export -p web
 
       - name: Prepare server for new files
         uses: appleboy/ssh-action@v1.0.3
