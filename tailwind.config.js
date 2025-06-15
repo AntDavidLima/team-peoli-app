@@ -7,6 +7,10 @@ module.exports = {
 	theme: {
 		extend: {
 			colors,
+			fontFamily: {
+				sans: ["Inter-Regular", "system-ui" , "sans-serif"],
+				'inter-bold': ["Inter-Bold", "sans-serif"],
+			},
 		},
 	},
 	plugins: [],

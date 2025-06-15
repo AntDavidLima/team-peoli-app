@@ -3,7 +3,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { RawDraftContentState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
 import { Link } from "expo-router";
-import { getThumbnailAsync } from "expo-video-thumbnails";
 import {
   Image,
   Pressable,
@@ -11,7 +10,12 @@ import {
   useWindowDimensions,
   View,
 } from "react-native";
+import Collapsible from "react-native-collapsible";
+import { useState } from "react";
 import RenderHTML from "react-native-render-html";
+import customColors from "@/tailwind.colors";
+import RestTimeIcon from "@/assets/icons/restTime.svg";
+import Training2Icon from "@/assets/icons/training2.svg";
 
 interface RoutineExercise {
   idExercise: number;
@@ -37,6 +41,8 @@ export function RoutineExercise({
   thumbnailUrl,
 }: RoutineExercise) {
   const { width } = useWindowDimensions();
+  const [orientationCollapsed, setOrientationCollapsed] =
+    useState<boolean>(true);
 
   return (
     <Link
@@ -47,50 +53,67 @@ export function RoutineExercise({
       asChild
       key={idExercise}
     >
-      <Pressable className="bg-card p-2 rounded flex-row justify-between">
-        <View className="flex-1">
-          <View>
-            <Text className="text-white font-semibold mb-1">
-              {exerciseName}
-              <View className="flex-row items-center gap-0.5 pl-1">
-                <MaterialCommunityIcons
-                  name="timer-outline"
-                  color={tailwindColors.white}
-                  size={14}
-                />
-                <Text className="text-white text-xs">{restTime}s</Text>
+      <Pressable className="bg-lightBackground p-4 rounded-2xl justify-between">
+        <View className="flex-row items-center">
+          <View className="w-[70%] mr-4">
+            <View>
+              <Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold mb-2 text-xl">
+                {exerciseName}
+              </Text>
+              <View className="flex-row bg-gray-700 items-center gap-2 p-3 rounded-lg">
+                <RestTimeIcon height={20} width={20}/>
+                <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">Descanso: {restTime}s</Text>
               </View>
-            </Text>
-          </View>
-          <View className="flex-row gap-1">
-            <Text className="text-white font-semibold text-xs">
-              {sets} Séries
-            </Text>
-            <Text className="text-white font-semibold text-xs">de</Text>
-            <Text className="text-white font-semibold text-xs">
-              {reps} Repetições
-            </Text>
-          </View>
-          {orientations?.blocks[0].text.trim() !== "" && (
-            <View className="mt-3">
-              <Text className="text-white text-xs font-bold">Instruções:</Text>
-              <RenderHTML
-                source={{ html: draftToHtml(orientations!) }}
-                contentWidth={width}
-                baseStyle={{ color: tailwindColors.white }}
-              />
             </View>
-          )}
-        </View>
-        {thumbnailUrl && (
-          <View className="h-32 rounded-lg aspect-[9/16]">
-            <Image
-              source={{
-                uri: thumbnailUrl,
-              }}
-              className="h-full w-full rounded-lg"
-            />
+            <View className="mt-2 flex-row bg-gray-700 items-center gap-1 p-3 rounded-lg">
+               <Training2Icon height={20} width={20}/>
+              <Text style={{fontFamily: 'Inter-Regular'}} className="ml-1 text-gray-400">
+                {sets} séries
+              </Text>
+              <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">de</Text>
+              <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">
+                {reps} repetições
+              </Text>
+            </View>
           </View>
+          <View className="w-[26%]">
+            {thumbnailUrl && (
+              <View className="rounded-lg aspect-[9/16]">
+                <Image
+                  source={{
+                    uri: thumbnailUrl,
+                  }}
+                  className="h-full w-full rounded-lg"
+                />
+              </View>
+            )}
+          </View>
+        </View>
+        {orientations?.blocks[0].text.trim() !== "" && (
+          <Pressable
+            className="mt-4"
+            onPress={() => setOrientationCollapsed((collapsed) => !collapsed)}
+          >
+            <View className="mt-3">
+              <View className="flex-row gap-1 py-3 border-b-2 border-gray-700">
+                <Text style={{fontFamily: 'Inter-Regular'}} className="text-secondary text-lg">Ver instruções</Text>
+                <View className={orientationCollapsed ? "rotate-0" : "rotate-180"}>
+                  <MaterialCommunityIcons
+                    name="chevron-down"
+                    color={customColors.secondary}
+                    size={20}
+                  />
+                </View>
+              </View>
+              <Collapsible collapsed={orientationCollapsed}>
+                  <RenderHTML
+                    source={{ html: draftToHtml(orientations!) }}
+                    contentWidth={width}
+                    baseStyle={{ color: tailwindColors.white }}
+                  />
+              </Collapsible>
+            </View>
+          </Pressable>
         )}
       </Pressable>
     </Link>

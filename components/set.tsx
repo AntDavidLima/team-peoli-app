@@ -143,17 +143,18 @@ export function Set({
 
   return (
     <Fragment>
-      <Text className="text-white w-[15%] text-center font-extrabold">
+      <Text style={{fontFamily: 'Inter-Bold'}} className="text-white w-[15%] text-center font-bold">
         {index}
       </Text>
-      <Text className="text-white w-1/4 text-center">{lastExecution}</Text>
+      <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-1/4 text-center font-medium">{lastExecution}</Text>
       <Controller
         control={control}
         name="load"
         render={({ field: { onChange, value, ...field } }) => (
-          <View className="w-[20%] px-1 items-center">
+          <View className="px-1 items-center w-1/4">
             <TextInput
-              className={`text-center p-4 ${
+              style={{fontFamily: 'Inter-Regular'}} 
+              className={`text-center w-20 border-2 border-gray-400 rounded-lg border-solid py-4 ${
                 errors.reps ? "text-red-500" : "text-white"
               }`}
               keyboardType="numeric"
@@ -177,9 +178,10 @@ export function Set({
         control={control}
         name="reps"
         render={({ field: { onChange, value, ...field } }) => (
-          <View className="w-[25%] px-1 items-center">
+          <View className="px-1 items-center w-1/5">
             <TextInput
-              className={`text-center p-4 ${
+              style={{fontFamily: 'Inter-Regular'}} 
+              className={`text-center w-20 border-2 border-gray-400 rounded-lg border-solid py-4 ${
                 errors.reps ? "text-red-500" : "text-white"
               }`}
               placeholder={recomendedReps}
@@ -199,9 +201,10 @@ export function Set({
           </View>
         )}
       />
-      <View className="w-[15%] items-center">
+      <View className="w-[20%] items-center">
         <Pressable
-          className={`w-10 h-10 rounded-lg items-center justify-center ${
+          style={{marginRight: 5}}
+          className={`w-12 h-12 rounded-full items-center justify-center ${
             getValues("done") ? "bg-green-500" : "bg-subtitle"
           }`}
           disabled={!trainingStarted || watch("done")}
@@ -209,7 +212,7 @@ export function Set({
         >
           <MaterialCommunityIcons
             name="check"
-            size={16}
+            size={38}
             color={watch("done") ? tailwindColors.white : customColors.disabled}
           />
         </Pressable>
@@ -219,8 +222,8 @@ export function Set({
           className="w-full h-full"
           style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
         >
-          <View className="relative bg-card w-3/4 m-auto h-[30rem] rounded flex items-center">
-            <Text className="mt-4 text-white text-xl font-semibold">
+          <View className="relative bg-background m-auto h-[30rem] w-[20rem] flex items-center" style={{borderRadius: 30}}>
+            <Text className="mt-8 text-white text-4xl font-semibold">
               Descanso
             </Text>
             <VictoryChart width={width * 0.75} height={width * 0.75}>
@@ -231,24 +234,24 @@ export function Set({
                     fill: ({ datum }) => datum.color,
                   },
                 }}
-                innerRadius={width * 0.75 * 0.375}
+                innerRadius={width * 0.65 * 0.405}
                 data={[
                   { x: "elapsed", y: timeInRest, color: customColors.main },
                   {
                     x: "left",
                     y: restTime - timeInRest,
-                    color: customColors.darker,
+                    color: tailwindColors.white,
                   },
                 ]}
               />
               <MaterialCommunityIcons
-                name="timer-sand"
+                name="clock-time-four-outline"
                 size={20}
-                color={tailwindColors.white}
+                color={customColors.disabled}
                 style={{
                   position: "absolute",
                   left: (width * 0.75) / 2 - 10,
-                  top: width * 0.75 * 0.5 - 64,
+                  top: width * 0.70 * 0.5 - 64,
                 }}
               />
               <VictoryLabel
@@ -257,22 +260,25 @@ export function Set({
                 verticalAnchor="middle"
                 x={(width * 0.75) / 2}
                 y={(width * 0.75) / 2}
-                style={{ fontSize: 64, fill: tailwindColors.white }}
+                style={{ 
+                  fontSize: 100, 
+                  fontWeight: 'bold',
+                  fill: tailwindColors.white }}
               />
               <VictoryLabel
-                text={restTime + "s"}
+                text={"segundos"}
                 textAnchor="middle"
                 verticalAnchor="middle"
                 x={(width * 0.75) / 2}
                 y={(width * 0.75) / 2 + 64 - 10}
-                style={{ fontSize: 16, fill: tailwindColors.white }}
+                style={{ fontSize: 16, fill: customColors.disabled }}
               />
               <VictoryAxis
                 tickFormat={() => ""}
                 style={{ axis: { display: "none" } }}
               />
             </VictoryChart>
-            <Text className="text-gray-300 text-lg text-center px-4">
+            <Text className="text-disabled text-lg text-center px-4">
               O descanso faz parte do treino. Respeite-o!
             </Text>
             <Pressable
