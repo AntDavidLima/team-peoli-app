@@ -3,8 +3,8 @@
     "name": "Team Peoli",
     "slug": "team-peoli",
     "privacy": "public",
-    "backgroundColor": "#303030",
-    "version": "0.3.32",
+    "backgroundColor": "#1A202C",
+    "version": "0.4.0",
     "orientation": "portrait",
     "icon": "./assets/images/logo-without-text.png",
     "scheme": "team-peoli",
@@ -12,9 +12,11 @@
     "splash": {
       "image": "./assets/images/splash.png",
       "resizeMode": "cover",
-      "backgroundColor": "#303030"
+      "backgroundColor": "#1A202C"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": true
     },
@@ -28,7 +30,9 @@
         "backgroundColor": "#0075B7"
       },
       "package": "com.davidlima.teampeoli",
-      "blockedPermissions": ["android.permission.RECORD_AUDIO"],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO"
+      ],
       "versionCode": 16
     },
     "web": {
@@ -36,7 +40,17 @@
       "output": "static",
       "favicon": "./assets/images/logo-without-text.png"
     },
-    "plugins": ["expo-router", "expo-secure-store"],
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-font",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "É necessário sua permissão para acessar suas fotos."
+        }
+      ]
+    ],
     "experiments": {
       "typedRoutes": true
     },

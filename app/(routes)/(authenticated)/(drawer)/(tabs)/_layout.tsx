@@ -1,5 +1,4 @@
 import React from "react";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import customColors from "@/tailwind.colors";
 import { withLayoutContext } from "expo-router";
 import {
@@ -9,13 +8,9 @@ import {
 } from "@react-navigation/material-top-tabs";
 import { ParamListBase, TabNavigationState } from "@react-navigation/native";
 import { useWindowDimensions } from "react-native";
-
-function TabBarIcon(props: {
-  name: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
-  color: string;
-}) {
-  return <MaterialCommunityIcons size={25} {...props} />;
-}
+import HomeIcon from "@/assets/icons/home2.svg";
+import TrainingIcon from "@/assets/icons/training.svg";
+import StatsIcon from "@/assets/icons/stats.svg";
 
 const { Navigator } = createMaterialTopTabNavigator();
 
@@ -32,18 +27,22 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
+        tabBarActiveTintColor: customColors.main,
         tabBarStyle: {
-          backgroundColor: customColors.darker,
-          borderRadius: 8,
-          margin: 8,
+          backgroundColor: customColors.background,
+          margin: 0,
+          marginTop: 20,
+          marginBottom: 20,
+          elevation: 0,
         },
         tabBarIndicatorStyle: {
           position: "absolute",
-          height: 32,
-          width: width / 8 + 10,
-          top: 8,
-          left: width / 10 - 6,
-          borderRadius: 32,
+          height: 50,
+          width: width / 10 + 10,
+          top: -1,
+          left: width / 10 + 2,
+          borderRadius: 64,
+          backgroundColor: 'white',
         },
         tabBarIconStyle: {
           marginTop: -4,
@@ -64,23 +63,19 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          tabBarIcon: ({ color }) => <TabBarIcon name="home" color={color} />,
+          tabBarIcon: () => <HomeIcon width={25} height={25} />,
         }}
       />
       <Tabs.Screen
         name="(trainings)"
         options={{
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="dumbbell" color={color} />
-          ),
+          tabBarIcon: () => <TrainingIcon width={25} height={25} />,
         }}
       />
       <Tabs.Screen
         name="progress"
         options={{
-          tabBarIcon: ({ color }) => (
-            <TabBarIcon name="chart-timeline-variant" color={color} />
-          ),
+          tabBarIcon: () => <StatsIcon width={25} height={25} />,
         }}
       />
     </Tabs>

@@ -1,10 +1,12 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import EmailIcon from '@/assets/icons/email.svg';
+import PasswordIcon from '@/assets/icons/password.svg';
+import SeeIcon from "@/assets/icons/see.svg";
 import { Link, Redirect } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Image,
-  ImageBackground,
   KeyboardAvoidingView,
   Text,
   TextInput,
@@ -33,6 +35,10 @@ export default function Login() {
     handleSubmit,
   } = useForm<LoginForm>({
     resolver: yupResolver(loginFormSchema),
+    defaultValues: {
+      email: "",
+      password: ""
+    }
   });
 
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -44,32 +50,27 @@ export default function Login() {
   }
 
   return (
-    <ImageBackground
-      source={require("@/assets/images/login-background.jpg")}
-      className="absolute left-0 right-0 h-screen"
-      blurRadius={6}
-    >
       <KeyboardAvoidingView
-        className="items-center pt-8 px-5 h-full justify-around"
+        className="justify-center w-full pt-8 px-5 h-full"
         behavior="padding"
       >
-        <Image source={require("@/assets/images/logo.png")} />
-        <View className="w-full gap-y-8">
+        <View className="px-4 gap-y-4">
+          <Image 
+            style={{width: 180, height: 60}}
+            className="mb-14 self-center"
+            source={require("@/assets/images/logo.png")} />
           <View>
-            <View className="flex-row items-center mb-1 gap-1">
-              <MaterialCommunityIcons
-                name="email-outline"
-                size={20}
-                color="white"
-              />
-              <Text className="text-white text-base font-medium">E-mail</Text>
+            <View className="flex-row items-center mb-3 gap-2">
+              <EmailIcon width={20} height={20} />
+              <Text className="text-[white] text-base font-medium">E-mail</Text>
             </View>
             <Controller
               control={control}
               render={({ field: { onChange, ...field } }) => (
                 <TextInput
                   placeholder="seuemail@exemplo.com"
-                  className="bg-white rounded w-full px-2 text-base py-1.5"
+                  placeholderTextColor="#AAAAAA" 
+                  className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
                   inputMode="email"
                   autoCapitalize="none"
                   onChangeText={onChange}
@@ -85,12 +86,8 @@ export default function Login() {
             )}
           </View>
           <View>
-            <View className="flex-row items-center mb-1 gap-1">
-              <MaterialCommunityIcons
-                name="form-textbox-password"
-                size={20}
-                color="white"
-              />
+            <View className="flex-row items-center mb-3 gap-2">
+              <PasswordIcon width={20} height={20} />
               <Text className="text-white text-base font-medium">Senha</Text>
             </View>
             <View className="relative">
@@ -99,7 +96,8 @@ export default function Login() {
                 render={({ field: { onChange, ...field } }) => (
                   <TextInput
                     placeholder="••••••••••••"
-                    className="bg-white rounded w-full px-2 text-base py-1.5"
+                    placeholderTextColor="#AAAAAA" 
+                    className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
                     inputMode="text"
                     autoCapitalize="none"
                     secureTextEntry={!passwordVisible}
@@ -110,14 +108,16 @@ export default function Login() {
                 name="password"
               />
               <TouchableOpacity
-                className="absolute right-2 top-1/4"
+                className="absolute right-2 top-1/4 mr-2"
                 onPress={() => setPasswordVisible((current) => !current)}
-              >
-                <MaterialCommunityIcons
-                  name={passwordVisible ? "eye-off-outline" : "eye-outline"}
+              >{
+                passwordVisible ? <MaterialCommunityIcons
+                  name={"eye-off-outline"}
                   size={20}
                   color="gray"
-                />
+                /> :
+                <SeeIcon width={20} height={20} />
+                }
               </TouchableOpacity>
             </View>
             {errors.password && (
@@ -126,32 +126,30 @@ export default function Login() {
               </Text>
             )}
             <Link href="/" asChild>
-              <Text className="text-white mt-1 font-medium">
-                Esqueceu sua senha?{" "}
-                <Text className="underline text-main">Clique aqui</Text>
+              <Text className="text-[#64A4EB] mt-3 font-medium text-right">
+                Esqueceu a senha?
               </Text>
             </Link>
-          </View>
+          </View>            
+          <TouchableOpacity
+            className="bg-main rounded h-14 items-center justify-center w-full px-12"
+            onPress={handleSubmit(onSubmit)}
+          >
+            {isLoggingIn ? (
+              <MaterialCommunityIcons
+                name="loading"
+                size={16}
+                color={tailwindColors.white}
+                className="animate-spin"
+              />
+            ) : (
+              <Text className="text-white font-semibold text-base animate-none">
+                Acessar
+              </Text>
+            )}
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity
-          className="bg-main rounded h-10 items-center justify-center w-full"
-          onPress={handleSubmit(onSubmit)}
-        >
-          {isLoggingIn ? (
-            <MaterialCommunityIcons
-              name="loading"
-              size={16}
-              color={tailwindColors.white}
-              className="animate-spin"
-            />
-          ) : (
-            <Text className="text-white font-semibold text-base animate-none">
-              Acessar
-            </Text>
-          )}
-        </TouchableOpacity>
       </KeyboardAvoidingView>
-    </ImageBackground>
   );
 
   async function onSubmit({ password, email }: LoginForm) {
@@ -163,7 +161,7 @@ export default function Login() {
 
         console.log(error.message);
 
-        if (typeof apiError.error === "string") {
+        if (apiError && typeof apiError.error === "string") {
           Toast.show(apiError.message, {
             backgroundColor: "red",
             opacity: 0.9,

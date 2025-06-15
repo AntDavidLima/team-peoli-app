@@ -2,6 +2,7 @@ import { ScrollView, Text, View } from "react-native";
 import { RawDraftContentState } from "draft-js";
 import { RoutineItem } from "./routine";
 import { Image } from "expo-image";
+import { useWindowDimensions } from 'react-native';
 
 type Trainings =
   | {
@@ -46,6 +47,7 @@ interface Exercise {
 }
 
 export function Trainings({ routines, loading, day }: Trainings) {
+  const { height } = useWindowDimensions();
   if (loading) {
     return (
       <Image
@@ -55,7 +57,7 @@ export function Trainings({ routines, loading, day }: Trainings) {
       />
     );
   }
-
+  
   if (
     routines
       .map(({ trainings }) =>
@@ -73,7 +75,7 @@ export function Trainings({ routines, loading, day }: Trainings) {
   }
 
   return (
-    <ScrollView className="px-4">
+    <ScrollView style={{height: height-250}} className="px-4">
       {routines.map(
         ({ name, id, startDate, endDate, orientations, trainings }) => (
           <RoutineItem

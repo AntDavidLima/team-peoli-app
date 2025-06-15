@@ -1,4 +1,4 @@
-name: Team Peoli App CIAdd commentMore actions
+name: Team Peoli App CI
 
 on:
   push:
@@ -36,5 +36,5 @@ jobs:
           username: ${{ secrets.USERNAME }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.KEY }}
-          source: "dist/*"
+          source: "dist"
           target: /home/${{ secrets.USERNAME }}/webapp
