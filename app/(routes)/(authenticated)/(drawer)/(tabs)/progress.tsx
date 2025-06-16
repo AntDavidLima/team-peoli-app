@@ -116,16 +116,16 @@ export default function Progress() {
 
   if (isLoading) {
     return (
-      <View className="p-8 mt-8 flex-1 justify-center items-center">
-        <Text className="text-white text-lg">Carregando estatísticas...</Text>
+      <View className="p-6 mt-6 flex-1 justify-center items-center">
+        <Text className="text-white text-base">Carregando estatísticas...</Text>
       </View>
     );
   }
 
   if (!isLoading && (!allExercises || allExercises.length === 0)) {
     return (
-      <View className="p-8 mt-8">
-        <Text className="text-center text-disabled text-lg">
+      <View className="p-6 mt-6">
+        <Text className="text-center text-disabled text-base">
           Ainda não temos dados o suficiente para gerar um gráfico de
           progressão.
         </Text>
@@ -135,10 +135,10 @@ export default function Progress() {
 
   return (
     <Fragment>
-      <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white text-2xl text-center mt-8 font-extrabod">
+      <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white text-xl text-center mt-6 font-extrabod">
         Estatísticas de Progressão
       </Text>
-      <View style={{ zIndex: 1000, marginHorizontal: 16, marginTop: 16 }}>
+      <View style={{ zIndex: 1000, marginHorizontal: 16, marginTop: 12 }}>
         <DropDownPicker
           open={open}
           value={value}
@@ -155,7 +155,8 @@ export default function Progress() {
           style={{ backgroundColor: customColors.lightBackground, borderRadius: 15, borderColor: customColors.lightBackground }}
           textStyle={{
             marginLeft: 12, 
-            color: 'white' 
+            color: 'white',
+            fontSize: 14
           }}
           dropDownContainerStyle={{ 
             elevation: 5, 
@@ -169,16 +170,17 @@ export default function Progress() {
             shadowOpacity: 0.25,
             shadowRadius: 3.84,
           }}
-          placeholderStyle={{ color: customColors.disabled }}
+          placeholderStyle={{ color: customColors.disabled, fontSize: 14 }}
         />
       </View>
       <FlatList
         data={displayedExercises}
         keyExtractor={(item) => item.id.toString()}
-        className="mt-8 px-4"
-        contentContainerStyle={{ gap: 16, paddingBottom: 20 }}
+        className="mt-6 px-4"
+        contentContainerStyle={{ gap: 12, paddingBottom: 20 }}
         renderItem={({ item }) => {
           if (item.workouts.length === 0) {
+            return null;
           }
 
           return (
@@ -191,8 +193,8 @@ export default function Progress() {
           );
         }}
         ListEmptyComponent={
-            <View className="mt-8 items-center">
-                <Text className="text-center text-disabled text-base">
+            <View className="mt-6 items-center">
+                <Text className="text-center text-disabled text-sm">
                     Nenhum exercício com dados encontrado para este treino.
                 </Text>
             </View>
@@ -258,14 +260,14 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
   }
 
   return (
-    <View key={id} className="bg-lightBackground rounded-2xl py-4">
-      <View className="px-8 py-4">
-        <Text style={{fontFamily: 'Inter-ExtraBold'}} className="self-center text-white text-xl font-extrabold">{name}</Text>
+    <View key={id} className="bg-lightBackground rounded-2xl py-3">
+      <View className="px-6 py-3">
+        <Text style={{fontFamily: 'Inter-ExtraBold'}} className="self-center text-white text-lg font-extrabold">{name}</Text>
       </View>
       <VictoryChart
         width={width - 22}
         scale={{ x: "time" }}
-        padding={{ top: 20, bottom: 40, left: 60, right: 20 }}
+        padding={{ top: 15, bottom: 40, left: 55, right: 20 }}
         containerComponent={
             <VictoryZoomContainer 
                 zoomDimension="x" 
@@ -275,12 +277,13 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
       >
         <VictoryLabel
           text="Carga Total (KG)"
-          x={200}
-          y={5}
+          x={180}
+          y={6}
           textAnchor="middle"
           style={{
             fill: customColors.main,
-            fontFamily: 'Inter-ExtraBold'
+            fontFamily: 'Inter-ExtraBold',
+            fontSize: 12
           }}
         />
         <Defs>
@@ -294,7 +297,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
           dependentAxis
           tickFormat={(tick) => `${Math.round(tick).toLocaleString('pt-BR')}`}
           style={{
-            tickLabels: { fill: "white", fontSize: 10 },
+            tickLabels: { fill: "white", fontSize: 9 },
             axis: { stroke: "transparent" },
             grid: {
               stroke: customColors.disabled,
@@ -311,7 +314,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
             tickLabels: {
               fill: customColors.disabled,
               padding: 5,
-              fontSize: 10,
+              fontSize: 9,
             },
             axis: {
               strokeWidth: 0,
@@ -334,7 +337,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
           x="day"
           y="value"
           style={{
-            data: { stroke: customColors.main, strokeWidth: 4 }
+            data: { stroke: customColors.main, strokeWidth: 3 }
           }}
           interpolation="monotoneX"
         />
@@ -343,7 +346,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
           data={weeklyVolumeData}
           x="day"
           y="value"
-          size={6}
+          size={5}
           style={{
             data: { fill: customColors.main, stroke: 'white', strokeWidth: 1 }
           }}
