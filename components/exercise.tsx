@@ -51,20 +51,33 @@ export function ExerciseExecution({
   const [orientationCollapsed, setOrientationCollapsed] =
     useState<boolean>(true);
 
+    
+  const [orientationVideoCollapsed, setOrientationVideoCollapsed] =
+    useState<boolean>(true);
+
+  const [ selectedAspectRatio, setSelectedAspectRatio ] = useState(16 / 9);
+
   const { data: executions } = useQuery({
     queryKey: ["exercise", "last-execution", exercise.id, currentUser?.id, day],
     queryFn: fetchLastExecution,
   });
 
+   const handleToggleAspectRatio = () => {
+    setOrientationVideoCollapsed((collapsed) => !collapsed)
+    setSelectedAspectRatio(currentRatio => {
+      return currentRatio === 16 / 9 ? 9 / 16 : 16 / 9;
+    });
+  };
+
   return (
-    <View className="px-4 mb-14">
-      <View className="mt-6">
+    <View className="px-3 mb-12">
+      <View className="mt-4">
         <View>
-          <View className="flex-row pl-1 mt-1 gap-2">
-              <TimerIcon width={18} height={18} color={customColors.secondary} />
-              <Text style={{fontFamily: 'Inter-Regular'}}  className="text-gray-400 text-s">{restTime}s</Text>
+          <View className="flex-row pl-1 mt-1 gap-1.5 items-center">
+              <TimerIcon width={16} height={16} color={customColors.secondary} />
+              <Text style={{fontFamily: 'Inter-Regular'}}  className="text-gray-400 text-sm">{restTime}s</Text>
             </View>
-          <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white mt-4 text-2xl font-extrabold">
+          <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white mt-3 text-xl font-extrabold">
             {exercise.name}
           </Text>
         </View>
@@ -75,34 +88,56 @@ export function ExerciseExecution({
               useNativeControls
               style={{
                 width: "100%",
-                aspectRatio: 16 / 9,
-                shadowOffset: {
-                  width: 0,
-                  height: 2,
-                },
-                shadowOpacity: 0.25,
-                shadowRadius: 3.84,
-                elevation: 5,
+                aspectRatio: selectedAspectRatio,
               }}
             />
+            <Pressable onPress={handleToggleAspectRatio}
+              style={{
+                shadowOffset: {
+                  width: 0,
+                  height: 10,
+                },
+                shadowOpacity: 0.51,
+                shadowRadius: 13.16,
+                borderRadius: 15,
+                elevation: 20,
+              }}
+            >
+              <View className="flex-row items-center p-3 justify-between">
+                <View className="flex-row gap-2 items-center">
+                  <Text style={{fontFamily: 'Inter-Medium'}} className="text-white text-xs">
+                    {selectedAspectRatio === 16 / 9 
+                      ? 'Ajustar para Vertical' 
+                      : 'Ajustar para Horizontal'}
+                  </Text>
+                </View>
+                <View className={orientationVideoCollapsed ? "rotate-0" : "rotate-180"}>
+                  <MaterialCommunityIcons
+                    name="chevron-down"
+                    color={tailwindColors.white}
+                    size={14}
+                  />
+                </View>
+              </View>
+            </Pressable>
           </View>
         )}
         {orientations?.blocks[0].text.trim() !== "" && (
           <Pressable
-            className="bg-main rounded-xl mt-4"
+            className="bg-main rounded-xl mt-3"
             onPress={() => setOrientationCollapsed((collapsed) => !collapsed)}
           >
             <View>
-              <View className="flex-row items-center p-4 justify-between">
-                <View className="flex-row gap-3">
-                  <InfoIcon width={20} height={20} color={customColors.secondary} />
-                  <Text style={{fontFamily: 'Inter-Medium'}}  className=" text-white font-medium">Instruções</Text>
+              <View className="flex-row items-center p-3 justify-between">
+                <View className="flex-row gap-2 items-center">
+                  <InfoIcon width={18} height={18} color={customColors.secondary} />
+                  <Text style={{fontFamily: 'Inter-Medium'}}  className="text-white text-xs">Instruções</Text>
                 </View>
                 <View className={orientationCollapsed ? "rotate-0" : "rotate-180"}>
                   <MaterialCommunityIcons
                     name="chevron-down"
                     color={tailwindColors.white}
-                    size={16}
+                    size={14}
                   />
                 </View>
               </View>
@@ -112,27 +147,28 @@ export function ExerciseExecution({
                   baseStyle={{ 
                     color: tailwindColors.white, 
                     backgroundColor: customColors.lightBackground,
-                    paddingHorizontal: 12,
+                    paddingHorizontal: 10,
+                    fontSize: '13px'
                   }}
                 />
                 </Collapsible>
             </View>
           </Pressable>
         )}
-        <View className="mt-6 rounded">
-          <View className="flex-row mb-4 ml-4">
-            <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-[12%] text-center font-medium">SÉRIE</Text>
-            <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-[25%] text-center font-medium">A SUPERAR</Text>
-            <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-[20%] text-center font-medium">CARGA</Text>
-            <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-[25%] text-center font-medium">REPS</Text>
+        <View className="mt-4 rounded">
+          <View className="flex-row mb-3 ml-3">
+            <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-[12%] text-center text-xs">SÉRIE</Text>
+            <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-[25%] text-center text-xs">A SUPERAR</Text>
+            <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-[20%] text-center text-xs">CARGA</Text>
+            <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-[25%] text-center text-xs">REPS</Text>
           </View>
           {Array.from({ length: sets })
             .map((_, index) => setsInfo[index])
             .map((set, index) => {
               return (
                 <View
-                  key={index}
-                  className="flex-row items-center py-2 bg-lightBackground rounded-2xl mb-2"
+                  key={`${workoutId}-${index}`}
+                  className="flex-row items-center py-1.5 bg-lightBackground rounded-2xl mb-1.5"
                 >
                   <Set
                     index={index + 1}
