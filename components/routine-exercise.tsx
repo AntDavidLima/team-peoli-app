@@ -45,33 +45,33 @@ export function RoutineExercise({
     useState<boolean>(true);
 
   return (
-      <Pressable className="bg-lightBackground p-3 rounded-2xl justify-between">
-        <Link
-          href={{
-            pathname: "/(routes)/(authenticated)/exercise/[id]",
-            params: { id: idExercise, trainingId, day },
-          }}
-          asChild
-          key={idExercise}
-        >
+    <Link
+      href={{
+        pathname: "/(routes)/(authenticated)/exercise/[id]",
+        params: { id: idExercise, trainingId, day },
+      }}
+      asChild
+      key={idExercise}
+    >
+      <Pressable className="bg-lightBackground p-4 rounded-2xl justify-between">
         <View className="flex-row items-center">
-          <View className="w-[70%] mr-3">
+          <View className="w-[70%] mr-4">
             <View>
-              <Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold mb-2 text-lg">
+              <Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold mb-2 text-xl">
                 {exerciseName}
               </Text>
-              <View className="flex-row bg-gray-700 items-center gap-1.5 p-2 rounded-lg">
-                <RestTimeIcon height={18} width={18}/>
-                <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400 text-xs">Descanso: {restTime}s</Text>
+              <View className="flex-row bg-gray-700 items-center gap-2 p-3 rounded-lg">
+                <RestTimeIcon height={20} width={20}/>
+                <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">Descanso: {restTime}s</Text>
               </View>
             </View>
-            <View className="mt-1.5 flex-row bg-gray-700 items-center gap-1 p-2 rounded-lg">
-               <Training2Icon height={18} width={18}/>
-              <Text style={{fontFamily: 'Inter-Regular'}} className="ml-1 text-gray-400 text-xs">
+            <View className="mt-2 flex-row bg-gray-700 items-center gap-1 p-3 rounded-lg">
+               <Training2Icon height={20} width={20}/>
+              <Text style={{fontFamily: 'Inter-Regular'}} className="ml-1 text-gray-400">
                 {sets} séries
               </Text>
-              <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400 text-xs">de</Text>
-              <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400 text-xs">
+              <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">de</Text>
+              <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">
                 {reps} repetições
               </Text>
             </View>
@@ -89,20 +89,19 @@ export function RoutineExercise({
             )}
           </View>
         </View>
-        </Link>
         {orientations?.blocks[0].text.trim() !== "" && (
           <Pressable
-            className="mt-3"
+            className="mt-4"
             onPress={() => setOrientationCollapsed((collapsed) => !collapsed)}
           >
-            <View className="mt-2">
-              <View className="flex-row gap-1 py-2 border-b border-gray-700 items-center">
-                <Text style={{fontFamily: 'Inter-Regular'}} className="text-secondary text-xs">Ver instruções</Text>
+            <View className="mt-3">
+              <View className="flex-row gap-1 py-3 border-b-2 border-gray-700">
+                <Text style={{fontFamily: 'Inter-Regular'}} className="text-secondary text-lg">Ver instruções</Text>
                 <View className={orientationCollapsed ? "rotate-0" : "rotate-180"}>
                   <MaterialCommunityIcons
                     name="chevron-down"
                     color={customColors.secondary}
-                    size={18}
+                    size={20}
                   />
                 </View>
               </View>
@@ -110,12 +109,13 @@ export function RoutineExercise({
                   <RenderHTML
                     source={{ html: draftToHtml(orientations!) }}
                     contentWidth={width}
-                    baseStyle={{ color: tailwindColors.white, fontSize: '13px' }}
+                    baseStyle={{ color: tailwindColors.white }}
                   />
               </Collapsible>
             </View>
           </Pressable>
         )}
       </Pressable>
+    </Link>
   );
 }

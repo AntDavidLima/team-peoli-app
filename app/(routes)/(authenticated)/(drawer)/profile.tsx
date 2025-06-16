@@ -174,31 +174,31 @@ export default function Profile() {
 
 	return (
 		<View className="bg-background relative px-4 flex-1">
-			<View className="items-center h-36 relative -mt-10">
-				<Pressable onPress={pickImage} className="absolute -bottom-16 items-center">
-					<View className="w-32 h-32 rounded-full bg-white items-center justify-center overflow-hidden">
+			<View className="items-center h-40 relative -mt-12">
+				<Pressable onPress={pickImage} className="absolute -bottom-20 items-center">
+					<View className="w-36 h-36 rounded-full bg-white items-center justify-center overflow-hidden">
 						{selectedImage ? (
 							<Image className="w-full h-full" source={selectedImage} />
 						) : currentUser?.profilePhotoUrl ? (
 							<Image className="w-full h-full" source={{uri: currentUser.profilePhotoUrl}} />
 						) : (
-							<CameraIcon width={40} height={40} />
+							<CameraIcon width={48} height={48} />
 						)}
 					</View>
 					<View className="absolute top-[55%] left-[65%]">
-						<EditIcon width={30} height={30} />
+						<EditIcon width={36} height={36} />
 					</View>
-					<Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-center mt-2 text-xl font-bold">
+					<Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-center mt-2 text-2xl font-bold">
 						{currentUser?.name}
 					</Text>
 				</Pressable>
 			</View>
-			<ScrollView className="mt-28 h-[calc(100vh - 96px)]">
-				<KeyboardAvoidingView className="px-4 gap-y-4">
+			<ScrollView className="mt-36 h-[calc(100vh - 96px)]">
+				<KeyboardAvoidingView className="px-4 gap-y-6">
 					<View>
-						<View className="flex-row items-center mb-2 gap-1.5">
-							<EmailIcon width={18} height={18} />
-							<Text style={{fontFamily: 'Inter-Medium'}} className="text-white font-medium text-sm">E-mail</Text>
+						<View className="flex-row items-center mb-3 gap-2">
+							<EmailIcon width={20} height={20} />
+							<Text style={{fontFamily: 'Inter-Medium'}} className="text-[white] font-medium">E-mail</Text>
 						</View>
 						<Controller
 							control={control}
@@ -206,7 +206,7 @@ export default function Profile() {
 								<TextInput
 									placeholder="seuemail@exemplo.com"
                   					placeholderTextColor="#AAAAAA" 
-									className="bg-gray-600 rounded w-full px-3 py-2.5 text-sm text-white border-solid border-[1px] border-gray-400"
+									className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 									inputMode="email"
 									autoCapitalize="none"
 									onChangeText={onChange}
@@ -216,15 +216,15 @@ export default function Profile() {
 							name="email"
 						/>
 						{errors.email && (
-							<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-xs text-white">
+							<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">
 								{errors.email?.message}
 							</Text>
 						)}
 					</View>
 					<View>
-						<View className="flex-row items-center mb-2 gap-1.5">
-							<PhoneIcon width={18} height={18} />
-							<Text style={{fontFamily: 'Inter-Medium'}} className="text-white font-medium text-sm">Telefone</Text>
+						<View className="flex-row items-center mb-3 gap-2">
+							<PhoneIcon width={20} height={20} />
+							<Text style={{fontFamily: 'Inter-Medium'}} className="text-[white] font-medium">Telefone</Text>
 						</View>
 						<Controller
 							control={control}
@@ -232,7 +232,7 @@ export default function Profile() {
 								<TextInput
 									placeholder="(99) 9 9999-9999"
                   					placeholderTextColor="#AAAAAA" 
-									className="bg-gray-600 rounded w-full px-3 py-2.5 text-sm text-white border-solid border-[1px] border-gray-400"
+									className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 									inputMode="tel"
 									value={phone.mask(value)}
 									onChangeText={(value) => {
@@ -245,26 +245,26 @@ export default function Profile() {
 							name="phone"
 						/>
 						{errors.phone && (
-							<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-xs text-white">
+							<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">
 								{errors.phone?.message}
 							</Text>
 						)}
 					</View>
-					<View className={changingPassword ? `bg-opacity-0` :  `bg-secondary/40` + " rounded mt-8"}>
+					<View className={changingPassword ? `bg-opacity-0` :  `bg-secondary/40` + " rounded mt-10"}>
 						<Pressable
 							onPress={() => setChangingPassword(true)}
-							className="h-12 px-10 w-full items-center justify-center flex-row space-x-1"
+							className="h-14 px-12 w-full items-center justify-center flex-row space-x-1"
 							disabled={changingPassword}
 						>
-							<PasswordIcon2 width={18} height={18}/>
-							<Text style={{fontFamily: 'Inter-SemiBold'}} className="text-white font-semibold text-sm">{"   "}Alterar senha</Text>
+							<PasswordIcon2 width={20} height={20}/>
+							<Text style={{fontFamily: 'Inter-SemiBold'}} className="text-white font-semibold">{"   "}Alterar senha</Text>
 						</Pressable>
 						{changingPassword && (
-							<View className="gap-y-3">
+							<View className="gap-y-4">
 								<View>
-									<View className="flex-row items-center mb-2 gap-1.5">
-										<PasswordIcon width={18} height={18} fill="#64A4EB" />
-										<Text  style={{fontFamily: 'Inter-Medium'}} className="text-white font-medium text-sm">
+									<View className="flex-row items-center mb-3 gap-2">
+										<PasswordIcon width={20} height={20} fill="#64A4EB" />
+										<Text  style={{fontFamily: 'Inter-Medium'}} className="text-white mb-1 font-medium">
 											Senha atual
 										</Text>
 									</View>
@@ -275,7 +275,7 @@ export default function Profile() {
 												<TextInput
 													placeholder="••••••••••••"
 													placeholderTextColor={customColors.disabled}
-													className="bg-gray-600 rounded w-full px-3 py-2.5 text-sm text-white border-solid border-[1px] border-gray-400"
+													className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 									 				inputMode="text"
 													autoCapitalize="none"
 													secureTextEntry={!passwordVisible.current}
@@ -289,15 +289,15 @@ export default function Profile() {
 											className="absolute right-2 top-1/4 mr-2"
 											onPress={() => setPasswordVisible((prev) => ({ ...prev, current: !prev.current }))}
 										>
-											{passwordVisible.current ? <MaterialCommunityIcons name={"eye-off-outline"} size={18} color="gray" /> : <SeeIcon width={18} height={18} />}
+											{passwordVisible.current ? <MaterialCommunityIcons name={"eye-off-outline"} size={20} color="gray" /> : <SeeIcon width={20} height={20} />}
 										</TouchableOpacity>
 									</View>
-									{errors.currentPassword && <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-xs text-white">{errors.currentPassword?.message}</Text>}
+									{errors.currentPassword && <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">{errors.currentPassword?.message}</Text>}
 								</View>
 								<View>
-									<View className="flex-row items-center mb-2 gap-1.5">
-										<PasswordIcon width={18} height={18} fill="#64A4EB" />
-										<Text style={{fontFamily: 'Inter-Medium'}} className="text-white font-medium text-sm">Nova senha</Text>
+									<View className="flex-row items-center mb-3 gap-2">
+										<PasswordIcon width={20} height={20} fill="#64A4EB" />
+										<Text style={{fontFamily: 'Inter-Medium'}} className="text-white mb-1 font-medium">Nova senha</Text>
 									</View>
 									<View className="relative">
 										<Controller
@@ -306,7 +306,7 @@ export default function Profile() {
 												<TextInput
 													placeholder="••••••••••••"
 													placeholderTextColor={customColors.disabled}
-													className="bg-gray-600 rounded w-full px-3 py-2.5 text-sm text-white border-solid border-[1px] border-gray-400"
+													className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 													inputMode="text"
 													autoCapitalize="none"
 													secureTextEntry={!passwordVisible.new}
@@ -320,15 +320,15 @@ export default function Profile() {
 											className="absolute right-2 top-1/4 mr-2"
 											onPress={() => setPasswordVisible((prev) => ({ ...prev, new: !prev.new }))}
 										>
-											{passwordVisible.new ? <MaterialCommunityIcons name={"eye-off-outline"} size={18} color="gray" /> : <SeeIcon width={18} height={18} />}
+											{passwordVisible.new ? <MaterialCommunityIcons name={"eye-off-outline"} size={20} color="gray" /> : <SeeIcon width={20} height={20} />}
 										</TouchableOpacity>
 									</View>
-									{errors.newPassword && <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-xs text-white">{errors.newPassword?.message}</Text>}
+									{errors.newPassword && <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">{errors.newPassword?.message}</Text>}
 								</View>
 								<View>
-									<View className="flex-row items-center mb-2 gap-1.5">
-										<PasswordIcon width={18} height={18} fill="#64A4EB" />
-										<Text style={{fontFamily: 'Inter-Medium'}} className="text-white font-medium text-sm">Confirme a nova senha</Text>
+									<View className="flex-row items-center mb-3 gap-2">
+										<PasswordIcon width={20} height={20} fill="#64A4EB" />
+										<Text style={{fontFamily: 'Inter-Medium'}} className="text-white mb-1 font-medium">Confirme a nova senha</Text>
 									</View>
 									<View className="relative">
 										<Controller
@@ -337,7 +337,7 @@ export default function Profile() {
 												<TextInput
 													placeholder="••••••••••••"
 													placeholderTextColor={customColors.disabled}
-													className="bg-gray-600 rounded w-full px-3 py-2.5 text-sm text-white border-solid border-[1px] border-gray-400"
+													className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 													inputMode="text"
 													autoCapitalize="none"
 													secureTextEntry={!passwordVisible.confirm}
@@ -351,21 +351,21 @@ export default function Profile() {
 											className="absolute right-2 top-1/4 mr-2"
 											onPress={() => setPasswordVisible((prev) => ({ ...prev, confirm: !prev.confirm }))}
 										>
-											{passwordVisible.confirm ? <MaterialCommunityIcons name={"eye-off-outline"} size={18} color="gray" /> : <SeeIcon width={18} height={18} />}
+											{passwordVisible.confirm ? <MaterialCommunityIcons name={"eye-off-outline"} size={20} color="gray" /> : <SeeIcon width={20} height={20} />}
 										</TouchableOpacity>
 									</View>
-									{errors.passwordConfirmation && <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-xs text-white">{errors.passwordConfirmation?.message}</Text>}
+									{errors.passwordConfirmation && <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">{errors.passwordConfirmation?.message}</Text>}
 								</View>
 							</View>
 						)}
 					</View>
 					<TouchableOpacity
-						className="bg-main rounded h-12 items-center justify-center w-full px-10"
+						className="bg-main rounded h-14 items-center justify-center w-full px-12"
 						onPress={handleSubmit(onSubmit)}
 					>
-						<View className="flex-row items-center">
-							<SaveIcon width={18} height={18}/>
-							<Text style={{fontFamily: 'Inter-SemiBold'}} className="text-white text-sm font-semibold">{"   "}Salvar</Text>
+						<View className="flex-row">
+							<SaveIcon width={20} height={20}/>
+							<Text style={{fontFamily: 'Inter-SemiBold'}} className="text-white text-base font-semibold">{"   "}Salvar</Text>
 						</View>
 					</TouchableOpacity>
 				</KeyboardAvoidingView>

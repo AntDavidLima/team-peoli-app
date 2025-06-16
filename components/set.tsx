@@ -118,7 +118,7 @@ export function Set({
     },
     onError: () => {
       setIsResting(false);
-      if (clock) clearInterval(clock!);
+      clearInterval(clock!);
       setTimeInRest(0);
       Toast.show('Não foi possível concluir a série, tente novamente.', {
         backgroundColor: "red",
@@ -143,10 +143,10 @@ export function Set({
 
   return (
     <Fragment>
-      <Text style={{fontFamily: 'Inter-Bold'}} className="text-white w-[15%] text-center font-bold text-sm">
+      <Text style={{fontFamily: 'Inter-Bold'}} className="text-white w-[15%] text-center font-bold">
         {index}
       </Text>
-      <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-1/4 text-center font-medium text-sm">{lastExecution}</Text>
+      <Text style={{fontFamily: 'Inter-Medium'}} className="text-gray-400 w-1/4 text-center font-medium">{lastExecution}</Text>
       <Controller
         control={control}
         name="load"
@@ -154,7 +154,7 @@ export function Set({
           <View className="px-1 items-center w-1/4">
             <TextInput
               style={{fontFamily: 'Inter-Regular'}} 
-              className={`text-center w-16 border-2 border-gray-400 rounded-lg border-solid py-3 text-sm ${
+              className={`text-center w-20 border-2 border-gray-400 rounded-lg border-solid py-4 ${
                 errors.reps ? "text-red-500" : "text-white"
               }`}
               keyboardType="numeric"
@@ -181,7 +181,7 @@ export function Set({
           <View className="px-1 items-center w-1/5">
             <TextInput
               style={{fontFamily: 'Inter-Regular'}} 
-              className={`text-center w-16 border-2 border-gray-400 rounded-lg border-solid py-3 text-sm ${
+              className={`text-center w-20 border-2 border-gray-400 rounded-lg border-solid py-4 ${
                 errors.reps ? "text-red-500" : "text-white"
               }`}
               placeholder={recomendedReps}
@@ -204,7 +204,7 @@ export function Set({
       <View className="w-[20%] items-center">
         <Pressable
           style={{marginRight: 5}}
-          className={`w-10 h-10 rounded-full items-center justify-center ${
+          className={`w-12 h-12 rounded-full items-center justify-center ${
             getValues("done") ? "bg-green-500" : "bg-subtitle"
           }`}
           disabled={!trainingStarted || watch("done")}
@@ -212,7 +212,7 @@ export function Set({
         >
           <MaterialCommunityIcons
             name="check"
-            size={30}
+            size={38}
             color={watch("done") ? tailwindColors.white : customColors.disabled}
           />
         </Pressable>
@@ -222,11 +222,11 @@ export function Set({
           className="w-full h-full"
           style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
         >
-          <View className="relative bg-background m-auto h-[28rem] w-[18rem] flex items-center" style={{borderRadius: 30}}>
-            <Text className="mt-6 text-white text-3xl font-semibold">
+          <View className="relative bg-background m-auto h-[30rem] w-[20rem] flex items-center" style={{borderRadius: 30}}>
+            <Text className="mt-8 text-white text-4xl font-semibold">
               Descanso
             </Text>
-            <VictoryChart width={width * 0.7} height={width * 0.7}>
+            <VictoryChart width={width * 0.75} height={width * 0.75}>
               <VictoryPie
                 style={{
                   labels: { display: "none" },
@@ -234,7 +234,7 @@ export function Set({
                     fill: ({ datum }) => datum.color,
                   },
                 }}
-                innerRadius={width * 0.6 * 0.4}
+                innerRadius={width * 0.65 * 0.405}
                 data={[
                   { x: "elapsed", y: timeInRest, color: customColors.main },
                   {
@@ -246,22 +246,22 @@ export function Set({
               />
               <MaterialCommunityIcons
                 name="clock-time-four-outline"
-                size={18}
+                size={20}
                 color={customColors.disabled}
                 style={{
                   position: "absolute",
-                  left: (width * 0.7) / 2 - 9,
-                  top: width * 0.65 * 0.5 - 56,
+                  left: (width * 0.75) / 2 - 10,
+                  top: width * 0.70 * 0.5 - 64,
                 }}
               />
               <VictoryLabel
                 text={restTime - timeInRest}
                 textAnchor="middle"
                 verticalAnchor="middle"
-                x={(width * 0.7) / 2}
-                y={(width * 0.7) / 2}
+                x={(width * 0.75) / 2}
+                y={(width * 0.75) / 2}
                 style={{ 
-                  fontSize: 80, 
+                  fontSize: 100, 
                   fontWeight: 'bold',
                   fill: tailwindColors.white }}
               />
@@ -269,16 +269,16 @@ export function Set({
                 text={"segundos"}
                 textAnchor="middle"
                 verticalAnchor="middle"
-                x={(width * 0.7) / 2}
-                y={(width * 0.7) / 2 + 54}
-                style={{ fontSize: 14, fill: customColors.disabled }}
+                x={(width * 0.75) / 2}
+                y={(width * 0.75) / 2 + 64 - 10}
+                style={{ fontSize: 16, fill: customColors.disabled }}
               />
               <VictoryAxis
                 tickFormat={() => ""}
                 style={{ axis: { display: "none" } }}
               />
             </VictoryChart>
-            <Text className="text-disabled text-base text-center px-4">
+            <Text className="text-disabled text-lg text-center px-4">
               O descanso faz parte do treino. Respeite-o!
             </Text>
             <Pressable
@@ -288,20 +288,20 @@ export function Set({
               disabled={submitting}
               onPress={() => {
                 setIsResting(false);
-                if (clock) clearInterval(clock!);
+                clearInterval(clock!);
                 setTimeInRest(0);
               }}
             >
               {submitting ? (
                 <MaterialCommunityIcons
                   name="loading"
-                  size={22}
+                  size={24}
                   color={tailwindColors.gray[400]}
                 />
               ) : (
                 <MaterialCommunityIcons
                   name="close"
-                  size={22}
+                  size={24}
                   color={tailwindColors.white}
                 />
               )}

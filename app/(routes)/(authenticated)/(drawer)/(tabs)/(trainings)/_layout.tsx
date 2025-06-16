@@ -33,7 +33,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const TAB_BAR_HORIZONTAL_MARGIN = 32;
 const TAB_BAR_WIDTH = SCREEN_WIDTH - TAB_BAR_HORIZONTAL_MARGIN;
 const TAB_WIDTH = TAB_BAR_WIDTH / dayKeys.length;
-const INDICATOR_SIZE = 42;
+const INDICATOR_SIZE = 46;
 
 export default function TrainingsLayout() {
 	const todayIndex = new Date().getDay();
@@ -200,7 +200,7 @@ const styles = StyleSheet.create({
 	},
 	labelText: {
 		fontWeight: "bold",
-		fontSize: 14,
+		fontSize: 16,
 		color: tailwindColors.white,
 	},
 	pageContainer: {

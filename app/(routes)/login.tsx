@@ -51,18 +51,18 @@ export default function Login() {
 
   return (
       <KeyboardAvoidingView
-        className="justify-center w-full pt-8 px-4 h-full"
+        className="justify-center w-full pt-8 px-5 h-full"
         behavior="padding"
       >
-        <View className="px-4 gap-y-3">
+        <View className="px-4 gap-y-4">
           <Image 
-            style={{width: 150, height: 50}}
-            className="mb-10 self-center"
+            style={{width: 180, height: 60}}
+            className="mb-14 self-center"
             source={require("@/assets/images/logo.png")} />
           <View>
-            <View className="flex-row items-center mb-2 gap-1.5">
-              <EmailIcon width={18} height={18} />
-              <Text className="text-white text-sm font-medium">E-mail</Text>
+            <View className="flex-row items-center mb-3 gap-2">
+              <EmailIcon width={20} height={20} />
+              <Text className="text-[white] text-base font-medium">E-mail</Text>
             </View>
             <Controller
               control={control}
@@ -70,7 +70,7 @@ export default function Login() {
                 <TextInput
                   placeholder="seuemail@exemplo.com"
                   placeholderTextColor="#AAAAAA" 
-                  className="bg-gray-600 rounded w-full px-3 py-2.5 text-sm text-white border-solid border-[1px] border-gray-400"
+                  className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
                   inputMode="email"
                   autoCapitalize="none"
                   onChangeText={onChange}
@@ -80,15 +80,15 @@ export default function Login() {
               name="email"
             />
             {errors.email && (
-              <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-xs text-white">
+              <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">
                 {errors.email?.message}
               </Text>
             )}
           </View>
           <View>
-            <View className="flex-row items-center mb-2 gap-1.5">
-              <PasswordIcon width={18} height={18} />
-              <Text className="text-white text-sm font-medium">Senha</Text>
+            <View className="flex-row items-center mb-3 gap-2">
+              <PasswordIcon width={20} height={20} />
+              <Text className="text-white text-base font-medium">Senha</Text>
             </View>
             <View className="relative">
               <Controller
@@ -97,7 +97,7 @@ export default function Login() {
                   <TextInput
                     placeholder="••••••••••••"
                     placeholderTextColor="#AAAAAA" 
-                    className="bg-gray-600 rounded w-full px-3 py-2.5 text-sm text-white border-solid border-[1px] border-gray-400"
+                    className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
                     inputMode="text"
                     autoCapitalize="none"
                     secureTextEntry={!passwordVisible}
@@ -113,26 +113,26 @@ export default function Login() {
               >{
                 passwordVisible ? <MaterialCommunityIcons
                   name={"eye-off-outline"}
-                  size={18}
+                  size={20}
                   color="gray"
                 /> :
-                <SeeIcon width={18} height={18} />
+                <SeeIcon width={20} height={20} />
                 }
               </TouchableOpacity>
             </View>
             {errors.password && (
-              <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-xs text-white">
+              <Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">
                 {errors.password?.message}
               </Text>
             )}
             <Link href="/" asChild>
-              <Text className="text-[#64A4EB] mt-2 font-medium text-right text-sm">
+              <Text className="text-[#64A4EB] mt-3 font-medium text-right">
                 Esqueceu a senha?
               </Text>
             </Link>
           </View>            
           <TouchableOpacity
-            className="bg-main rounded h-12 items-center justify-center w-full px-10 mt-2"
+            className="bg-main rounded h-14 items-center justify-center w-full px-12"
             onPress={handleSubmit(onSubmit)}
           >
             {isLoggingIn ? (
@@ -143,7 +143,7 @@ export default function Login() {
                 className="animate-spin"
               />
             ) : (
-              <Text className="text-white font-semibold text-sm animate-none">
+              <Text className="text-white font-semibold text-base animate-none">
                 Acessar
               </Text>
             )}

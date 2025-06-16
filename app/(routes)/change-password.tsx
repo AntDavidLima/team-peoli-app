@@ -53,20 +53,20 @@ export default function ChangePassword() {
         behavior="padding">
 			<View className="w-full px-8 justify-center h-full">
 				<Image
-            		style={{width: 150, height: 50, marginTop: 40}}
-					className="mb-12 self-center"
+            		style={{width: 180, height: 60, marginTop: 60}}
+					className="mb-16 self-center"
 					source={require("@/assets/images/logo.png")} />
-				<View className="space-y-1 mb-3">
-					<Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-xl text-center font-bold">Bem-vindo(a) ao time!</Text>
-					<Text style={{fontFamily: 'Inter-Regular', alignSelf: 'center'}} className="mt-1 text-secondary text-sm text-center">
+				<View className="space-y-2 mb-3">
+					<Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-2xl text-center font-bold">Bem-vindo(a) ao time!</Text>
+					<Text style={{fontFamily: 'Inter-Regular', alignSelf: 'center'}} className="mt-2 text-secondary text-base text-center">
 						Antes de começar, altere sua senha provisória.
 					</Text>
 				</View>
-				<View className="space-y-3 w-full">
+				<View className="space-y-4 w-full">
 					<View>
-						<View className="flex-row items-center my-2 gap-1.5">
-							<PasswordIcon width={18} height={18} fill="#64A4EB" />
-							<Text style={{fontFamily: 'Inter-Medium'}} className="text-white font-medium text-sm">Criar Nova senha</Text>
+						<View className="flex-row items-center my-3 gap-1">
+							<PasswordIcon width={20} height={20} fill="#64A4EB" />
+							<Text style={{fontFamily: 'Inter-Medium'}} className="text-white font-medium">Criar Nova senha</Text>
 						</View>
 						<View className="relative">
 							<Controller
@@ -74,8 +74,8 @@ export default function ChangePassword() {
 								render={({ field: { onChange, ...field } }) => (
 									<TextInput
 										placeholder="••••••••••••"
-										placeholderTextColor="#AAAAAA" 
-										className="bg-gray-600 rounded w-full px-3 py-2.5 text-sm text-white border-solid border-[1px] border-gray-400"
+										placeholderTextColor="white" 
+										className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 										inputMode="text"
 										autoCapitalize="none"
 										secureTextEntry={!passwordVisible.new}
@@ -86,7 +86,7 @@ export default function ChangePassword() {
 								name="newPassword"
 							/>
 							<TouchableOpacity
-								className="absolute right-3 top-1/4"
+								className="absolute right-4 top-1/4"
 								onPress={() =>
 									setPasswordVisible((prev) => ({
 										...prev,
@@ -96,23 +96,23 @@ export default function ChangePassword() {
 							>
 								{passwordVisible.new ? <MaterialCommunityIcons
 								name={"eye-off-outline"}
-								size={18}
+								size={20}
 								color="gray"
 								/> :
-								<SeeIcon width={18} height={18} fill="#64A4EB" /> 
+								<SeeIcon width={20} height={20} fill="#64A4EB" /> 
 								}
 							</TouchableOpacity>
 							{errors.newPassword && (
-								<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-xs text-white">
+								<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">
 									{errors.newPassword?.message}
 								</Text>
 							)}
 						</View>
 					</View>
 					<View>
-						<View className="flex-row items-center mt-3 my-2 gap-1.5 ">
-							<PasswordIcon width={18} height={18} fill="#64A4EB" />
-							<Text style={{fontFamily: 'Inter-Medium'}} className="text-white font-medium text-sm">
+						<View className="flex-row items-center mt-4 my-3 gap-2 ">
+							<PasswordIcon width={20} height={20} fill="#64A4EB" />
+							<Text style={{fontFamily: 'Inter-Medium'}} className="text-white font-medium">
 								Confirmar nova senha
 							</Text>
 						</View>
@@ -122,8 +122,8 @@ export default function ChangePassword() {
 								render={({ field: { onChange, ...field } }) => (
 									<TextInput
 										placeholder="••••••••••••"
-										placeholderTextColor="#AAAAAA"
-										className="bg-gray-600 rounded w-full px-3 py-2.5 text-sm text-white border-solid border-[1px] border-gray-400"
+										placeholderTextColor="white"
+										className="bg-gray-600 rounded w-full px-4 py-3 text-base text-white py-1.5 border-solid border-[1px] border-gray-400"
 										inputMode="text"
 										autoCapitalize="none"
 										secureTextEntry={!passwordVisible.confirm}
@@ -134,7 +134,7 @@ export default function ChangePassword() {
 								name="passwordConfirmation"
 							/>
 							<TouchableOpacity
-								className="absolute right-3 top-1/4"
+								className="absolute right-4 top-1/4"
 								onPress={() =>
 									setPasswordVisible((prev) => ({
 										...prev,
@@ -144,25 +144,25 @@ export default function ChangePassword() {
 							>
 								{passwordVisible.confirm ? <MaterialCommunityIcons
 								name={"eye-off-outline"}
-								size={18}
+								size={20}
 								color="gray"
 								/> :
-								<SeeIcon width={18} height={18} fill="#64A4EB" />
+								<SeeIcon width={20} height={20} fill="#64A4EB" />
 								}
 							</TouchableOpacity>
 							{errors.passwordConfirmation && (
-								<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-xs text-white">
+								<Text className="bg-red-700/50 brightness-100 mt-1 px-1 rounded text-sm text-white">
 									{errors.passwordConfirmation?.message}
 								</Text>
 							)}
 						</View>
 					</View>
 					<TouchableOpacity
-						style={{marginTop: 40}}
-						className="bg-main rounded h-12 items-center justify-center w-full px-10"
+						style={{marginTop: 50}}
+						className="bg-main rounded h-14 items-center justify-center w-full px-10"
 						onPress={handleSubmit(onSubmit)}
 					>
-						<Text className="text-white font-semibold text-sm">Definir Senha</Text>
+						<Text className="text-white font-semibold text-base">Definir Senha</Text>
 					</TouchableOpacity>
 				</View>
 			</View>

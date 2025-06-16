@@ -82,7 +82,7 @@ export default function Home() {
 
   return (
     <ScrollView>
-      <View className="px-4 py-2">
+      <View className="px-4">
         {routines && routines[0]?.trainings[0] ? (
           <Link
             href={{
@@ -95,33 +95,33 @@ export default function Home() {
             }}
             asChild
           >
-            <Pressable className="bg-lightBackground rounded-2xl p-2">
-              <View className="flex-row px-3 py-3 justify-between items-center">
+            <Pressable className="bg-lightBackground rounded-2xl p-3">
+              <View className="flex-row px-4 py-4 justify-between items-center">
                 <View>
                   <View>
-                    <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white text-xl font-extrabold">
+                    <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white text-2xl font-extrabold">
                       Iniciar Treino
                     </Text>
-                    <Text style={{fontFamily: 'Inter-Regular'}} className="text-disabled text-sm">
+                    <Text style={{fontFamily: 'Inter-Regular'}} className="text-disabled">
                       {format(new Date(), "EEEE", { locale: ptBR })}
                     </Text>
-                    <Text style={{fontFamily: 'Inter-Bold'}} className="text-secondary text-lg mt-1 font-bold">{routines[0]?.trainings[0].name}</Text>
+                    <Text style={{fontFamily: 'Inter-Bold'}} className="text-secondary text-xl mt-2 font-bold">{routines[0]?.trainings[0].name}</Text>
                   </View>
                 </View>
-                <View className="bg-main rounded-full items-center justify-center h-14 w-14">
-                  <FireIcon width={32} height={32} />
+                <View className="bg-main rounded-full items-center justify-center h-16 w-16">
+                  <FireIcon width={40} height={40} />
                 </View>
               </View>
             </Pressable>
           </Link>
         ) : (
-          <View className="bg-lightBackground rounded-2xl p-2">
-            <View className="flex-row px-3 py-3 justify-between items-center">
+          <View className="bg-lightBackground rounded-2xl p-3">
+            <View className="flex-row px-4 py-4 justify-between items-center">
               <View>
-                <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white font-extrabold text-lg">
+                <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white font-extrabold text-xl">
                   Day Off
                 </Text>
-                <Text style={{fontFamily: 'Inter-Regular'}} className="text-subtitle mt-1 text-sm">
+                <Text style={{fontFamily: 'Inter-Regular'}} className="text-subtitle mt-1">
                   Sem treinos programados.
                 </Text>
                 <Text 
@@ -130,32 +130,32 @@ export default function Home() {
                   Utilize o dia para recuperação ou análise do seu progresso!
                 </Text>
               </View>
-              <View className="bg-main rounded-full items-center justify-center h-14 w-14">
-                <MoonIcon width={32} height={32}/>
+              <View className="bg-main rounded-full items-center justify-center h-16 w-16">
+                <MoonIcon width={40} height={40}/>
               </View>
             </View>
           </View>
         )}
-        <View className="rounded-full p-2 mt-2">
+        <View className="rounded-full p-3 mt-3">
           <View className="flex-row justify-between items-center">
             {Object.values(Days).map((day, index) => (
               <View
-                style={{width: 40, height: 40, justifyContent: 'center'}}
+                style={{width: 45, height: 45}}
                 className={`${index == new Date().getDay() ? ('bg-main') : ('bg-lightBackground')} 
                 items-center rounded-full`} key={index}>
-                <Text style={{fontFamily: 'Inter-Regular'}}  className="text-gray-400 text-sm">
+                <Text style={{fontFamily: 'Inter-Regular'}}  className="text-gray-400 text-base">
                   {day}
                 </Text>
-                <Text style={{fontFamily: 'Inter-SemiBold'}} className="px-2 text-white font-semibold text-sm">
+                <Text style={{fontFamily: 'Inter-SemiBold'}} className="px-2 text-white font-semibold">
                   {new Date().getDate() - new Date().getDay() + (new Date().getDay() === 0 ? -6 : 0) + index}
                 </Text>
               </View>
             ))}
           </View>
         </View>
-        <View className="bg-lightBackground mt-2 rounded-xl py-1 relative overflow-hidden">
+        <View className="bg-lightBackground mt-3 rounded-xl py-2 relative overflow-hidden">
           <View>
-            <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white text-lg ml-2 px-3 py-3 self-center font-extrabold">
+            <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white text-xl ml-2 px-4 py-4 self-center font-extrabold">
               Status de Progressão Geral
             </Text>
           </View>
@@ -164,7 +164,7 @@ export default function Home() {
               <VictoryChart
                 width={width - 22}
                 scale={{ x: "time" }}
-                padding={{ top: 15, bottom: 40, left: 55, right: 20 }}
+                padding={{ top: 20, bottom: 40, left: 60, right: 20 }}
                 containerComponent={
                     <VictoryZoomContainer 
                         zoomDimension="x" 
@@ -174,13 +174,12 @@ export default function Home() {
               >
                 <VictoryLabel
                   text="Carga Total (KG)"
-                  x={180}
-                  y={6}
+                  x={200}
+                  y={5}
                   textAnchor="middle"
                   style={{
                     fill: customColors.main,
-                    fontFamily: 'Inter-ExtraBold',
-                    fontSize: 12
+                    fontFamily: 'Inter-ExtraBold' 
                   }}
                 />
                 <Defs>
@@ -194,7 +193,7 @@ export default function Home() {
                   dependentAxis
                   tickFormat={(tick) => `${Math.round(tick).toLocaleString('pt-BR')}`}
                   style={{
-                    tickLabels: { fill: "white", fontSize: 9 },
+                    tickLabels: { fill: "white", fontSize: 10 },
                     axis: { stroke: "transparent" },
                     grid: {
                       stroke: customColors.disabled,
@@ -211,7 +210,7 @@ export default function Home() {
                     tickLabels: {
                       fill: customColors.disabled,
                       padding: 5,
-                      fontSize: 9,
+                      fontSize: 10,
                       angle: -15,
                     },
                     axis: {
@@ -235,7 +234,7 @@ export default function Home() {
                   x="day"
                   y="value"
                   style={{
-                    data: { stroke: customColors.main, strokeWidth: 3 }
+                    data: { stroke: customColors.main, strokeWidth: 4 }
                   }}
                   interpolation="monotoneX"
                 />
@@ -244,14 +243,14 @@ export default function Home() {
                   data={weeklyVolumeData}
                   x="day"
                   y="value"
-                  size={5}
+                  size={6}
                   style={{
                     data: { fill: customColors.main, stroke: 'white', strokeWidth: 1 }
                   }}
                 />
               </VictoryChart>
             ) : (
-              <Text className="text-disabled text-center text-sm p-3">
+              <Text className="text-disabled text-center text-base p-4">
                 Sem dados suficientes para gerar o gráfico de evolução.
               </Text>
             )}

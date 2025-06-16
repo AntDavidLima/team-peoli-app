@@ -36,22 +36,22 @@ export function RoutineItem({
   const totalWeeks = dayEnd ? Math.round((dayEnd.getTime() - dayStart.getTime()) / (7 * 24 * 60 * 60 * 1000)) : 1;
 
   return (
-    <View className="mb-6">
-      <View className="bg-lightBackground rounded-2xl p-4">
-        <View className="flex-row gap-1.5 mb-1.5 items-center">
-          <ExerciseIcon width={16} height={16}/>
-          <Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold text-sm">{name}</Text>
+    <View className="mb-8">
+      <View className="bg-lightBackground rounded-2xl p-6">
+        <View className="flex-row gap-2 mb-2">
+          <ExerciseIcon width={18} height={18}/>
+          <Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold">{name}</Text>
           <View className="w-[1px] h-[100%] bg-white mx-1"/>
-          <TimeIcon width={16} height={16}/>
-          <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400 text-sm">{totalWeeks + " Semana" + (totalWeeks > 1 ? "s" : "")}</Text>
+          <TimeIcon width={18} height={18}/>
+          <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">{totalWeeks + " Semana" + (totalWeeks > 1 ? "s" : "")}</Text>
         </View>
-        <View className="flex-row gap-1.5 items-center">
-          <DateIcon width={16} height={16}/>
-          <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400 text-sm">
+        <View className="flex-row gap-2">
+          <DateIcon width={18} height={18}/>
+          <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">
             {dayStart.toLocaleDateString("pt-BR")}
           </Text>
           {dayEnd && (
-            <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400 text-sm">
+            <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400">
               - {dayEnd.toLocaleDateString("pt-BR")}
             </Text>
           )}
@@ -59,19 +59,19 @@ export function RoutineItem({
       </View>
       {orientations?.blocks[0].text.trim() !== "" && (
         <Pressable
-          className="bg-main rounded-xl mt-3"
+          className="bg-main rounded-xl mt-4"
           onPress={() => setOrientationCollapsed((collapsed) => !collapsed)}
         >
-          <View className="flex-row items-center p-3 justify-between">
-            <View className="flex-row items-center gap-1.5">
-              <InfoIcon width={14} height={14}/>
-              <Text style={{fontFamily: 'Inter-Medium'}} className="text-white text-xs">Orientações gerais</Text>
+          <View className="flex-row items-center p-4 justify-between">
+            <View className="flex-row items-center gap-2">
+              <InfoIcon width={16} height={16}/>
+              <Text className="text-white">Orientações gerais</Text>
             </View>
             <View className={orientationCollapsed ? "rotate-0" : "rotate-180"}>
               <MaterialCommunityIcons
                 name="chevron-down"
                 color={tailwindColors.white}
-                size={14}
+                size={16}
               />
             </View>
           </View>
@@ -82,18 +82,17 @@ export function RoutineItem({
               baseStyle={{ 
                 color: tailwindColors.white, 
                 backgroundColor: customColors.lightBackground,
-                paddingHorizontal: 10,
-                fontSize: '13px'
+                paddingHorizontal: 12,
               }}
             />
           </Collapsible>
         </Pressable>
       )}
-      <View className="mt-3">
+      <View className="mt-4">
         {trainings.map(({ id, name, exercises }) => (
           <View key={id}>
-            <Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-center font-bold text-xl mb-3">{name}</Text>
-            <View className="gap-3">
+            <Text style={{fontFamily: 'Inter-Bold'}} className="text-white text-center font-bold text-2xl mb-4">{name}</Text>
+            <View className="gap-4">
               {exercises.map(
                 ({ reps, orientations, sets, exercise, restTime }) => (
                   <RoutineExercise

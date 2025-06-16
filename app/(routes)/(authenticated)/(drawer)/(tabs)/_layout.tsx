@@ -31,13 +31,13 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: customColors.background,
           margin: 0,
-          marginTop: 15,
-          marginBottom: 15,
+          marginTop: 20,
+          marginBottom: 20,
           elevation: 0,
         },
         tabBarIndicatorStyle: {
           position: "absolute",
-          height: 48,
+          height: 50,
           width: width / 10 + 10,
           top: -1,
           left: width / 10 + 2,
