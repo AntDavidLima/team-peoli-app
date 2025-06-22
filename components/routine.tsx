@@ -43,7 +43,7 @@ export function RoutineItem({
           <Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold text-sm">{name}</Text>
           <View className="w-[1px] h-[100%] bg-white mx-1"/>
           <TimeIcon width={16} height={16}/>
-          <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400 text-sm">{totalWeeks + " Semana" + (totalWeeks > 1 ? "s" : "")}</Text>
+          <Text style={{fontFamily: 'Inter-Regular'}} className="text-gray-400 text-xs">{totalWeeks + " Semana" + (totalWeeks > 1 ? "s" : "")}</Text>
         </View>
         <View className="flex-row gap-1.5 items-center">
           <DateIcon width={16} height={16}/>
