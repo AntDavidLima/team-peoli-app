@@ -166,7 +166,7 @@ export function Set({
                 setValue("done", false);
                 onChange(event);
               }}
-              value={value?.toString()}
+              value={value !== undefined ? value.toString() : ""}
               selectTextOnFocus={trainingStarted}
               editable={trainingStarted}
               {...field}
@@ -193,7 +193,7 @@ export function Set({
                 setValue("done", false);
                 onChange(event);
               }}
-              value={value?.toString()}
+              value={value !== undefined ? value.toString() : ""}
               selectTextOnFocus={trainingStarted}
               editable={trainingStarted}
               {...field}
