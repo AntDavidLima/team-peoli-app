@@ -60,12 +60,13 @@ export default function Home() {
   }, [])
 
   const dayOfTheWeek = (index: number) => {
-    const day = firstDayOfWeek + index < 1 ? 
-    firstDayOfWeek + index + totalDaysOfMonth : 
-    firstDayOfWeek + index > totalDaysOfMonth ? 
-    firstDayOfWeek + index - totalDaysOfMonth :
-    firstDayOfWeek + index
-    return day
+    if(firstDayOfWeek + index < 1){ 
+      return firstDayOfWeek + index + totalDaysOfMonth
+    }
+    if(firstDayOfWeek + index > totalDaysOfMonth){ 
+      return firstDayOfWeek + index - totalDaysOfMonth
+    }
+    return firstDayOfWeek + index
   }
 
   const weeklyVolumeData = useMemo(() => {
