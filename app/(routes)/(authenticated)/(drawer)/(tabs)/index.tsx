@@ -47,6 +47,28 @@ export default function Home() {
     queryFn: fetchTrainings,
   });
 
+
+  const { totalDaysOfMonth, firstDayOfWeek } = useMemo(() => {
+    const firstDayOfWeek = new Date().getDate() - new Date().getDay()
+    const currentYear = new Date().getFullYear()
+    var currentMonth = new Date().getMonth()
+    if(firstDayOfWeek > 0) {
+      currentMonth = currentMonth + 1
+    }
+    const totalDaysOfMonth = new Date(currentYear, currentMonth, 0).getDate();
+    return {totalDaysOfMonth, firstDayOfWeek}
+  }, [])
+
+  const dayOfTheWeek = (index: number) => {
+    if(firstDayOfWeek + index < 1){ 
+      return firstDayOfWeek + index + totalDaysOfMonth
+    }
+    if(firstDayOfWeek + index > totalDaysOfMonth){ 
+      return firstDayOfWeek + index - totalDaysOfMonth
+    }
+    return firstDayOfWeek + index
+  }
+
   const weeklyVolumeData = useMemo(() => {
     if (!exercises || exercises.length === 0) {
       return [];
@@ -90,7 +112,7 @@ export default function Home() {
               params: {
                 id: routines?.[0].trainings[0]?.exercises[0].exercise.id,
                 trainingId: routines?.[0]?.trainings[0]?.id,
-                day: format(new Date(), "EEEE", { locale: ptBR }).toUpperCase(),
+                day: format(new Date(), "EEEE").toUpperCase(),
               },
             }}
             asChild
@@ -147,7 +169,7 @@ export default function Home() {
                   {day}
                 </Text>
                 <Text style={{fontFamily: 'Inter-SemiBold'}} className="px-2 text-white font-semibold text-sm">
-                  {new Date().getDate() - new Date().getDay() + (new Date().getDay() === 0 ? -6 : 0) + index}
+                  {dayOfTheWeek(index)}
                 </Text>
               </View>
             ))}
