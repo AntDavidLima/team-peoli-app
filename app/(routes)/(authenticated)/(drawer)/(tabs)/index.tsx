@@ -47,17 +47,25 @@ export default function Home() {
     queryFn: fetchTrainings,
   });
 
-  const totalDaysOfMonth = () => {
+
+  const { totalDaysOfMonth, firstDayOfWeek } = useMemo(() => {
+    const firstDayOfWeek = new Date().getDate() - new Date().getDay()
     const currentYear = new Date().getFullYear()
     var currentMonth = new Date().getMonth()
-    if(firstDayOfWeek() > 0) {
+    if(firstDayOfWeek > 0) {
       currentMonth = currentMonth + 1
     }
-    return new Date(currentYear, currentMonth, 0).getDate();
-  }
+    const totalDaysOfMonth = new Date(currentYear, currentMonth, 0).getDate();
+    return {totalDaysOfMonth, firstDayOfWeek}
+  }, [])
 
-  const firstDayOfWeek = () => {
-    return new Date().getDate() - new Date().getDay()
+  const dayOfTheWeek = (index: number) => {
+    const day = firstDayOfWeek + index < 1 ? 
+    firstDayOfWeek + index + totalDaysOfMonth : 
+    firstDayOfWeek + index > totalDaysOfMonth ? 
+    firstDayOfWeek + index - totalDaysOfMonth :
+    firstDayOfWeek + index
+    return day
   }
 
   const weeklyVolumeData = useMemo(() => {
@@ -160,13 +168,7 @@ export default function Home() {
                   {day}
                 </Text>
                 <Text style={{fontFamily: 'Inter-SemiBold'}} className="px-2 text-white font-semibold text-sm">
-                  {
-                    firstDayOfWeek() + index < 1 ? 
-                    firstDayOfWeek() + index + totalDaysOfMonth() : 
-                    firstDayOfWeek() + index > totalDaysOfMonth() ? 
-                    firstDayOfWeek() + index - totalDaysOfMonth() :
-                    firstDayOfWeek() + index
-                  }
+                  {dayOfTheWeek(index)}
                 </Text>
               </View>
             ))}
