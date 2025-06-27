@@ -60,6 +60,7 @@ export function ExerciseExecution({
   const { data: executions } = useQuery({
     queryKey: ["exercise", "last-execution", exercise.id, currentUser?.id, day],
     queryFn: fetchLastExecution,
+    staleTime: Infinity,
   });
 
    const handleToggleAspectRatio = () => {
