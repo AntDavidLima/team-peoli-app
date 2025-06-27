@@ -4,13 +4,6 @@ const path = require('path');
 module.exports = async function (env, argv) {
   const config = await createExpoWebpackConfigAsync(env, argv);
   
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: './public/index.html',
-      filename: './index.html',
-      favicon: './public/favicon.ico'
-    })
-  ]
   resolve: {
     alias: {
       'react-native$': 'react-native-web',
