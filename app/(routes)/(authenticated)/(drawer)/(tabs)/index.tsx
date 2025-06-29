@@ -47,6 +47,19 @@ export default function Home() {
     queryFn: fetchTrainings,
   });
 
+  const totalDaysOfMonth = () => {
+    const currentYear = new Date().getFullYear()
+    var currentMonth = new Date().getMonth()
+    if(firstDayOfWeek() > 0) {
+      currentMonth = currentMonth + 1
+    }
+    return new Date(currentYear, currentMonth, 0).getDate();
+  }
+
+  const firstDayOfWeek = () => {
+    return new Date().getDate() - new Date().getDay()
+  }
+
   const weeklyVolumeData = useMemo(() => {
     if (!exercises || exercises.length === 0) {
       return [];
@@ -147,7 +160,13 @@ export default function Home() {
                   {day}
                 </Text>
                 <Text style={{fontFamily: 'Inter-SemiBold'}} className="px-2 text-white font-semibold text-sm">
-                  {new Date().getDate() - new Date().getDay() + (new Date().getDay() === 0 ? -6 : 0) + index}
+                  {
+                    firstDayOfWeek() + index < 1 ? 
+                    firstDayOfWeek() + index + totalDaysOfMonth() : 
+                    firstDayOfWeek() + index > totalDaysOfMonth() ? 
+                    firstDayOfWeek() + index - totalDaysOfMonth() :
+                    firstDayOfWeek() + index
+                  }
                 </Text>
               </View>
             ))}
