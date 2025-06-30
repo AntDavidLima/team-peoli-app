@@ -10,6 +10,11 @@ export default function Root({ children }: { children: React.ReactNode }) {
 					name="viewport"
 					content="width=device-width, initial-scale=1, shrink-to-fit=no"
 				/>
+    			
+				<title>Team Peoli</title>
+
+				<link rel="manifest" href="/manifest.json" />
+
 				<ScrollViewStyleReset />
 				<style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
 			</head>
