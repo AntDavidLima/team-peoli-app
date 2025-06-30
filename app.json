@@ -6,7 +6,7 @@
     "backgroundColor": "#1A202C",
     "version": "0.4.0",
     "orientation": "portrait",
-    "icon": "./assets/images/logo-without-text.png",
+    "icon": "./assets/images/logo.png",
     "scheme": "team-peoli",
     "userInterfaceStyle": "dark",
     "splash": {
