@@ -1,7 +1,5 @@
 import { api } from "@/lib/api";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import PowerIcon from "@/assets/icons/power.svg";
-import FinishIcon from "@/assets/icons/finish.svg";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RawDraftContentState } from "draft-js";
 import { useLocalSearchParams } from "expo-router";
@@ -17,11 +15,22 @@ import {
 } from "react-native";
 import tailwindColors from "tailwindcss/colors";
 import customColors from "@/tailwind.colors";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState, useCallback } from "react";
 import { differenceInSeconds } from "date-fns";
 import { ExerciseExecution } from "@/components/exercise";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { Image } from "expo-image";
+import { useAppFocus } from "@/hooks/useAppFocus";
+import { Modal } from "react-native";
+import {
+	VictoryChart,
+	VictoryLabel,
+	VictoryPie,
+} from "victory-native";
+import PowerIcon from "@/assets/icons/power.svg";
+import FinishIcon from "@/assets/icons/finish.svg";
+import TimerIcon from "@/assets/icons/timer2.svg";
+import NoteIcon from "@/assets/icons/note.svg";
 
 interface Training {
 	exercises: TrainingExercise[];
@@ -61,6 +70,59 @@ interface WorkoutExerciseSet {
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function Exercise() {
+	const [isResting, setIsResting] = useState(false);
+	const [restEndTime, setRestEndTime] = useState<Date | null>(null);
+	const [remainingRestSeconds, setRemainingRestSeconds] = useState(0);
+	const [totalRestDuration, setTotalRestDuration] = useState(0);
+
+	const [isConfirmFinishModalVisible, setIsConfirmFinishModalVisible] = useState(false);
+	const [isWorkoutIncomplete, setIsWorkoutIncomplete] = useState(false);
+
+	const handleStartRest = (duration: number) => {
+		if (duration <= 0) return;
+
+		const endTime = new Date(Date.now() + duration * 1000);
+		setRestEndTime(endTime);
+		setTotalRestDuration(duration);
+		setRemainingRestSeconds(duration);
+		setIsResting(true);
+	};
+
+	const addRestTime = (seconds: number) => {
+		if (!restEndTime) return;
+
+		const newEndTime = new Date(restEndTime.getTime() + seconds * 1000);
+		setRestEndTime(newEndTime);
+		setTotalRestDuration((currentDuration) => currentDuration + seconds);
+		setRemainingRestSeconds((currentSeconds) => currentSeconds + seconds);
+	};
+
+	const handleFinishWorkoutAttempt = () => {
+		if (!training || !workout || !workout.exercises) {
+            return;
+		}
+
+		const totalExpectedSets = training.exercises.reduce(
+			(acc, exercise) => acc + exercise.sets,
+			0
+		);
+
+		const totalCompletedSets = workout.exercises.reduce(
+			(acc, exercise) => acc + exercise.WorkoutExerciseSets.length,
+			0
+		);
+
+		setIsWorkoutIncomplete(totalCompletedSets < totalExpectedSets);
+
+		setIsConfirmFinishModalVisible(true);
+	};
+
+	const handleStopRest = () => {
+		setIsResting(false);
+		setRestEndTime(null);
+		setRemainingRestSeconds(0);
+	};
+
 	const [timeAfterStart, setTimeAfterStart] = useState({
 		seconds: 0,
 		minutes: 0,
@@ -88,22 +150,58 @@ export default function Exercise() {
 		queryKey: ["workout", ...(todayTrainings?.map(({ id }) => id) || [])],
 	});
 
+	const syncWorkoutTimer = useCallback(() => {
+		if (!workout) return;
+
+		const timeAfterStartInSeconds = differenceInSeconds(
+			new Date(),
+			new Date(workout.startTime)
+		);
+
+		const hours = Math.floor(timeAfterStartInSeconds / 3600);
+		const minutes = Math.floor((timeAfterStartInSeconds % 3600) / 60);
+		const seconds = timeAfterStartInSeconds % 60;
+
+		setTimeAfterStart({ hours, minutes, seconds });
+	}, [workout]);
+	
+
+	useEffect(() => {
+		if (!isResting || !restEndTime) {
+			return;
+		}
+
+		const interval = setInterval(() => {
+			const remaining = differenceInSeconds(restEndTime, new Date());
+
+			if (remaining <= 0) {
+				handleStopRest();
+			} else {
+				setRemainingRestSeconds(remaining);
+			}
+		}, 1000);
+
+		return () => clearInterval(interval);
+	}, [isResting, restEndTime]);
+
+	useAppFocus(() => {
+		if (isResting && restEndTime) {
+			const remaining = differenceInSeconds(restEndTime, new Date());
+			if (remaining > 0) {
+				setRemainingRestSeconds(remaining);
+			} else {
+				handleStopRest();
+			}
+		}
+
+		if (clock) {
+			syncWorkoutTimer();
+		}
+	})
+
 	useEffect(() => {
 		if (workout) {
-			const timeAfterStartInSeconds = differenceInSeconds(
-				new Date(),
-				new Date(workout.startTime)
-			);
-
-			const hours = Math.floor(timeAfterStartInSeconds / 3600);
-			const minutes = Math.floor((timeAfterStartInSeconds % 3600) / 60);
-			const seconds = timeAfterStartInSeconds % 60;
-
-			setTimeAfterStart({
-				seconds,
-				minutes,
-				hours,
-			});
+			syncWorkoutTimer();
 
 			if (!clock) {
 				setClock(
@@ -130,7 +228,11 @@ export default function Exercise() {
 				);
 			}
 		} else {
+			if(clock) clearInterval(clock);
 			setClock(null);
+		}
+		return () => {
+			if(clock) clearInterval(clock);
 		}
 	}, [workout]);
 
@@ -213,8 +315,72 @@ export default function Exercise() {
 	}
 
 	return (
-			<Fragment>
-				<ScrollView>
+		<Fragment>
+			<View className="h-1 w-full bg-lightBackground">
+				<View className={`h-1 w-[${(100 / training.exercises.length) * (currentExerciseIndex + 1)}%] bg-main`}></View>
+			</View>
+			<View className="flex-row justify-between bg-main mx-2 rounded-full pt-1 pb-1 mt-4">
+				<Pressable
+					className={`pl-2 pb-1 ${currentExerciseIndex === 0 ? "opacity-0" : "opacity-75"}`}
+					disabled={currentExerciseIndex === 0}
+					onPress={() => {
+						flatListRef.current?.scrollToIndex({
+							index: currentExerciseIndex - 1,
+						});
+					}}
+				>
+					<MaterialCommunityIcons
+						name="chevron-left"
+						color="white"
+						size={24}
+					/>
+				</Pressable>
+				<View className="justify-center items-center">
+					<View className="flex-row items-center space-x-2">
+					<TimerIcon width={16} height={16}/>
+					{(
+						<View className="flex-row items-center space-x-1">
+							<View className="flex-row items-baseline">
+								{timeAfterStart.hours > 0 && (
+									<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">
+										{timeAfterStart.hours}:
+									</Text>
+								)}
+								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">
+									{timeAfterStart.hours > 0 && timeAfterStart.minutes < 10 && "0"}
+									{timeAfterStart.minutes}:
+								</Text>
+								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">
+									{timeAfterStart.seconds < 10 && "0"}
+									{timeAfterStart.seconds}
+								</Text>
+							</View>
+						</View>
+					)}
+					</View>
+				</View>
+				<Pressable
+					className={`pr-2 ${currentExerciseIndex === training.exercises.length - 1 ? "opacity-0" : "opacity-75"}`}
+					disabled={currentExerciseIndex === training.exercises.length - 1}
+					onPress={() => {
+						flatListRef.current?.scrollToIndex({
+							index: currentExerciseIndex + 1,
+						});
+					}}
+				>
+					<MaterialCommunityIcons
+						name="chevron-right"
+						color="white"
+						size={24}
+					/>
+				</Pressable>
+			</View>
+			<ScrollView>
+				<View className="px-3 mt-5">
+					<Text style={{fontFamily: 'Inter-Medium'}} className="text-secondary">
+						Exercício {currentExerciseIndex + 1} de {training.exercises.length}
+					</Text>
+				</View>
 				<FlatList
 					ref={flatListRef}
 					data={training.exercises}
@@ -250,84 +416,175 @@ export default function Exercise() {
 								workoutId={workout?.id}
 								trainingIds={todayTrainings?.map(({ id }) => id) || []}
 								day={day as string}
+								onStartRest={handleStartRest}
 							/>
 						</View>
 					)}
 				/>
-				</ScrollView>
-				<View className="justify-center items-center">
-					{clock && (
-						<View className="flex-row items-center space-x-1">
-							<View className="flex-row items-baseline">
-								{timeAfterStart.hours > 0 && (
-									<Text className="text-white font-bold">
-										{timeAfterStart.hours}:
-									</Text>
-								)}
-								<Text className="text-white font-bold">
-									{timeAfterStart.hours > 0 && timeAfterStart.minutes < 10 && "0"}
-									{timeAfterStart.minutes}:
-								</Text>
-								<Text className="text-white font-bold">
-									{timeAfterStart.seconds < 10 && "0"}
-									{timeAfterStart.seconds}
-								</Text>
+			</ScrollView>
+			<View className="h-24 mb-2 mt-2 flex-row justify-around py-2 items-center px-4">
+				{isResting ? (
+					<View className="flex-row justify-between items-center w-full px-8">
+						<Pressable onPress={() => addRestTime(10)}>
+							<View className="flex-row items-center">
+								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">+</Text><Text style={{fontFamily: 'Inter-Regular-Italic'}} className="text-white font-bold">10s</Text>
 							</View>
+							</Pressable>
+
+						<View className="relative justify-center items-center">
+							<VictoryChart
+								width={95}
+								height={95}
+								padding={0}
+							>
+								<VictoryPie
+									standalone={false}
+									width={95} height={95}
+									style={{
+										labels: { display: "none" },
+										data: {
+											fill: ({ datum }) => datum.color,
+										},
+									}}
+									innerRadius={42}
+									data={[
+										{ x: "elapsed", y: totalRestDuration - remainingRestSeconds, color: customColors.lightBackground },
+										{
+											x: "left",
+											y: remainingRestSeconds,
+											color: customColors.main,
+										},
+									]}
+								/>
+								<VictoryLabel
+									text={`${String(Math.floor(remainingRestSeconds / 60)).padStart(2, '0')}:${String(remainingRestSeconds % 60).padStart(2, '0')}`}
+									textAnchor="middle"
+									verticalAnchor="middle"
+									x={47.5} y={44}
+									style={{ 
+										fontFamily: 'Inter-Regular',
+										fontSize: 22,
+										fontWeight: 'bold',
+										fill: tailwindColors.white
+									}}
+								/>
+								<VictoryLabel
+									text={"DESCANSO"}
+									textAnchor="middle"
+									verticalAnchor="middle"
+									x={47.5} y={62}
+									style={{ fontFamily: 'Inter-Regular', fontSize: 10, fill: customColors.disabled }}
+								/>
+							</VictoryChart>
 						</View>
-					)}
-				</View>
-				<View className="h-20 mb-2 mt-2 flex-row justify-around py-2 items-center">
-					<Pressable
-						className="border-gray-300 border-2 rounded-full p-4"
-						disabled={currentExerciseIndex === 0}
-						onPress={() => {
-							flatListRef.current?.scrollToIndex({
-								index: currentExerciseIndex - 1,
-							});
-						}}
-					>
-						<MaterialCommunityIcons
-							name="chevron-left"
-							color={
-								currentExerciseIndex === 0
-									? customColors.disabled
-									: tailwindColors.white
-							}
-							size={24}
-						/>
-					</Pressable>
-					<View className="justify-center rounded-full">
-						<Pressable
-							onPress={() => (clock ? finishWorkout() : startWorkout())}
-						>
-							{clock ? (
-								<FinishIcon width={80} height={80} />
-							) : (
-								<PowerIcon width={80} height={80} />
-							)}
+
+						<Pressable onPress={handleStopRest}>
+							<Text style={{ fontFamily: 'Inter-Regular-Italic' }} className="text-white font-bold">PULAR</Text>
 						</Pressable>
 					</View>
+
+				) : clock ? (
+					(() => {
+						const upcomingRestTime = training.exercises[currentExerciseIndex]?.restTime || 0;
+						const minutes = String(Math.floor(upcomingRestTime / 60)).padStart(2, '0');
+						const seconds = String(upcomingRestTime % 60).padStart(2, '0');
+
+						return (
+							<View className="flex-row justify-between items-center w-full px-8">								
+								<Pressable className="flex-col items-center">
+									<NoteIcon width={28} height={28} />
+									<Text style={{fontFamily: 'Inter-Regular-Italic', fontSize: 12}} className="text-white mt-2">NOTAS</Text>
+								</Pressable>
+								<View className="relative justify-center items-center">
+									<VictoryChart width={95} height={95} padding={0}>
+										<VictoryPie
+											standalone={false}
+											width={95} height={95}
+											style={{ labels: { display: "none" }, data: { fill: ({ datum }) => datum.color, }, }}
+											innerRadius={42}
+											data={[
+												{ x: "full", y: 1, color: customColors.lightBackground },
+											]}
+										/>
+										<VictoryLabel
+											text={`${minutes}:${seconds}`}
+											textAnchor="middle" verticalAnchor="middle" x={47.5} y={44}
+											style={{ fontFamily: 'Inter-Regular', fontSize: 22, fontWeight: 'bold', fill: tailwindColors.white }}
+										/>
+										<VictoryLabel
+											text={"DESCANSO"}
+											textAnchor="middle" verticalAnchor="middle" x={47.5} y={62}
+											style={{ fontFamily: 'Inter-Regular', fontSize: 10, fill: customColors.disabled }}
+										/>
+									</VictoryChart>
+								</View>
+								<Pressable className="flex-col items-center" onPress={handleFinishWorkoutAttempt}>
+									<FinishIcon width={28} height={28} />
+									<Text style={{fontFamily: 'Inter-Regular-Italic', fontSize: 12}} className="text-white mt-2">ENCERRAR</Text>
+								</Pressable>
+							</View>
+						);
+					})()
+
+				) : (
 					<Pressable
-						className="border-gray-300 border-2 rounded-full p-4"
-						disabled={currentExerciseIndex === training.exercises.length - 1}
-						onPress={() => {
-							flatListRef.current?.scrollToIndex({
-								index: currentExerciseIndex + 1,
-							});
-						}}
+						className="h-14 w-36 rounded-full bg-main justify-center items-center flex-row space-x-2"
+						onPress={() => startWorkout()}
 					>
-						<MaterialCommunityIcons
-							name="chevron-right"
-							color={
-								currentExerciseIndex === training.exercises.length - 1
-									? customColors.disabled
-									: tailwindColors.white
-							}
-							size={24}
-						/>
+						<PowerIcon width={24} height={24} />
+						<Text style={{fontFamily: 'Inter-Regular'}} className="text-white text-md">
+							INICIAR
+						</Text>
 					</Pressable>
+				)}
+			</View>
+			<Modal
+				visible={isConfirmFinishModalVisible}
+				transparent
+				animationType="fade"
+				onRequestClose={() => setIsConfirmFinishModalVisible(false)}
+			>
+				<View
+					className="flex-1 justify-center items-center px-4"
+					style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+				>
+					<View className={`${isWorkoutIncomplete ? 'bg-danger' : 'bg-lightBackground'} w-full rounded-2xl p-6 items-center`}>
+						<Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold text-xl text-center">
+							{isWorkoutIncomplete
+                                ? "Tem certeza?"
+                                : "Encerrar o Treino?"
+                            }
+                        </Text>
+
+						<Text style={{fontFamily: 'Inter-Regular'}} className="text-white text-center mt-3 mb-6">
+							{isWorkoutIncomplete
+                                ? "Existem séries não registradas. Se encerrar agora, elas não serão contabilizadas."
+                                : "Tem certeza que deseja encerrar a sessão?"
+                            }
+						</Text>
+
+						<View className="flex-row w-full justify-between">
+							<Pressable
+								className={`${isWorkoutIncomplete ? "bg-lightBackground" :  "bg-secondary/35"} rounded-md py-3 w-[48%]`}
+								onPress={() => setIsConfirmFinishModalVisible(false)}
+							>
+								<Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold text-center">{isWorkoutIncomplete ? "Corrigir" : "Cancelar"}</Text>
+							</Pressable>
+
+							<Pressable
+								className={`${isWorkoutIncomplete ? "bg-white" : "bg-danger"} rounded-md py-3 w-[48%]`}
+								onPress={() => {
+									setIsConfirmFinishModalVisible(false);
+									finishWorkout();
+								}}
+							>
+								<Text style={{fontFamily: 'Inter-Bold'}} className={`${isWorkoutIncomplete ? "text-danger" : "text-white"} font-bold text-center`}>Encerrar</Text>
+							</Pressable>
+						</View>
+					</View>
 				</View>
-			</Fragment>
+			</Modal>
+		</Fragment>
 	);
 
 	async function fetchTodayTrainings() {

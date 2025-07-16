@@ -1,7 +1,7 @@
 import "../components/gesture-handler";
 import { AuthenticationProvider } from "@/contexts/AuthenticationContext";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold } from "@expo-google-fonts/inter";
+import { useFonts, Inter_400Regular, Inter_400Regular_Italic, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold } from "@expo-google-fonts/inter";
 import { Slot, SplashScreen } from "expo-router";
 import { useEffect } from "react";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
@@ -20,6 +20,7 @@ export default function RootLayout() {
   const [loaded, error] = useFonts({
     ...MaterialCommunityIcons.font,
     'Inter-Regular': Inter_400Regular,
+    'Inter-Regular-Italic': Inter_400Regular_Italic,
     'Inter-Medium': Inter_500Medium,
     'Inter-SemiBold': Inter_600SemiBold,
     'Inter-Bold': Inter_700Bold,

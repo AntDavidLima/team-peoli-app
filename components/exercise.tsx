@@ -27,6 +27,7 @@ interface ExerciseExecution {
   setsInfo: SetsInfo[];
   trainingIds: number[];
   day: string;
+  onStartRest: (duration: number) => void;
 }
 
 interface SetsInfo {
@@ -46,6 +47,7 @@ export function ExerciseExecution({
   trainingIds,
   day,
   reps,
+  onStartRest,
 }: ExerciseExecution) {
   const { currentUser } = useAuthentication();
   const [orientationCollapsed, setOrientationCollapsed] =
@@ -71,13 +73,9 @@ export function ExerciseExecution({
   };
 
   return (
-    <View className="px-3 mb-12">
-      <View className="mt-4">
+    <View className="px-3 mb-12 -mt-2">
+      <View className="">
         <View>
-          <View className="flex-row pl-1 mt-1 gap-1.5 items-center">
-              <TimerIcon width={16} height={16} color={customColors.secondary} />
-              <Text style={{fontFamily: 'Inter-Regular'}}  className="text-gray-400 text-sm">{restTime}s</Text>
-            </View>
           <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white mt-3 text-xl font-extrabold">
             {exercise.name}
           </Text>
@@ -188,6 +186,7 @@ export function ExerciseExecution({
                         : "— —"
                     }
                     restTime={restTime}
+                    onStartRest={onStartRest}
                   />
                 </View>
               );

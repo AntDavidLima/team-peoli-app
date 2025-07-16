@@ -4,7 +4,6 @@ import {
   Pressable,
   Text,
   TextInput,
-  useWindowDimensions,
   View,
 } from "react-native";
 import * as yup from "yup";
@@ -14,13 +13,6 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { api } from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Fragment, useEffect, useState } from "react";
-import { Modal } from "react-native";
-import {
-  VictoryAxis,
-  VictoryChart,
-  VictoryLabel,
-  VictoryPie,
-} from "victory-native";
 import Toast from "react-native-root-toast";
 
 interface Set {
@@ -35,6 +27,7 @@ interface Set {
   lastExecution: string;
   recomendedReps: string;
   restTime: number;
+  onStartRest: (duration: number) => void;
 }
 
 const setFormSchema = yup.object({
@@ -58,6 +51,7 @@ export function Set({
   lastExecution,
   recomendedReps,
   restTime,
+  onStartRest,
 }: Set) {
   const {
     control,
@@ -77,49 +71,15 @@ export function Set({
     },
   });
 
-  const [isResting, setIsResting] = useState(false);
-  const [timeInRest, setTimeInRest] = useState(0);
-  const [clock, setClock] = useState<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (isResting) {
-      if (!clock) {
-        setClock(
-          setInterval(() => {
-            setTimeInRest((time) => time + 1);
-          }, 1000)
-        );
-      }
-    }
-
-    return () => {
-      if (clock) {
-        clearInterval(clock);
-        setTimeInRest(0);
-      }
-    };
-  }, [isResting]);
-
-  useEffect(() => {
-    if (restTime - timeInRest <= 0) {
-      setIsResting(false);
-    }
-  }, [timeInRest]);
-
   const queryClient = useQueryClient();
 
   const { mutate: onSubmit, isPending: submitting } = useMutation({
     mutationFn: updateWorkout,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["workout", ...trainingIds] });
-    },
-    onMutate: () => {
-      setIsResting(true);
+      onStartRest(restTime);
     },
     onError: () => {
-      setIsResting(false);
-      if (clock) clearInterval(clock!);
-      setTimeInRest(0);
       Toast.show('Não foi possível concluir a série, tente novamente.', {
         backgroundColor: "red",
         opacity: 0.9,
@@ -138,8 +98,6 @@ export function Set({
       setValue("done", true);
     }
   }, [id, load, reps]);
-
-  const { width } = useWindowDimensions();
 
   return (
     <Fragment>
@@ -217,98 +175,6 @@ export function Set({
           />
         </Pressable>
       </View>
-      <Modal visible={isResting} transparent animationType="fade">
-        <View
-          className="w-full h-full"
-          style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
-        >
-          <View className="relative bg-background m-auto h-[28rem] w-[18rem] flex items-center" style={{borderRadius: 30}}>
-            <Text className="mt-6 text-white text-3xl font-semibold">
-              Descanso
-            </Text>
-            <VictoryChart width={width * 0.7} height={width * 0.7}>
-              <VictoryPie
-                style={{
-                  labels: { display: "none" },
-                  data: {
-                    fill: ({ datum }) => datum.color,
-                  },
-                }}
-                innerRadius={width * 0.6 * 0.4}
-                data={[
-                  { x: "elapsed", y: timeInRest, color: customColors.main },
-                  {
-                    x: "left",
-                    y: restTime - timeInRest,
-                    color: tailwindColors.white,
-                  },
-                ]}
-              />
-              <MaterialCommunityIcons
-                name="clock-time-four-outline"
-                size={18}
-                color={customColors.disabled}
-                style={{
-                  position: "absolute",
-                  left: (width * 0.7) / 2 - 9,
-                  top: width * 0.65 * 0.5 - 56,
-                }}
-              />
-              <VictoryLabel
-                text={restTime - timeInRest}
-                textAnchor="middle"
-                verticalAnchor="middle"
-                x={(width * 0.7) / 2}
-                y={(width * 0.7) / 2}
-                style={{ 
-                  fontSize: 80, 
-                  fontWeight: 'bold',
-                  fill: tailwindColors.white }}
-              />
-              <VictoryLabel
-                text={"segundos"}
-                textAnchor="middle"
-                verticalAnchor="middle"
-                x={(width * 0.7) / 2}
-                y={(width * 0.7) / 2 + 54}
-                style={{ fontSize: 14, fill: customColors.disabled }}
-              />
-              <VictoryAxis
-                tickFormat={() => ""}
-                style={{ axis: { display: "none" } }}
-              />
-            </VictoryChart>
-            <Text className="text-disabled text-base text-center px-4">
-              O descanso faz parte do treino. Respeite-o!
-            </Text>
-            <Pressable
-              className={`absolute top-2 right-2 p-2 ${
-                submitting && "animate-spin"
-              }`}
-              disabled={submitting}
-              onPress={() => {
-                setIsResting(false);
-                if (clock) clearInterval(clock!);
-                setTimeInRest(0);
-              }}
-            >
-              {submitting ? (
-                <MaterialCommunityIcons
-                  name="loading"
-                  size={22}
-                  color={tailwindColors.gray[400]}
-                />
-              ) : (
-                <MaterialCommunityIcons
-                  name="close"
-                  size={22}
-                  color={tailwindColors.white}
-                />
-              )}
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
     </Fragment>
   );
 

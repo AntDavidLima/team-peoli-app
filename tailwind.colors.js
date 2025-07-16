@@ -6,5 +6,6 @@ module.exports = {
   disabled: "#818181",
   subtitle: "#D9D9D9",
   secondary: "#64A4EB",
-  lightBackground: "#2D3748"
+  lightBackground: "#2D3748",
+  danger: "#EB5151"
 };
