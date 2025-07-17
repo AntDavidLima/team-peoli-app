@@ -288,6 +288,7 @@ export default function Exercise() {
 			});
 			if (clock) clearInterval(clock);
 			setClock(null);
+			setTimeAfterStart({ hours: 0, minutes: 0, seconds: 0 });
 		},
 	});
 
@@ -319,7 +320,9 @@ export default function Exercise() {
 			<View className="h-1 w-full bg-lightBackground">
 				<View className={`h-1 w-[${(100 / training.exercises.length) * (currentExerciseIndex + 1)}%] bg-main`}></View>
 			</View>
-			<View className="flex-row justify-between bg-main mx-2 rounded-full pt-1 pb-1 mt-4">
+			<View className={`flex-row justify-between mx-2 rounded-full pt-1 pb-1 mt-4 mb-4 ${
+				clock ? 'bg-main' : 'bg-lightBackground'
+			}`}>
 				<Pressable
 					className={`pl-2 pb-1 ${currentExerciseIndex === 0 ? "opacity-0" : "opacity-75"}`}
 					disabled={currentExerciseIndex === 0}
@@ -341,18 +344,14 @@ export default function Exercise() {
 					{(
 						<View className="flex-row items-center space-x-1">
 							<View className="flex-row items-baseline">
-								{timeAfterStart.hours > 0 && (
-									<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">
-										{timeAfterStart.hours}:
-									</Text>
-								)}
 								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">
-									{timeAfterStart.hours > 0 && timeAfterStart.minutes < 10 && "0"}
-									{timeAfterStart.minutes}:
+									{String(timeAfterStart.hours).padStart(2, '0')}:
 								</Text>
 								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">
-									{timeAfterStart.seconds < 10 && "0"}
-									{timeAfterStart.seconds}
+									{String(timeAfterStart.minutes).padStart(2, '0')}:
+								</Text>
+								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">
+									{String(timeAfterStart.seconds).padStart(2, '0')}
 								</Text>
 							</View>
 						</View>
