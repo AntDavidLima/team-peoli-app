@@ -318,7 +318,7 @@ export default function Exercise() {
 	return (
 		<Fragment>
 			<View className="h-1 w-full bg-lightBackground">
-				<View className={`h-1 w-[${(100 / training.exercises.length) * (currentExerciseIndex + 1)}%] bg-main`}></View>
+				<View style={{ width: `${(100 / training.exercises.length) * (currentExerciseIndex + 1)}%` }} className={`h-1 bg-main`}></View>
 			</View>
 			<View className={`flex-row justify-between mx-2 rounded-full pt-1 pb-1 mt-4 mb-4 ${
 				clock ? 'bg-main' : 'bg-lightBackground'
