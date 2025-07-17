@@ -426,7 +426,7 @@ export default function Exercise() {
 					<View className="flex-row justify-between items-center w-full px-8">
 						<Pressable onPress={() => addRestTime(10)}>
 							<View className="flex-row items-center">
-								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">+</Text><Text style={{fontFamily: 'Inter-Regular-Italic'}} className="text-white font-bold">10s</Text>
+								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">+</Text><Text style={{fontFamily: 'Inter-Regular-Italic', fontSize: 16}} className="text-white font-bold">10s</Text>
 							</View>
 							</Pressable>
 
@@ -489,9 +489,9 @@ export default function Exercise() {
 						const seconds = String(upcomingRestTime % 60).padStart(2, '0');
 
 						return (
-							<View className="flex-row justify-between items-center w-full px-8">								
+							<View className="flex-row justify-between items-center w-full px-6">								
 								<Pressable className="flex-col items-center">
-									<NoteIcon width={28} height={28} />
+									<NoteIcon width={24} height={24} />
 									<Text style={{fontFamily: 'Inter-Regular-Italic', fontSize: 12}} className="text-white mt-2">NOTAS</Text>
 								</Pressable>
 								<View className="relative justify-center items-center">
@@ -518,7 +518,7 @@ export default function Exercise() {
 									</VictoryChart>
 								</View>
 								<Pressable className="flex-col items-center" onPress={handleFinishWorkoutAttempt}>
-									<FinishIcon width={28} height={28} />
+									<FinishIcon width={24} height={24} />
 									<Text style={{fontFamily: 'Inter-Regular-Italic', fontSize: 12}} className="text-white mt-2">ENCERRAR</Text>
 								</Pressable>
 							</View>
