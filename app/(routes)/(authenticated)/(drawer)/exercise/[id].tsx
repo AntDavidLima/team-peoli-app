@@ -375,7 +375,7 @@ export default function Exercise() {
 				</Pressable>
 			</View>
 			<ScrollView>
-				<View className="px-3 mt-5">
+				<View className="px-3">
 					<Text style={{fontFamily: 'Inter-Medium'}} className="text-secondary">
 						Exercício {currentExerciseIndex + 1} de {training.exercises.length}
 					</Text>
