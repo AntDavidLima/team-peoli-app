@@ -570,7 +570,7 @@ export default function Exercise() {
 								className={`${isWorkoutIncomplete ? "bg-lightBackground" :  "bg-secondary/35"} rounded-md py-3 w-[48%]`}
 								onPress={() => setIsConfirmFinishModalVisible(false)}
 							>
-								<Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold text-center">{isWorkoutIncomplete ? "Corrigir" : "Cancelar"}</Text>
+								<Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold text-center">{isWorkoutIncomplete ? "Voltar" : "Cancelar"}</Text>
 							</Pressable>
 
 							<Pressable
