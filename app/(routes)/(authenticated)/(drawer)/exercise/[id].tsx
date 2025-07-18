@@ -165,6 +165,34 @@ export default function Exercise() {
 		setTimeAfterStart({ hours, minutes, seconds });
 	}, [workout]);
 	
+	const startClock = useCallback(() => {
+		if (clock) clearInterval(clock);
+			
+			syncWorkoutTimer();
+
+			setClock(
+				setInterval(() => {
+					setTimeAfterStart((time) => {
+						const newTime = {
+							...time,
+							seconds: time.seconds + 1,
+						};
+
+						if (newTime.seconds === 60) {
+							newTime.seconds = 0;
+							newTime.minutes += 1;
+						}
+
+						if (newTime.minutes === 60) {
+							newTime.minutes = 0;
+							newTime.hours += 1;
+						}
+
+						return newTime;
+					});
+				}, 1000)
+			);
+	}, [clock, syncWorkoutTimer]);
 
 	useEffect(() => {
 		if (!isResting || !restEndTime) {
@@ -194,39 +222,14 @@ export default function Exercise() {
 			}
 		}
 
-		if (clock) {
-			syncWorkoutTimer();
+		if (workout) {
+			startClock();
 		}
 	})
 
 	useEffect(() => {
 		if (workout) {
-			syncWorkoutTimer();
-
-			if (!clock) {
-				setClock(
-					setInterval(() => {
-						setTimeAfterStart((time) => {
-							const newTime = {
-								...time,
-								seconds: time.seconds + 1,
-							};
-
-							if (newTime.seconds === 60) {
-								newTime.seconds = 0;
-								newTime.minutes += 1;
-							}
-
-							if (newTime.minutes === 60) {
-								newTime.minutes = 0;
-								newTime.hours += 1;
-							}
-
-							return newTime;
-						});
-					}, 1000)
-				);
-			}
+			startClock();
 		} else {
 			if(clock) clearInterval(clock);
 			setClock(null);
