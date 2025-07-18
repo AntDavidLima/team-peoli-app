@@ -288,6 +288,7 @@ export default function Exercise() {
 			});
 			if (clock) clearInterval(clock);
 			setClock(null);
+			setTimeAfterStart({ hours: 0, minutes: 0, seconds: 0 });
 		},
 	});
 
@@ -317,9 +318,11 @@ export default function Exercise() {
 	return (
 		<Fragment>
 			<View className="h-1 w-full bg-lightBackground">
-				<View className={`h-1 w-[${(100 / training.exercises.length) * (currentExerciseIndex + 1)}%] bg-main`}></View>
+				<View style={{ width: `${(100 / training.exercises.length) * (currentExerciseIndex + 1)}%` }} className={`h-1 bg-main`}></View>
 			</View>
-			<View className="flex-row justify-between bg-main mx-2 rounded-full pt-1 pb-1 mt-4">
+			<View className={`flex-row justify-between mx-2 rounded-full pt-1 pb-1 mt-4 mb-4 ${
+				clock ? 'bg-main' : 'bg-lightBackground'
+			}`}>
 				<Pressable
 					className={`pl-2 pb-1 ${currentExerciseIndex === 0 ? "opacity-0" : "opacity-75"}`}
 					disabled={currentExerciseIndex === 0}
@@ -341,18 +344,14 @@ export default function Exercise() {
 					{(
 						<View className="flex-row items-center space-x-1">
 							<View className="flex-row items-baseline">
-								{timeAfterStart.hours > 0 && (
-									<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">
-										{timeAfterStart.hours}:
-									</Text>
-								)}
 								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">
-									{timeAfterStart.hours > 0 && timeAfterStart.minutes < 10 && "0"}
-									{timeAfterStart.minutes}:
+									{String(timeAfterStart.hours).padStart(2, '0')}:
 								</Text>
 								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">
-									{timeAfterStart.seconds < 10 && "0"}
-									{timeAfterStart.seconds}
+									{String(timeAfterStart.minutes).padStart(2, '0')}:
+								</Text>
+								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">
+									{String(timeAfterStart.seconds).padStart(2, '0')}
 								</Text>
 							</View>
 						</View>
@@ -376,7 +375,7 @@ export default function Exercise() {
 				</Pressable>
 			</View>
 			<ScrollView>
-				<View className="px-3 mt-5">
+				<View className="px-3">
 					<Text style={{fontFamily: 'Inter-Medium'}} className="text-secondary">
 						Exercício {currentExerciseIndex + 1} de {training.exercises.length}
 					</Text>
@@ -427,7 +426,7 @@ export default function Exercise() {
 					<View className="flex-row justify-between items-center w-full px-8">
 						<Pressable onPress={() => addRestTime(10)}>
 							<View className="flex-row items-center">
-								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">+</Text><Text style={{fontFamily: 'Inter-Regular-Italic'}} className="text-white font-bold">10s</Text>
+								<Text style={{fontFamily: 'Inter-Regular'}} className="text-white">+</Text><Text style={{fontFamily: 'Inter-Regular-Italic', fontSize: 16}} className="text-white font-bold">10s</Text>
 							</View>
 							</Pressable>
 
@@ -490,9 +489,9 @@ export default function Exercise() {
 						const seconds = String(upcomingRestTime % 60).padStart(2, '0');
 
 						return (
-							<View className="flex-row justify-between items-center w-full px-8">								
+							<View className="flex-row justify-between items-center w-full px-6">								
 								<Pressable className="flex-col items-center">
-									<NoteIcon width={28} height={28} />
+									<NoteIcon width={24} height={24} />
 									<Text style={{fontFamily: 'Inter-Regular-Italic', fontSize: 12}} className="text-white mt-2">NOTAS</Text>
 								</Pressable>
 								<View className="relative justify-center items-center">
@@ -519,7 +518,7 @@ export default function Exercise() {
 									</VictoryChart>
 								</View>
 								<Pressable className="flex-col items-center" onPress={handleFinishWorkoutAttempt}>
-									<FinishIcon width={28} height={28} />
+									<FinishIcon width={24} height={24} />
 									<Text style={{fontFamily: 'Inter-Regular-Italic', fontSize: 12}} className="text-white mt-2">ENCERRAR</Text>
 								</Pressable>
 							</View>
