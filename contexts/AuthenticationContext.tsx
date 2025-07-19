@@ -23,6 +23,7 @@ interface CurrentUser {
   email: string;
   phone: string;
   profilePhotoUrl: string | null;
+  isActive: boolean;
 }
 
 interface APIAuthenticateResponse {
@@ -138,6 +139,7 @@ export function AuthenticationProvider({ children }: PropsWithChildren) {
         email: me.email,
         phone: me.phone,
         profilePhotoUrl: me.profilePhotoUrl,
+        isActive: me.isActive
       });
 
     } catch (error) {
