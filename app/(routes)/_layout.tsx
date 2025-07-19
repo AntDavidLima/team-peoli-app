@@ -20,6 +20,13 @@ export default function RoutesLayout() {
 				}}
 			/>
 			<Stack.Screen
+				name="disabled"
+				options={{
+					headerShown: false,
+					statusBarTranslucent: true,
+				}}
+			/>
+			<Stack.Screen
 				name="(authenticated)"
 				options={{
 					headerShown: false,
