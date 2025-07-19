@@ -39,6 +39,10 @@ export default function ChangePassword() {
 		return <Redirect href="/login" />;
 	}
 
+	if (currentUser?.lastPasswordChange) {
+		return <Redirect href="/(authenticated)" />;
+	}
+
 	const [passwordVisible, setPasswordVisible] = useState({
 		new: false,
 		confirm: false,
