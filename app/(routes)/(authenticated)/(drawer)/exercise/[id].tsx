@@ -21,7 +21,7 @@ import { ExerciseExecution } from "@/components/exercise";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { Image } from "expo-image";
 import { useAppFocus } from "@/hooks/useAppFocus";
-import { Modal } from "react-native";
+import { TextInput, Modal } from "react-native";
 import {
 	VictoryChart,
 	VictoryLabel,
@@ -31,6 +31,9 @@ import PowerIcon from "@/assets/icons/power.svg";
 import FinishIcon from "@/assets/icons/finish.svg";
 import TimerIcon from "@/assets/icons/timer2.svg";
 import NoteIcon from "@/assets/icons/note.svg";
+import DeleteIcon from "@/assets/icons/delete.svg";
+import InfoIcon from "@/assets/icons/info2.svg";
+import Toast from "react-native-root-toast";
 
 interface Training {
 	exercises: TrainingExercise[];
@@ -41,6 +44,7 @@ export interface TrainingExercise {
 	reps: string;
 	restTime: number;
 	orientations: RawDraftContentState | null;
+	userNote: string | null;
 	exercise: Exercise;
 }
 
@@ -77,6 +81,9 @@ export default function Exercise() {
 
 	const [isConfirmFinishModalVisible, setIsConfirmFinishModalVisible] = useState(false);
 	const [isWorkoutIncomplete, setIsWorkoutIncomplete] = useState(false);
+
+	const [isNoteModalVisible, setIsNoteModalVisible] = useState(false);
+    const [currentNote, setCurrentNote] = useState('');
 
 	const handleStartRest = (duration: number) => {
 		if (duration <= 0) return;
@@ -123,6 +130,10 @@ export default function Exercise() {
 		setRemainingRestSeconds(0);
 	};
 
+	const handleOpenNoteModal = () => {
+        setIsNoteModalVisible(true);
+    };
+
 	const [timeAfterStart, setTimeAfterStart] = useState({
 		seconds: 0,
 		minutes: 0,
@@ -138,6 +149,7 @@ export default function Exercise() {
 	const { data: training, isLoading: loadingTraining } = useQuery({
 		queryFn: fetchExercises,
 		queryKey: ["exercises", id, day],
+		structuralSharing: true, 
 	});
 
 	const { data: todayTrainings } = useQuery({
@@ -241,29 +253,31 @@ export default function Exercise() {
 
 	const flatListRef = useRef<FlatList<TrainingExercise>>(null);
 
-	const initialExerciseIndex = training?.exercises.findIndex(
-		(exercise) => exercise.exercise.id === Number(id)
-	);
-
-	const [currentExerciseIndex, setCurrentExerciseIndex] = useState(
-		initialExerciseIndex || 0
-	);
+	const [currentExerciseIndex, setCurrentExerciseIndex] = useState<number>(0);
 
 	useEffect(() => {
-		if (
-			initialExerciseIndex !== undefined &&
-			initialExerciseIndex > -1 &&
-			training
-		) {
-			const timeoutId = setTimeout(() => {
-				flatListRef.current?.scrollToIndex({
-					index: initialExerciseIndex,
-					animated: Platform.OS !== "web",
-				});
-			}, 100);
-			return () => clearTimeout(timeoutId);
-		}
-	}, [initialExerciseIndex, training]);
+        if (training) {
+            const initialIndex = training.exercises.findIndex(
+                (exercise) => exercise.exercise.id === Number(id)
+            );
+            if (initialIndex > -1) {
+                setCurrentExerciseIndex(initialIndex);
+                const timeoutId = setTimeout(() => {
+                    flatListRef.current?.scrollToIndex({
+                        index: initialIndex,
+                        animated: Platform.OS !== "web",
+                    });
+                }, 100);
+                
+                return () => clearTimeout(timeoutId);
+            }
+        }
+    }, [training, id]);
+
+	useEffect(() => {
+        const note = training?.exercises[currentExerciseIndex]?.userNote || '';
+        setCurrentNote(note);
+    }, [currentExerciseIndex, training]);
 
 	const currentExerciseId =
 		training?.exercises[currentExerciseIndex]?.exercise.id;
@@ -294,6 +308,25 @@ export default function Exercise() {
 			setTimeAfterStart({ hours: 0, minutes: 0, seconds: 0 });
 		},
 	});
+
+	const { mutate: saveNote, isPending: isSavingNote } = useMutation({
+        mutationFn: async ({ userNote }: { userNote: string }) => {
+            const exerciseId = currentExerciseId;
+            if (!exerciseId) throw new Error("ID do exercício não encontrado");
+            return api.put(`/training/${trainingId}/exercise/${exerciseId}/userNote`, { userNote });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["exercises", id, day] });
+            setIsNoteModalVisible(false);
+        },
+        onError: () => {
+			Toast.show("Não foi possível salvar a nota. Tente novamente.", {
+				backgroundColor: "orange",
+				position: Toast.positions.TOP,
+				duration: Toast.durations.LONG,
+			});
+        }
+    });
 
 	const onViewableItemsChanged = useRef(
 		({ viewableItems }: { viewableItems: ViewToken[] }) => {
@@ -493,7 +526,8 @@ export default function Exercise() {
 
 						return (
 							<View className="flex-row justify-between items-center w-full px-6">								
-								<Pressable className="flex-col items-center">
+								<Pressable className="flex-col items-center" onPress={handleOpenNoteModal}>
+									{currentNote && <InfoIcon className="absolute ml-8" width={14} height={14} />}
 									<NoteIcon width={24} height={24} />
 									<Text style={{fontFamily: 'Inter-Regular-Italic', fontSize: 12}} className="text-white mt-2">NOTAS</Text>
 								</Pressable>
@@ -586,6 +620,76 @@ export default function Exercise() {
 					</View>
 				</View>
 			</Modal>
+			<Modal
+				visible={isNoteModalVisible}
+				transparent
+				animationType="fade"
+				onRequestClose={() => setIsNoteModalVisible(false)}
+			>
+				<Pressable className="flex-1" style={{ backgroundColor: "rgba(0,0,0,0.7)" }} onPress={() => setIsNoteModalVisible(false)} />
+			</Modal>
+			<Modal
+				visible={isNoteModalVisible}
+				transparent
+				animationType="slide"
+				onRequestClose={() => setIsNoteModalVisible(false)}
+			>
+				<View className="flex-1 justify-end">
+                    <Pressable className="flex-1" onPress={() => setIsNoteModalVisible(false)} />
+					<View className="border-2 border-lightBackground bg-background rounded-t-3xl">
+                        <View className="flex-row pt-4 self-center items-center mb-4">
+                            <NoteIcon width={20} height={20} color={customColors.secondary} />
+                            <Text style={{fontFamily: 'Inter-Regular'}} className="text-white font-semibold text-lg ml-2">Notas do Exercício</Text>
+                        </View>
+						<View className="h-[2px] bg-lightBackground"/>
+						<View className="px-4 py-4">
+							<TextInput
+								style={{
+									height: 120,
+									textAlignVertical: 'top',
+									fontFamily: 'Inter-Regular'
+								}}
+								className="bg-lightBackground rounded-xl p-4 text-white text-base"
+								placeholder="Digite suas anotações aqui..."
+								placeholderTextColor={customColors.disabled}
+								multiline
+								value={currentNote}
+								onChangeText={setCurrentNote}
+							/>
+						</View>
+                        {currentNote.length > 0 && (
+                            <Pressable 
+                                className="flex-row items-center px-4 pb-4"
+                                onPress={() => saveNote({ userNote: '' })}
+                            >
+								<DeleteIcon width={20} height={20}/>
+                                <Text style={{fontFamily: 'Inter-Regular'}}  className="text-danger ml-1">Apagar Nota</Text>
+                            </Pressable>
+                        )}
+						<View className="h-[2px] bg-lightBackground"/>
+                        <View className="flex-row w-full justify-between px-4 pb-4 mt-6">
+                            <Pressable
+                                className="py-3 w-[48%]"
+                                onPress={() => setIsNoteModalVisible(false)}
+                            >
+                                <Text style={{fontFamily: 'Inter-Regular'}}  className="text-white text-center">Cancelar</Text>
+                            </Pressable>
+
+                            <Pressable
+                                className="bg-main rounded-lg py-3 w-[48%] items-center justify-center"
+                                disabled={isSavingNote}
+                                onPress={() => saveNote({ userNote: currentNote })}
+                            >
+                                {isSavingNote ? (
+                                    <Text style={{fontFamily: 'Inter-Regular'}}  className="text-white font-bold text-center">Salvando Nota...</Text>
+                                ) : (
+                                    <Text style={{fontFamily: 'Inter-Regular'}}  className="text-white font-bold text-center">Salvar Nota</Text>
+                                )}
+                            </Pressable>
+                        </View>
+                    </View>
+				</View>
+			</Modal>
 		</Fragment>
 	);
 
@@ -608,7 +712,6 @@ export default function Exercise() {
 		const { data: training } = await api.get<Training>(
 			`/training/${trainingId}`
 		);
-
 		return training;
 	}
 
