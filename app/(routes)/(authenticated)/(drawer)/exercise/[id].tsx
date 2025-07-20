@@ -130,10 +130,6 @@ export default function Exercise() {
 		setRemainingRestSeconds(0);
 	};
 
-	const handleOpenNoteModal = () => {
-        setIsNoteModalVisible(true);
-    };
-
 	const [timeAfterStart, setTimeAfterStart] = useState({
 		seconds: 0,
 		minutes: 0,
@@ -321,7 +317,7 @@ export default function Exercise() {
         },
         onError: () => {
 			Toast.show("Não foi possível salvar a nota. Tente novamente.", {
-				backgroundColor: "orange",
+				backgroundColor: "red",
 				position: Toast.positions.TOP,
 				duration: Toast.durations.LONG,
 			});
@@ -526,8 +522,10 @@ export default function Exercise() {
 
 						return (
 							<View className="flex-row justify-between items-center w-full px-6">								
-								<Pressable className="flex-col items-center" onPress={handleOpenNoteModal}>
-									{currentNote && <InfoIcon className="absolute ml-8" width={14} height={14} />}
+								<Pressable className="flex-col items-center" onPress={() => {setIsNoteModalVisible(true);}}>
+									{currentNote ? (
+										<InfoIcon className="absolute ml-8" width={14} height={14} />
+									) : null}
 									<NoteIcon width={24} height={24} />
 									<Text style={{fontFamily: 'Inter-Regular-Italic', fontSize: 12}} className="text-white mt-2">NOTAS</Text>
 								</Pressable>
