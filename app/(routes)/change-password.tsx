@@ -17,7 +17,7 @@ import { APIError, api } from "@/lib/api";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { AxiosError } from "axios";
 import Toast from "react-native-root-toast";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 
 const passwordFormSchema = yup.object({
 	newPassword: yup
@@ -33,7 +33,15 @@ const passwordFormSchema = yup.object({
 type PasswordForm = yup.InferType<typeof passwordFormSchema>;
 
 export default function ChangePassword() {
-	const { currentUser, updateMe } = useAuthentication();
+	const { currentUser, updateMe, isAuthenticated } = useAuthentication();
+
+	if (!isAuthenticated) {
+		return <Redirect href="/login" />;
+	}
+
+	if (currentUser?.lastPasswordChange) {
+		return <Redirect href="/(authenticated)" />;
+	}
 
 	const [passwordVisible, setPasswordVisible] = useState({
 		new: false,
