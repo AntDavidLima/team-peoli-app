@@ -85,6 +85,19 @@ export default function Exercise() {
 	const [isNoteModalVisible, setIsNoteModalVisible] = useState(false);
     const [currentNote, setCurrentNote] = useState('');
 
+	const [timeAfterStart, setTimeAfterStart] = useState({
+		seconds: 0,
+		minutes: 0,
+		hours: 0,
+	});
+	const [clock, setClock] = useState<NodeJS.Timeout | null>(null);
+
+	const flatListRef = useRef<FlatList<TrainingExercise>>(null);
+
+	const [currentExerciseIndex, setCurrentExerciseIndex] = useState<number>(0);
+
+    const isInitialized = useRef(false);
+
 	const handleStartRest = (duration: number) => {
 		if (duration <= 0) return;
 
@@ -130,12 +143,6 @@ export default function Exercise() {
 		setRemainingRestSeconds(0);
 	};
 
-	const [timeAfterStart, setTimeAfterStart] = useState({
-		seconds: 0,
-		minutes: 0,
-		hours: 0,
-	});
-	const [clock, setClock] = useState<NodeJS.Timeout | null>(null);
 	const { currentUser } = useAuthentication();
 
 	const { id, trainingId, day } = useLocalSearchParams();
@@ -247,28 +254,27 @@ export default function Exercise() {
 		}
 	}, [workout]);
 
-	const flatListRef = useRef<FlatList<TrainingExercise>>(null);
-
-	const [currentExerciseIndex, setCurrentExerciseIndex] = useState<number>(0);
-
 	useEffect(() => {
-        if (training) {
+		if (isInitialized.current) return;
+        if (training && !loadingTraining) {
             const initialIndex = training.exercises.findIndex(
                 (exercise) => exercise.exercise.id === Number(id)
             );
             if (initialIndex > -1) {
                 setCurrentExerciseIndex(initialIndex);
-                const timeoutId = setTimeout(() => {
-                    flatListRef.current?.scrollToIndex({
-                        index: initialIndex,
-                        animated: Platform.OS !== "web",
-                    });
-                }, 100);
-                
-                return () => clearTimeout(timeoutId);
+				const timeoutId = setTimeout(() => {
+					flatListRef.current?.scrollToIndex({
+						index: initialIndex,
+						animated: Platform.OS !== "web",
+					});
+				}, 100);
+
+				isInitialized.current = true;
+				
+				return () => clearTimeout(timeoutId);
             }
         }
-    }, [training, id]);
+    }, [training, id, loadingTraining]);
 
 	useEffect(() => {
         const note = training?.exercises[currentExerciseIndex]?.userNote || '';
