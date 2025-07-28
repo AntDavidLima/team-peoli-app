@@ -166,10 +166,11 @@ export function ExerciseExecution({
             .map((set, index) => {
               return (
                 <View
-                  key={`${workoutId}-${index}`}
+                  key={`${workoutId}-${exercise.id}-${index}`}
                   className="flex-row items-center py-1.5 bg-lightBackground rounded-2xl mb-1.5"
                 >
                   <Set
+                    key={`${workoutId}-${exercise.id}-${index}`}
                     index={index + 1}
                     recomendedReps={reps}
                     trainingStarted={trainingStarted}
