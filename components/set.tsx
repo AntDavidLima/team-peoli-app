@@ -5,6 +5,7 @@ import {
   Text,
   TextInput,
   View,
+  ActivityIndicator,
 } from "react-native";
 import * as yup from "yup";
 import tailwindColors from "tailwindcss/colors";
@@ -165,14 +166,18 @@ export function Set({
           className={`w-10 h-10 rounded-full items-center justify-center ${
             getValues("done") ? "bg-green-500" : "bg-subtitle"
           }`}
-          disabled={!trainingStarted || watch("done")}
+          disabled={!trainingStarted || watch("done") || submitting}
           onPress={handleSubmit((data) => onSubmit(data))}
         >
-          <MaterialCommunityIcons
-            name="check"
-            size={30}
-            color={watch("done") ? tailwindColors.white : customColors.disabled}
-          />
+          {submitting ? (
+            <ActivityIndicator color={tailwindColors.white} size="small" />
+          ) : (
+            <MaterialCommunityIcons
+                name="check"
+                size={30}
+                color={watch("done") ? tailwindColors.white : customColors.disabled}
+            />
+          )}
         </Pressable>
       </View>
     </Fragment>
