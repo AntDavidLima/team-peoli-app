@@ -433,30 +433,29 @@ export default function Exercise() {
 						offset: SCREEN_WIDTH * index,
 						index,
 					})}
-					renderItem={({ item: { exercise, reps, sets, restTime, orientations } }) => (
-						<View style={{ width: SCREEN_WIDTH }}>
-							<ExerciseExecution
-								reps={reps}
-								sets={sets}
-								setsInfo={
-									workout?.exercises
-										.filter(
-											({ exerciseId }) => exerciseId === currentExerciseId
-										)
-										.map(({ WorkoutExerciseSets }) => WorkoutExerciseSets)
-										.flat() || []
-								}
-								exercise={exercise}
-								orientations={orientations}
-								restTime={restTime}
-								trainingStarted={clock !== null}
-								workoutId={workout?.id}
-								trainingIds={todayTrainings?.map(({ id }) => id) || []}
-								day={day as string}
-								onStartRest={handleStartRest}
-							/>
-						</View>
-					)}
+					renderItem={({ item }) => {
+						const workoutExerciseForThisItem = workout?.exercises.find(
+							(we) => we.exerciseId === item.exercise.id
+						);
+
+						return (
+							<View style={{ width: SCREEN_WIDTH }}>
+								<ExerciseExecution
+									reps={item.reps}
+									sets={item.sets}
+									setsInfo={workoutExerciseForThisItem?.WorkoutExerciseSets || []}
+									exercise={item.exercise}
+									orientations={item.orientations}
+									restTime={item.restTime}									
+									trainingStarted={clock !== null}
+									workoutId={workout?.id}
+									trainingIds={todayTrainings?.map(({ id }) => id) || []}
+									day={day as string}
+									onStartRest={handleStartRest}
+								/>
+							</View>
+						)}
+					}
 				/>
 			</ScrollView>
 			<View className="h-24 mb-2 mt-2 flex-row justify-around py-2 items-center px-4">
