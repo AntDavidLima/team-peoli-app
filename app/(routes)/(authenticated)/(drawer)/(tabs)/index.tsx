@@ -108,7 +108,7 @@ export default function Home() {
     const min = Math.min(...values);
     const max = Math.max(...values);
 
-    const padding = (max - min) * 0.5 || 50;
+    const padding = (max - min) * 1 || 10;
 
     return {
       weeklyVolumeData: formattedData,
