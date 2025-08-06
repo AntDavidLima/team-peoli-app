@@ -69,9 +69,9 @@ export default function Home() {
     return firstDayOfWeek + index
   }
 
-  const weeklyVolumeData = useMemo(() => {
+  const { weeklyVolumeData, minDomain, maxDomain } = useMemo(() => {
     if (!exercises || exercises.length === 0) {
-      return [];
+      return { weeklyVolumeData: [], minDomain: 0, maxDomain: 100 };
     }
 
     const weeklyData = exercises.reduce((acc, exercise) => {
@@ -93,12 +93,28 @@ export default function Home() {
       return acc;
     }, {} as Record<string, number>);
 
-    return Object.entries(weeklyData)
+    const formattedData = Object.entries(weeklyData)
       .map(([dateStr, volume]) => ({
         day: new Date(dateStr),
         value: volume,
       }))
-      .sort((a, b) => a.day.getTime() - b.day.getTime()).slice(-5);
+      .sort((a, b) => a.day.getTime() - b.day.getTime()).slice(-4);
+
+    if (formattedData.length === 0) {
+      return { weeklyVolumeData: [], minDomain: 0, maxDomain: 100 };
+    }
+
+    const values = formattedData.map((d) => d.value);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+
+    const padding = (max - min) * 0.1 || 10;
+
+    return {
+      weeklyVolumeData: formattedData,
+      minDomain: Math.max(0, min - padding),
+      maxDomain: max + padding,
+    }
   }, [exercises]);
 
 
@@ -187,6 +203,7 @@ export default function Home() {
                 width={width - 22}
                 scale={{ x: "time" }}
                 padding={{ top: 15, bottom: 40, left: 55, right: 20 }}
+                domain={{ y: [minDomain, maxDomain] }}
                 containerComponent={
                     <VictoryZoomContainer 
                         zoomDimension="x" 
