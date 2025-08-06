@@ -29,8 +29,6 @@ import { Days } from "./(trainings)/_layout";
 import { Routine } from "@/components/trainings";
 import FireIcon from "@/assets/icons/fire.svg";
 import MoonIcon from "@/assets/icons/moon.svg";
-import tailwindColors from "@/tailwind.colors";
-
 
 export default function Home() {
   const { currentUser } = useAuthentication();
@@ -69,9 +67,9 @@ export default function Home() {
     return firstDayOfWeek + index
   }
 
-  const { weeklyVolumeData, minDomain, maxDomain } = useMemo(() => {
+  const { weeklyVolumeData, minDomain, maxDomain, averagePercentageChange } = useMemo(() => {
     if (!exercises || exercises.length === 0) {
-      return { weeklyVolumeData: [], minDomain: 0, maxDomain: 100 };
+      return { weeklyVolumeData: [], minDomain: 0, maxDomain: 100, averagePercentageChange: 0 };
     }
 
     const weeklyData = exercises.reduce((acc, exercise) => {
@@ -93,27 +91,45 @@ export default function Home() {
       return acc;
     }, {} as Record<string, number>);
 
-    const formattedData = Object.entries(weeklyData)
+    const sortedData = Object.entries(weeklyData)
       .map(([dateStr, volume]) => ({
         day: new Date(dateStr),
         value: volume,
       }))
       .sort((a, b) => a.day.getTime() - b.day.getTime()).slice(-4);
 
+    const formattedData = sortedData.map((point, index, arr) => {
+      if (index === 0) {
+        return { ...point, percentageChange: null };
+      }
+
+      const previousValue = arr[index - 1].value;
+      const percentageChange = ((point.value - previousValue) / previousValue) * 100;
+      return { ...point, percentageChange };
+    });
+
+    const progressValues = formattedData
+      .map(d => d.percentageChange)
+      .filter((p): p is number => p !== null);
+
+    const avg = progressValues.length > 0 
+      ? progressValues.reduce((sum, val) => sum + val, 0) / progressValues.length
+      : 0;
+
     if (formattedData.length === 0) {
-      return { weeklyVolumeData: [], minDomain: 0, maxDomain: 100 };
+      return { weeklyVolumeData: [], minDomain: 0, maxDomain: 100, averagePercentageChange: 0 };
     }
 
     const values = formattedData.map((d) => d.value);
     const min = Math.min(...values);
     const max = Math.max(...values);
-
-    const padding = (max - min) * 1 || 10;
+    const padding = (max - min) * 0.2 || 10;
 
     return {
       weeklyVolumeData: formattedData,
       minDomain: Math.max(0, min - padding),
       maxDomain: max + padding,
+      averagePercentageChange: avg,
     }
   }, [exercises]);
 
@@ -202,8 +218,9 @@ export default function Home() {
               <VictoryChart
                 width={width - 22}
                 scale={{ x: "time" }}
-                padding={{ top: 15, bottom: 40, left: 55, right: 20 }}
+                padding={{ top: 30, bottom: 40, left: 55, right: 20 }}
                 domain={{ y: [minDomain, maxDomain] }}
+                domainPadding={{ x: 20 }} 
                 containerComponent={
                     <VictoryZoomContainer 
                         zoomDimension="x" 
@@ -213,15 +230,28 @@ export default function Home() {
               >
                 <VictoryLabel
                   text="Carga Total (KG)"
-                  x={180}
-                  y={6}
+                  x={120}
+                  y={10}
                   textAnchor="middle"
                   style={{
                     fill: customColors.main,
                     fontFamily: 'Inter-ExtraBold',
-                    fontSize: 12
+                    fontSize: 15
                   }}
                 />
+
+                <VictoryLabel
+                    textAnchor="end"
+                    x={width - 50}
+                    y={10}
+                    text={`Média: ${averagePercentageChange >= 0 ? '+' : ''}${averagePercentageChange.toFixed(0)}%`}
+                    style={{
+                        fill: averagePercentageChange >= 0 ? '#4ade80' : '#f87171',
+                        fontSize: 15,
+                        fontFamily: 'Inter-Bold',
+                    }}
+                />
+
                 <Defs>
                   <LinearGradient id="homeChartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
                     <Stop offset="0%" stopColor={customColors.main} stopOpacity={0.3} />
@@ -285,8 +315,24 @@ export default function Home() {
                   y="value"
                   size={5}
                   style={{
-                    data: { fill: customColors.main, stroke: 'white', strokeWidth: 1 }
+                    data: { fill: customColors.main, stroke: 'white', strokeWidth: 1 },
+                    labels: {
+                      fill: 'white',
+                      fontSize: 10,
+                      fontFamily: 'Inter-SemiBold',
+                      padding: 5,
+                    }
                   }}
+                  labels={({ datum }) => {
+                    if (datum.percentageChange === null) {
+                      return '';
+                    }
+                    const sign = datum.percentageChange >= 0 ? '+' : '';
+                    return `${sign}${datum.percentageChange.toFixed(0)}%`;
+                  }}
+                  labelComponent={
+                    <VictoryLabel dy={-8} textAnchor="middle" />
+                  }
                 />
               </VictoryChart>
             ) : (
