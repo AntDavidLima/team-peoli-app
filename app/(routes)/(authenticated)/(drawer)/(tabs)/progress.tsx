@@ -315,24 +315,24 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
       >
         <VictoryLabel
           text="Carga Total (KG)"
-          x={120}
+          x={105}
           y={10}
           textAnchor="middle"
           style={{
             fill: customColors.main,
             fontFamily: 'Inter-ExtraBold',
-            fontSize: 15
+            fontSize: 12
           }}
         />
 
         <VictoryLabel
             textAnchor="end"
-            x={width - 50}
+            x={width - 70}
             y={10}
             text={`Média: ${averagePercentageChange >= 0 ? '+' : ''}${averagePercentageChange.toFixed(0)}%`}
             style={{
                 fill: averagePercentageChange >= 0 ? '#4ade80' : '#f87171',
-                fontSize: 15,
+                fontSize: 12,
                 fontFamily: 'Inter-Bold',
             }}
         />
@@ -415,7 +415,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
             return `${sign}${datum.percentageChange.toFixed(0)}%`;
           }}
           labelComponent={
-            <VictoryLabel dy={-15} textAnchor="middle" />
+            <VictoryLabel dy={-8} textAnchor="middle" />
           }
         />
       </VictoryChart>
