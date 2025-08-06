@@ -315,7 +315,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
       >
         <VictoryLabel
           text="Carga Total (KG)"
-          x={105}
+          x={95}
           y={10}
           textAnchor="middle"
           style={{
