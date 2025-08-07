@@ -352,7 +352,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
 
         <VictoryLabel
             textAnchor="start"
-            x={width - 325}
+            x={175}
             y={10}
             text={evolutionLabelText}
             style={{

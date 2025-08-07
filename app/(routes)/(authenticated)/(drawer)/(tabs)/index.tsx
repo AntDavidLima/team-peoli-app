@@ -284,7 +284,7 @@ export default function Home() {
               
               <VictoryLabel
                 textAnchor="start"
-                x={width - 315}
+                x={185}
                 y={10}
                 text={evolutionLabelText}
                 style={{
