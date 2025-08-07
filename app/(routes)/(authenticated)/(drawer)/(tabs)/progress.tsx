@@ -405,6 +405,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
               fontSize: 9,
               angle: -15,
             },
+            axis: { stroke: customColors.disabled , strokeWidth: 0.5 },
           }}
         />
         
