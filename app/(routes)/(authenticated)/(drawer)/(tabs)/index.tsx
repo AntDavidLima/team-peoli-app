@@ -58,81 +58,110 @@ export default function Home() {
   }, [])
 
   const dayOfTheWeek = (index: number) => {
-    if(firstDayOfWeek + index < 1){ 
+    if(firstDayOfWeek + index < 1){
       return firstDayOfWeek + index + totalDaysOfMonth
     }
-    if(firstDayOfWeek + index > totalDaysOfMonth){ 
+    if(firstDayOfWeek + index > totalDaysOfMonth){
       return firstDayOfWeek + index - totalDaysOfMonth
     }
     return firstDayOfWeek + index
   }
 
-  const { weeklyVolumeData, minDomain, maxDomain, averagePercentageChange } = useMemo(() => {
-    if (!exercises || exercises.length === 0) {
-      return { weeklyVolumeData: [], minDomain: 0, maxDomain: 100, averagePercentageChange: 0 };
-    }
-
-    const weeklyData = exercises.reduce((acc, exercise) => {
-      exercise.workouts.forEach(({ workout, WorkoutExerciseSets }) => {
-        const date = new Date(workout.startTime);
-        const dayOfWeek = date.getDay();
-        const weekStartDate = new Date(date);
-        weekStartDate.setDate(date.getDate() - dayOfWeek);
-        weekStartDate.setHours(0, 0, 0, 0);
-        const weekKey = weekStartDate.toISOString();
-
-        const workoutVolume = WorkoutExerciseSets.reduce(
-          (total, set) => total + parseFloat(set.load) * set.reps,
-          0
-        );
-
-        acc[weekKey] = (acc[weekKey] || 0) + workoutVolume;
-      });
-      return acc;
-    }, {} as Record<string, number>);
-
-    const sortedData = Object.entries(weeklyData)
-      .map(([dateStr, volume]) => ({
-        day: new Date(dateStr),
-        value: volume,
-      }))
-      .sort((a, b) => a.day.getTime() - b.day.getTime()).slice(-4);
-
-    const formattedData = sortedData.map((point, index, arr) => {
-      if (index === 0) {
-        return { ...point, percentageChange: null };
+  const { weeklyVolumeData, minDomain, maxDomain, totalEvolutionPercentage } =
+    useMemo(() => {
+      if (!exercises || exercises.length === 0) {
+        return {
+          weeklyVolumeData: [],
+          minDomain: 0,
+          maxDomain: 100,
+          totalEvolutionPercentage: 0,
+        };
       }
 
-      const previousValue = arr[index - 1].value;
-      const percentageChange = ((point.value - previousValue) / previousValue) * 100;
-      return { ...point, percentageChange };
-    });
+      const weeklyData = exercises.reduce((acc, exercise) => {
+        exercise.workouts.forEach(({ workout, WorkoutExerciseSets }) => {
+          const date = new Date(workout.startTime);
+          const dayOfWeek = date.getDay();
+          const weekStartDate = new Date(date);
+          weekStartDate.setDate(date.getDate() - dayOfWeek);
+          weekStartDate.setHours(0, 0, 0, 0);
+          const weekKey = weekStartDate.toISOString();
 
-    const progressValues = formattedData
-      .map(d => d.percentageChange)
-      .filter((p): p is number => p !== null);
+          const workoutVolume = WorkoutExerciseSets.reduce(
+            (total, set) => total + parseFloat(set.load) * set.reps,
+            0
+          );
 
-    const avg = progressValues.length > 0 
-      ? progressValues.reduce((sum, val) => sum + val, 0) / progressValues.length
-      : 0;
+          acc[weekKey] = (acc[weekKey] || 0) + workoutVolume;
+        });
+        return acc;
+      }, {} as Record<string, number>);
 
-    if (formattedData.length === 0) {
-      return { weeklyVolumeData: [], minDomain: 0, maxDomain: 100, averagePercentageChange: 0 };
+      const sortedData = Object.entries(weeklyData)
+        .map(([dateStr, volume]) => ({
+          day: new Date(dateStr),
+          value: volume,
+        }))
+        .sort((a, b) => a.day.getTime() - b.day.getTime()).slice(-6);
+
+      if (sortedData.length < 1) {
+        return {
+          weeklyVolumeData: [],
+          minDomain: 0,
+          maxDomain: 100,
+          totalEvolutionPercentage: 0,
+        };
+      }
+
+      const firstValue = sortedData[0].value;
+      const lastValue = sortedData[sortedData.length - 1].value;
+
+      let evolution = 0;
+      if (sortedData.length > 1 && firstValue !== 0) {
+        evolution = ((lastValue - firstValue) / firstValue) * 100;
+      }
+
+      const formattedData = sortedData.map((point) => {
+        const percentageChange =
+          firstValue !== 0
+            ? ((point.value - firstValue) / firstValue) * 100
+            : 0;
+        return { ...point, percentageChange };
+      });
+
+      const values = formattedData.map((d) => d.value);
+      const min = Math.min(...values);
+      const max = Math.max(...values);
+      const padding = (max - min) * 0.2 || 10;
+
+      return {
+        weeklyVolumeData: formattedData,
+        minDomain: Math.max(0, min - padding),
+        maxDomain: max + padding,
+        totalEvolutionPercentage: evolution,
+      };
+    }, [exercises]);
+
+  let evolutionLabelText;
+  if (weeklyVolumeData.length > 1) {
+    if (Math.abs(totalEvolutionPercentage) <= 5) {
+      evolutionLabelText = "Desempenho: Constante";
+    } else {
+      const sign = totalEvolutionPercentage > 0 ? "+" : "";
+      evolutionLabelText = `Desempenho: ${sign}${totalEvolutionPercentage.toFixed(1)}%`;
     }
+  } else {
+    evolutionLabelText = "Desempenho: N/A";
+  }
 
-    const values = formattedData.map((d) => d.value);
-    const min = Math.min(...values);
-    const max = Math.max(...values);
-    const padding = (max - min) * 0.2 || 10;
-
-    return {
-      weeklyVolumeData: formattedData,
-      minDomain: Math.max(0, min - padding),
-      maxDomain: max + padding,
-      averagePercentageChange: avg,
-    }
-  }, [exercises]);
-
+  const evolutionColor = 
+    weeklyVolumeData.length > 1
+      ? Math.abs(totalEvolutionPercentage) <= 5
+        ? customColors.main
+        : totalEvolutionPercentage > 5
+          ? '#4ade80'
+          : '#f87171'
+      : customColors.disabled;
 
   return (
     <ScrollView>
@@ -213,133 +242,177 @@ export default function Home() {
               Status de Progressão Geral
             </Text>
           </View>
-          
+
           {weeklyVolumeData.length > 1 ? (
-              <VictoryChart
-                width={width - 22}
-                scale={{ x: "time" }}
-                padding={{ top: 30, bottom: 40, left: 55, right: 20 }}
-                domain={{ y: [minDomain, maxDomain] }}
-                domainPadding={{ x: 20 }} 
-                containerComponent={
-                    <VictoryZoomContainer 
-                        zoomDimension="x" 
-                        allowZoom={weeklyVolumeData.length > 5}
+            <VictoryChart
+              width={width - 22}
+              scale={{ x: "time" }}
+              padding={{ top: 30, bottom: 40, left: 55, right: 20 }}
+              domain={{ y: [minDomain, maxDomain] }}
+              domainPadding={{ x: 20 }}
+              containerComponent={
+                  <VictoryZoomContainer
+                      zoomDimension="x"
+                      allowZoom
                     />
-                }
-              >
-                <VictoryLabel
-                  text="Carga Total (KG)"
-                  x={105}
-                  y={10}
-                  textAnchor="middle"
-                  style={{
-                    fill: customColors.main,
-                    fontFamily: 'Inter-ExtraBold',
-                    fontSize: 12
-                  }}
-                />
+                  }
+            >
+              <VictoryLabel
+                text="Carga Total (KG)"
+                x={105}
+                y={10}
+                textAnchor="middle"
+                style={{
+                  fill: customColors.main,
+                  fontFamily: 'Inter-ExtraBold',
+                  fontSize: 12,
+                }}
+                backgroundPadding={{
+                  top: 10,
+                  bottom: 10,
+                  left: 10,
+                  right: 10,
+                }}
+                backgroundStyle={{
+                  fill: customColors.main,
+                  opacity: 0.2,
+                  // @ts-ignore - Provavelmente biblitoeca não possui tipagem para rx e ry
+                  rx: 8,
+                  ry: 8,
+                }}
+              />
+              
+              <VictoryLabel
+                textAnchor="start"
+                x={width - 315}
+                y={10}
+                text={evolutionLabelText}
+                style={{
+                  fill: evolutionColor,
+                  fontSize: 12,
+                  fontFamily: 'Inter-Bold',
+                }}
+                backgroundPadding={{
+                  top: 10,
+                  bottom: 10,
+                  left: 10,
+                  right: 10,
+                }}
+                backgroundStyle={{
+                  fill: evolutionColor,
+                  opacity: 0.2,
+                  // @ts-ignore - Provavelmente biblitoeca não possui tipagem para rx e ry
+                  rx: 8,
+                  ry: 8,
+                }}
+              />
 
-                <VictoryLabel
-                    textAnchor="end"
-                    x={width - 70}
-                    y={10}
-                    text={`Média: ${averagePercentageChange >= 0 ? '+' : ''}${averagePercentageChange.toFixed(0)}%`}
-                    style={{
-                        fill: averagePercentageChange >= 0 ? '#4ade80' : '#f87171',
-                        fontSize: 12,
-                        fontFamily: 'Inter-Bold',
-                    }}
-                />
+              <Defs>
+                <LinearGradient id="homeChartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <Stop offset="0%" stopColor={customColors.main} stopOpacity={0.3} />
+                  <Stop offset="100%" stopColor={customColors.main} stopOpacity={0.2} />
+                </LinearGradient>
+              </Defs>
 
-                <Defs>
-                  <LinearGradient id="homeChartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <Stop offset="0%" stopColor={customColors.main} stopOpacity={0.3} />
-                    <Stop offset="100%" stopColor={customColors.main} stopOpacity={0.2} />
-                  </LinearGradient>
-                </Defs>
+              <VictoryAxis
+                dependentAxis
+                tickFormat={(tick) => `${Math.round(tick).toLocaleString('pt-BR')}`}
+                style={{
+                  tickLabels: { fill: "white", fontSize: 9 },
+                  axis: { stroke: "transparent" },
+                  grid: {
+                    stroke: customColors.disabled,
+                    strokeDasharray: "0",
+                    strokeWidth: 0.5
+                  },
+                }}
+              />
 
-                <VictoryAxis
-                  dependentAxis
-                  tickFormat={(tick) => `${Math.round(tick).toLocaleString('pt-BR')}`}
-                  style={{
-                    tickLabels: { fill: "white", fontSize: 9 },
-                    axis: { stroke: "transparent" },
-                    grid: {
-                      stroke: customColors.disabled,
-                      strokeDasharray: "0",
-                      strokeWidth: 0.5
-                    },
-                  }}
-                />
-
-                <VictoryAxis
+               <VictoryAxis
                   tickFormat={(x) => new Date(x).toLocaleDateString('pt-BR', { month: 'short', day: '2-digit' })}
                   fixLabelOverlap
-                  style={{
-                    tickLabels: {
-                      fill: customColors.disabled,
-                      padding: 5,
-                      fontSize: 9,
-                      angle: -15,
-                    },
-                    axis: {
-                      strokeWidth: 0,
-                    },
-                  }}
-                />
-                
-                <VictoryArea
-                  data={weeklyVolumeData}
-                  x="day"
-                  y="value"
-                  style={{
-                    data: { fill: "url(#homeChartGradient)" }
-                  }}
-                  interpolation="monotoneX"
-                />
+                style={{
+                  tickLabels: {
+                    fill: customColors.disabled,
+                    padding: 5,
+                    fontSize: 9,
+                    angle: -15,
+                  },
+                  axis: {
+                    strokeWidth: 0,
+                  },
+                }}
+              />
 
-                <VictoryLine
-                  data={weeklyVolumeData}
-                  x="day"
-                  y="value"
-                  style={{
-                    data: { stroke: customColors.main, strokeWidth: 3 }
-                  }}
-                  interpolation="monotoneX"
-                />
-                
-                <VictoryScatter
-                  data={weeklyVolumeData}
-                  x="day"
-                  y="value"
-                  size={5}
-                  style={{
+              <VictoryArea
+                data={weeklyVolumeData}
+                x="day"
+                y="value"
+                style={{
+                  data: { fill: "url(#homeChartGradient)" }
+                }}
+                interpolation="monotoneX"
+              />
+
+              <VictoryLine
+                data={weeklyVolumeData}
+                x="day"
+                y="value"
+                style={{
+                  data: { stroke: customColors.main, strokeWidth: 3 }
+                }}
+                interpolation="monotoneX"
+              />
+
+              <VictoryScatter
+                data={weeklyVolumeData}
+                x="day"
+                y="value"
+                labels={({ datum }) => `${Math.round(datum.value)}kg`}
+                labelComponent={
+                  <VictoryLabel
+                    dy={-10}
+                    textAnchor="middle"
+                    style={{
+                      fill: "white",
+                      fontSize: 12,
+                      fontFamily: "Inter-Bold",
+                    }}
+                  />
+                }
+              />
+
+              <VictoryScatter
+                data={weeklyVolumeData}
+                x="day"
+                y="value"
+                size={5}
+                style={{
                     data: { fill: customColors.main, stroke: 'white', strokeWidth: 1 },
                     labels: {
                       fill: 'white',
-                      fontSize: 10,
+                      fontSize: 12,
                       fontFamily: 'Inter-SemiBold',
                       padding: 1,
                     }
                   }}
-                  labels={({ datum }) => {
-                    if (datum.percentageChange === null) {
-                      return '';
-                    }
-                    const sign = datum.percentageChange >= 0 ? '+' : '';
-                    return `${sign}${datum.percentageChange.toFixed(0)}%`;
-                  }}
-                  labelComponent={
-                    <VictoryLabel dy={-8} textAnchor="middle" />
+                labels={({ datum }) => {
+                  if (datum.percentageChange === null) {
+                    return '';
                   }
-                />
-              </VictoryChart>
-            ) : (
-              <Text className="text-disabled text-center text-sm p-3">
-                Sem dados suficientes para gerar o gráfico de evolução.
-              </Text>
-            )}
+                  const sign = datum.percentageChange >= 0 ? "+" : "";
+                  return `${sign}${datum.percentageChange.toFixed(0)}%`;
+                }}
+                labelComponent={
+                  <VictoryLabel dy={20} textAnchor="middle" />
+                }
+              />
+            </VictoryChart>
+          ) : (
+            <Text className="text-disabled text-center text-sm p-3">
+              Sem dados suficientes para gerar o gráfico de evolução.
+            </Text>
+          )}
         </View>
       </View>
     </ScrollView>

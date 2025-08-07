@@ -135,10 +135,10 @@ export default function Progress() {
 
   return (
     <Fragment>
-      <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white text-xl text-center mt-6 font-extrabod">
+      <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white text-xl text-center font-extrabod">
         Estatísticas de Progressão
       </Text>
-      <View style={{ zIndex: 1000, marginHorizontal: 16, marginTop: 12 }}>
+      <View style={{ zIndex: 1000, marginHorizontal: 16, marginTop: 6 }}>
         <DropDownPicker
           open={open}
           value={value}
@@ -176,7 +176,7 @@ export default function Progress() {
       <FlatList
         data={displayedExercises}
         keyExtractor={(item) => item.id.toString()}
-        className="mt-6 px-4"
+        className="mt-3 px-4"
         contentContainerStyle={{ gap: 12, paddingBottom: 20 }}
         renderItem={({ item }) => {
           if (item.workouts.length === 0) {
@@ -229,7 +229,7 @@ interface ChartCardProps {
 function ChartCard({ id, name, workouts }: ChartCardProps) {
   const { width } = useWindowDimensions();
 
-  const { weeklyVolumeData, minDomain, maxDomain, averagePercentageChange } = useMemo(() => {
+  const { weeklyVolumeData, minDomain, maxDomain, totalEvolutionPercentage } = useMemo(() => {
     const weeklyData = workouts.reduce((acc, { workout, WorkoutExerciseSets }) => {
       const date = new Date(workout.startTime);
       const dayOfWeek = date.getDay();
@@ -252,31 +252,28 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
         day: new Date(dateStr),
         value: volume,
       }))
-      .sort((a, b) => a.day.getTime() - b.day.getTime()).slice(-4);
+      .sort((a, b) => a.day.getTime() - b.day.getTime()).slice(-6);
       
+    if (sortedData.length < 1) {
+      return { weeklyVolumeData: [], minDomain: 0, maxDomain: 100, totalEvolutionPercentage: 0 };
+    }
+
+    const firstValue = sortedData[0].value;
+    const lastValue = sortedData[sortedData.length - 1].value;
+
+    let evolution = 0;
+    if (sortedData.length > 1 && firstValue !== 0) {
+      evolution = ((lastValue - firstValue) / firstValue) * 100;
+    }
+
     const formattedData = sortedData.map((point, index, arr) => {
       if (index === 0) {
         return { ...point, percentageChange: null };
       }
-      const previousValue = arr[index - 1].value;
-      if (previousValue === 0) {
-        return { ...point, percentageChange: point.value > 0 ? 100 : 0 };
-      }
-      const percentageChange = ((point.value - previousValue) / previousValue) * 100;
+      const percentageChange = firstValue !== 0 ? ((point.value - firstValue) / firstValue) * 100 : 0;
       return { ...point, percentageChange };
+      
     });
-
-    const progressValues = formattedData
-      .map(d => d.percentageChange)
-      .filter((p): p is number => p !== null);
-
-    const avg = progressValues.length > 0 
-      ? progressValues.reduce((sum, val) => sum + val, 0) / progressValues.length
-      : 0;
-
-    if(formattedData.length === 0) {
-      return { weeklyVolumeData: [], minDomain: 0, maxDomain: 100, averagePercentageChange: 0 };
-    }
 
     const values = formattedData.map(d => d.value);
     const min = Math.min(...values);
@@ -287,18 +284,38 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
       weeklyVolumeData: formattedData,
       minDomain: Math.max(0, min - padding),
       maxDomain: max + padding,
-      averagePercentageChange: avg,
+      totalEvolutionPercentage: evolution,
     }
   }, [workouts]);
 
   if (weeklyVolumeData.length < 1) {
     return null;
   }
+  
+  let evolutionLabelText;
+  if (weeklyVolumeData.length > 1) {
+    if (Math.abs(totalEvolutionPercentage) <= 5) {
+      evolutionLabelText = "Desempenho: Constante";
+    } else {
+      const sign = totalEvolutionPercentage > 0 ? "+" : "";
+      evolutionLabelText = `Desempenho: ${sign}${totalEvolutionPercentage.toFixed(1)}%`;
+    }
+  } else {
+    evolutionLabelText = "Desempenho: N/A";
+  }
+  
+  const evolutionColor = 
+  Math.abs(totalEvolutionPercentage) <= 5 
+    ? customColors.main
+    : totalEvolutionPercentage > 5 
+      ? '#4ade80'
+      : '#f87171';
+
 
   return (
     <View key={id} className="bg-lightBackground rounded-2xl py-3">
-      <View className="px-6 py-3">
-        <Text style={{fontFamily: 'Inter-ExtraBold'}} className="self-center text-white text-lg font-extrabold">{name}</Text>
+      <View className="px-6 py-1">
+        <Text style={{fontFamily: 'Inter-ExtraBold'}} className="ml-3 text-white text-lg font-extrabold">{name}</Text>
       </View>
       <VictoryChart
         width={width - 22}
@@ -309,7 +326,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
         containerComponent={
             <VictoryZoomContainer 
                 zoomDimension="x" 
-                allowZoom={weeklyVolumeData.length > 5}
+                allowZoom
             />
         }
       >
@@ -323,17 +340,33 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
             fontFamily: 'Inter-ExtraBold',
             fontSize: 12
           }}
+          backgroundPadding={{ left: 10, right: 10, top: 10, bottom: 10 }}
+          backgroundStyle={{
+            fill: customColors.main,
+            opacity: 0.2,
+            // @ts-ignore - Provavelmente biblitoeca não possui tipagem para rx e ry
+            rx: 8,
+            ry: 8
+          }}
         />
 
         <VictoryLabel
-            textAnchor="end"
-            x={width - 70}
+            textAnchor="start"
+            x={width - 325}
             y={10}
-            text={`Média: ${averagePercentageChange >= 0 ? '+' : ''}${averagePercentageChange.toFixed(0)}%`}
+            text={evolutionLabelText}
             style={{
-                fill: averagePercentageChange >= 0 ? '#4ade80' : '#f87171',
+                fill: evolutionColor,
                 fontSize: 12,
                 fontFamily: 'Inter-Bold',
+            }}
+            backgroundPadding={{ left: 10, right: 10, top: 10, bottom: 10 }}
+            backgroundStyle={{
+              fill: evolutionColor,
+              opacity: 0.2,
+              // @ts-ignore - Provavelmente biblitoeca não possui tipagem para rx e ry
+              rx: 8,
+              ry: 8
             }}
         />
 
@@ -392,6 +425,24 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
           }}
           interpolation="monotoneX"
         />
+
+        <VictoryScatter
+          data={weeklyVolumeData}
+          x="day"
+          y="value"
+          labels={({ datum }) => `${Math.round(datum.value)}kg`}
+          labelComponent={
+            <VictoryLabel 
+                dy={-10}
+                textAnchor="middle" 
+                style={{
+                    fill: 'white',
+                    fontSize: 12,
+                    fontFamily: 'Inter-Bold',
+                }}
+            />
+          }
+        />
         
         <VictoryScatter
           data={weeklyVolumeData}
@@ -402,7 +453,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
             data: { fill: customColors.main, stroke: 'white', strokeWidth: 1 },
             labels: {
               fill: 'white',
-              fontSize: 10,
+              fontSize: 12,
               fontFamily: 'Inter-SemiBold',
               padding: 5,
             }
@@ -415,7 +466,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
             return `${sign}${datum.percentageChange.toFixed(0)}%`;
           }}
           labelComponent={
-            <VictoryLabel dy={-8} textAnchor="middle" />
+            <VictoryLabel dy={20} textAnchor="middle" />
           }
         />
       </VictoryChart>
