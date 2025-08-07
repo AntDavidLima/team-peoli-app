@@ -72,9 +72,9 @@ export default function Home() {
       if (!exercises || exercises.length === 0) {
         return {
           weeklyVolumeData: [],
-          minDomain: 0,
-          maxDomain: 100,
-          totalEvolutionPercentage: 0,
+          minDomain: -50,
+          maxDomain: 50,
+          totalEvolutionPercentage: 0
         };
       }
 
@@ -88,8 +88,7 @@ export default function Home() {
           const weekKey = weekStartDate.toISOString();
 
           const workoutVolume = WorkoutExerciseSets.reduce(
-            (total, set) => total + parseFloat(set.load) * set.reps,
-            0
+            (total, set) => total + parseFloat(set.load) * set.reps, 0
           );
 
           acc[weekKey] = (acc[weekKey] || 0) + workoutVolume;
@@ -102,13 +101,13 @@ export default function Home() {
           day: new Date(dateStr),
           value: volume,
         }))
-        .sort((a, b) => a.day.getTime() - b.day.getTime()).slice(-6);
-
-      if (sortedData.length < 1) {
+        .sort((a, b) => a.day.getTime() - b.day.getTime()).slice(-4);
+      
+      if (sortedData.length < 2) {
         return {
           weeklyVolumeData: [],
-          minDomain: 0,
-          maxDomain: 100,
+          minDomain: -50,
+          maxDomain: 50,
           totalEvolutionPercentage: 0,
         };
       }
@@ -116,28 +115,35 @@ export default function Home() {
       const firstValue = sortedData[0].value;
       const lastValue = sortedData[sortedData.length - 1].value;
 
-      let evolution = 0;
-      if (sortedData.length > 1 && firstValue !== 0) {
-        evolution = ((lastValue - firstValue) / firstValue) * 100;
-      }
+      const evolution = firstValue !== 0 ? ((lastValue - firstValue) / firstValue) * 100 : 0;
 
-      const formattedData = sortedData.map((point) => {
+      const percentageData = sortedData.map((point) => {
         const percentageChange =
-          firstValue !== 0
-            ? ((point.value - firstValue) / firstValue) * 100
-            : 0;
-        return { ...point, percentageChange };
+        firstValue !== 0
+        ? ((point.value - firstValue) / firstValue) * 100
+        : 0;
+        return { 
+          day: point.day,
+          y: percentageChange,
+          absoluteValue: point.value
+        };
       });
 
-      const values = formattedData.map((d) => d.value);
-      const min = Math.min(...values);
-      const max = Math.max(...values);
-      const padding = (max - min) * 0.2 || 10;
+      const yValues = percentageData.map((d) => d.y);
+      const maxAbsY = Math.max(...yValues.map(v => Math.abs(v)));
+      const padding = maxAbsY * 0.4 || 20;
+      const calculatedMinDomain = -maxAbsY - padding;
+      const calculatedMaxDomain = maxAbsY + padding;
+      
+      const finalChartData = percentageData.map(point => ({
+        ...point,
+        y0: calculatedMinDomain
+      }));
 
       return {
-        weeklyVolumeData: formattedData,
-        minDomain: Math.max(0, min - padding),
-        maxDomain: max + padding,
+        weeklyVolumeData: finalChartData,
+        minDomain: calculatedMinDomain,
+        maxDomain: calculatedMaxDomain,
         totalEvolutionPercentage: evolution,
       };
     }, [exercises]);
@@ -238,7 +244,7 @@ export default function Home() {
         </View>
         <View className="bg-lightBackground mt-2 rounded-xl py-1 relative overflow-hidden">
           <View>
-            <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white text-lg ml-2 px-3 py-3 self-center font-extrabold">
+            <Text style={{fontFamily: 'Inter-ExtraBold'}}  className="text-white text-lg ml-2 px-3 py-2 self-center font-extrabold">
               Status de Progressão Geral
             </Text>
           </View>
@@ -247,7 +253,7 @@ export default function Home() {
             <VictoryChart
               width={width - 22}
               scale={{ x: "time" }}
-              padding={{ top: 30, bottom: 40, left: 55, right: 20 }}
+              padding={{ top: 40, bottom: 40, left: 20, right: 20 }}
               domain={{ y: [minDomain, maxDomain] }}
               domainPadding={{ x: 20 }}
               containerComponent={
@@ -259,13 +265,13 @@ export default function Home() {
             >
               <VictoryLabel
                 text="Carga Total (KG)"
-                x={105}
-                y={10}
+                x={70}
+                y={4}
                 textAnchor="middle"
                 style={{
                   fill: customColors.main,
                   fontFamily: 'Inter-ExtraBold',
-                  fontSize: 12,
+                  fontSize: 10,
                 }}
                 backgroundPadding={{
                   top: 10,
@@ -284,12 +290,12 @@ export default function Home() {
               
               <VictoryLabel
                 textAnchor="start"
-                x={185}
-                y={10}
+                x={140}
+                y={4}
                 text={evolutionLabelText}
                 style={{
                   fill: evolutionColor,
-                  fontSize: 12,
+                  fontSize: 10,
                   fontFamily: 'Inter-Bold',
                 }}
                 backgroundPadding={{
@@ -316,9 +322,9 @@ export default function Home() {
 
               <VictoryAxis
                 dependentAxis
-                tickFormat={(tick) => `${Math.round(tick).toLocaleString('pt-BR')}`}
+                tickFormat={(tick) => `${Math.round(tick)}%`}
                 style={{
-                  tickLabels: { fill: "white", fontSize: 9 },
+                  tickLabels: { fill: "transparent" },
                   axis: { stroke: "transparent" },
                   grid: {
                     stroke: customColors.disabled,
@@ -328,18 +334,16 @@ export default function Home() {
                 }}
               />
 
-               <VictoryAxis
-                  tickFormat={(x) => new Date(x).toLocaleDateString('pt-BR', { month: 'short', day: '2-digit' })}
-                  fixLabelOverlap
+              <VictoryAxis
+                tickFormat={(x) => new Date(x).toLocaleDateString('pt-BR', { month: 'short', day: '2-digit' })}
+                fixLabelOverlap
+                axisValue={minDomain}
                 style={{
-                  tickLabels: {
+                  tickLabels: { 
                     fill: customColors.disabled,
                     padding: 5,
                     fontSize: 9,
                     angle: -15,
-                  },
-                  axis: {
-                    strokeWidth: 0,
                   },
                 }}
               />
@@ -347,7 +351,8 @@ export default function Home() {
               <VictoryArea
                 data={weeklyVolumeData}
                 x="day"
-                y="value"
+                y="y"
+                y0="y0"
                 style={{
                   data: { fill: "url(#homeChartGradient)" }
                 }}
@@ -357,7 +362,7 @@ export default function Home() {
               <VictoryLine
                 data={weeklyVolumeData}
                 x="day"
-                y="value"
+                y="y"
                 style={{
                   data: { stroke: customColors.main, strokeWidth: 3 }
                 }}
@@ -367,46 +372,48 @@ export default function Home() {
               <VictoryScatter
                 data={weeklyVolumeData}
                 x="day"
-                y="value"
-                labels={({ datum }) => `${Math.round(datum.value)}kg`}
+                y="y"
+                labels={({ datum }) => `${Math.round(datum.absoluteValue)}kg`}
                 labelComponent={
                   <VictoryLabel
                     dy={-10}
                     textAnchor="middle"
                     style={{
                       fill: "white",
-                      fontSize: 12,
+                      fontSize: 10,
                       fontFamily: "Inter-Bold",
                     }}
                   />
                 }
               />
-
+              
               <VictoryScatter
                 data={weeklyVolumeData}
                 x="day"
-                y="value"
+                y="y"
                 size={5}
                 style={{
                     data: { fill: customColors.main, stroke: 'white', strokeWidth: 1 },
-                    labels: {
-                      fill: 'white',
-                      fontSize: 12,
-                      fontFamily: 'Inter-SemiBold',
-                      padding: 1,
-                    }
                   }}
                 labels={({ datum }) => {
-                  if (datum.percentageChange === null) {
-                    return '';
+                  const sign = datum.y >= 0 ? "+" : "";
+                  if (Math.round(datum.y) === 0) {
+                    return `0%`;
                   }
-                  const sign = datum.percentageChange >= 0 ? "+" : "";
-                  return `${sign}${datum.percentageChange.toFixed(0)}%`;
+                  return `${sign}${datum.y.toFixed(0)}%`;
                 }}
                 labelComponent={
-                  <VictoryLabel dy={20} textAnchor="middle" />
+                  <VictoryLabel dy={20}
+                    textAnchor="middle"
+                    style={{
+                      fill: "white",
+                      fontSize: 10,
+                      fontFamily: "Inter-SemiBold",
+                    }}
+                  />
                 }
               />
+
             </VictoryChart>
           ) : (
             <Text className="text-disabled text-center text-sm p-3">
