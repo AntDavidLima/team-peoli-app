@@ -223,7 +223,9 @@ interface ChartCardProps {
 function ChartCard({ id, name, workouts }: ChartCardProps) {
   const { width } = useWindowDimensions();
 
-  const { weeklyVolumeData, minDomain, maxDomain, totalEvolutionPercentage } = useMemo(() => {
+  const { weeklyVolumeData, minDomain, maxDomain, totalEvolutionPercentage, tickValues } = useMemo(() => {
+    const TICK_COUNT = 5;
+    
     if (!workouts || workouts.length === 0) {
       return { weeklyVolumeData: [], minDomain: -50, maxDomain: 50, totalEvolutionPercentage: 0 };
     }
@@ -280,11 +282,16 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
       y0: calculatedMinDomain
     }));
 
+    const domainRange = calculatedMaxDomain - calculatedMinDomain;
+    const step = domainRange / (TICK_COUNT - 1);
+    const calculatedTickValues = Array.from({ length: TICK_COUNT }, (_, i) => calculatedMinDomain + (i * step));
+
     return {
       weeklyVolumeData: finalChartData,
       minDomain: calculatedMinDomain,
       maxDomain: calculatedMaxDomain,
       totalEvolutionPercentage: evolution,
+      tickValues: calculatedTickValues
     };
   }, [workouts]);
 
@@ -375,7 +382,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
 
         <VictoryAxis
           dependentAxis
-          tickFormat={(tick) => `${Math.round(tick)}%`}
+          tickValues={tickValues}
           style={{
             tickLabels: { fill: "transparent", },
             axis: { stroke: "transparent" },

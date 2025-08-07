@@ -67,8 +67,9 @@ export default function Home() {
     return firstDayOfWeek + index
   }
 
-  const { weeklyVolumeData, minDomain, maxDomain, totalEvolutionPercentage } =
+  const { weeklyVolumeData, minDomain, maxDomain, totalEvolutionPercentage, tickValues } =
     useMemo(() => {
+      const TICK_COUNT = 5;
       if (!exercises || exercises.length === 0) {
         return {
           weeklyVolumeData: [],
@@ -140,11 +141,16 @@ export default function Home() {
         y0: calculatedMinDomain
       }));
 
+      const domainRange = calculatedMaxDomain - calculatedMinDomain;
+      const step = domainRange / (TICK_COUNT - 1);
+      const calculatedTickValues = Array.from({ length: TICK_COUNT }, (_, i) => calculatedMinDomain + (i * step));
+
       return {
         weeklyVolumeData: finalChartData,
         minDomain: calculatedMinDomain,
         maxDomain: calculatedMaxDomain,
         totalEvolutionPercentage: evolution,
+        tickValues: calculatedTickValues
       };
     }, [exercises]);
 
@@ -321,8 +327,8 @@ export default function Home() {
               </Defs>
 
               <VictoryAxis
+                tickValues={tickValues}
                 dependentAxis
-                tickFormat={(tick) => `${Math.round(tick)}%`}
                 style={{
                   tickLabels: { fill: "transparent" },
                   axis: { stroke: "transparent" },
