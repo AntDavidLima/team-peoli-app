@@ -376,7 +376,7 @@ export default function Home() {
                 labels={({ datum }) => `${Math.round(datum.absoluteValue)}kg`}
                 labelComponent={
                   <VictoryLabel
-                    dy={-10}
+                    dy={(props) => (props.datum.y < 0 ? -22 : -10)}
                     textAnchor="middle"
                     style={{
                       fill: "white",
@@ -403,7 +403,8 @@ export default function Home() {
                   return `${sign}${datum.y.toFixed(0)}%`;
                 }}
                 labelComponent={
-                  <VictoryLabel dy={20}
+                  <VictoryLabel 
+                    dy={(props) => (props.datum.y < 0 ? 12 : 22)}
                     textAnchor="middle"
                     style={{
                       fill: "white",
