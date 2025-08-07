@@ -263,11 +263,12 @@ export default function Home() {
               domain={{ y: [minDomain, maxDomain] }}
               domainPadding={{ x: 20 }}
               containerComponent={
-                  <VictoryZoomContainer
-                      zoomDimension="x"
-                      allowZoom
-                    />
-                  }
+                <VictoryZoomContainer
+                    zoomDimension="x"
+                    allowZoom
+                  />
+                }
+              
             >
               <VictoryLabel
                 text="Carga Total (KG)"
@@ -351,6 +352,7 @@ export default function Home() {
                     fontSize: 9,
                     angle: -15,
                   },
+                  axis: { stroke: customColors.disabled , strokeWidth: 0.5 },
                 }}
               />
 
