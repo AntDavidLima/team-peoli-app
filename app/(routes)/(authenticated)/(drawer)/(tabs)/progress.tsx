@@ -316,7 +316,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
       <VictoryChart
         width={width - 22}
         scale={{ x: "time" }}
-        padding={{ top: 30, bottom: 40, left: 20, right: 20 }}
+        padding={{ top: 50, bottom: 40, left: 20, right: 20 }}
         domain={{ y: [minDomain, maxDomain] }}
         domainPadding={{ x: 20 }}
         containerComponent={
@@ -360,7 +360,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
             backgroundStyle={{
               fill: evolutionColor,
               opacity: 0.2,
-            // @ts-ignore - Provavelmente biblitoeca não possui tipagem para rx e ry
+              // @ts-ignore - Provavelmente biblitoeca não possui tipagem para rx e ry
               rx: 8,
               ry: 8
             }}
@@ -429,7 +429,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
           labels={({ datum }) => `${Math.round(datum.absoluteValue)}kg`}
           labelComponent={
             <VictoryLabel 
-                dy={-10}
+                dy={(props) => (props.datum.y < 0 ? -22 : -10)}
                 textAnchor="middle" 
                 style={{
                     fill: 'white',
@@ -457,7 +457,7 @@ function ChartCard({ id, name, workouts }: ChartCardProps) {
           }}
           labelComponent={
             <VictoryLabel
-              dy={20}
+              dy={(props) => (props.datum.y < 0 ? 12 : 22)}
               textAnchor="middle"
               style={{
                 fill: "white",
