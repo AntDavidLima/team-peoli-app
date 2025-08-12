@@ -435,7 +435,7 @@ export default function Summary() {
                 </View>
 
                 <View className="mt-4">
-                    <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white/85 text-xs font-bold mb-2">Evolução nas últimas 4 semanas</Text>
+                    <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white/85 text-sm font-bold mb-2">Evolução nas últimas 4 semanas</Text>
                     {volumeHistory && volumeHistory.length > 1 ? (
                         <EvolutionChart history={volumeHistory} title={trainingName} />
                     ) : (
@@ -479,7 +479,7 @@ export default function Summary() {
                             return (
                                 <View key={item.exerciseId} className="bg-lightBackground rounded-lg p-4 flex-row justify-between items-center">
                                     <View className="ml-2">
-                                        <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white text-base">{item.name}</Text>
+                                        <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white text-sm">{item.name}</Text>
                                         <Text style={{ fontFamily: 'Inter-Regular' }} className="text-white/85 text-xs">
                                             Anterior: {hasPrevious ? `${formatVolume(item.previousVolume)} kg` : 'N/A'}
                                         </Text>
