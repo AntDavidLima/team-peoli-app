@@ -407,7 +407,10 @@ export default function Summary() {
                     </View>
                     {previousTotalVolume !== null && (
                         <View className="items-center mt-1">
-                            <Text style={{ fontFamily: 'Inter-Bold' }} className={`text-sm ${conditionStyles.variationTextColor}`}>Anterior: {formatVolume(previousTotalVolume)} kg → Atual: {formatVolume(totalVolume)} kg ({formatVolume(totalVolume - previousTotalVolume) + 'kg'})</Text>
+                            <View className="flex-row gap-1">
+                                <Text style={{ fontFamily: 'Inter-Regular' }} className={`text-sm ${conditionStyles.variationTextColor}`}>Anterior: {formatVolume(previousTotalVolume)} kg → Atual: {formatVolume(totalVolume)} kg</Text>
+                                <Text style={{ fontFamily: 'Inter-ExtraBold' }} className={`text-sm ${conditionStyles.variationTextColor}`}>({formatVolume(totalVolume - previousTotalVolume) + 'kg'})</Text>
+                            </View>
                             {Math.abs(percentageChange) <= 5 && (
                                 <Text style={{ fontFamily: 'Inter-Regular ' }} className={`text-sm ${conditionStyles.variationTextColor}`}>Variação: ~{Math.abs(Math.round(percentageChange))}% (oscilação normal)</Text>
                             )}
@@ -432,7 +435,7 @@ export default function Summary() {
                 </View>
 
                 <View className="mt-4">
-                    <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white/85 text-base font-bold mb-2">Evolução nas últimas 4 semanas</Text>
+                    <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white/85 text-xs font-bold mb-2">Evolução nas últimas 4 semanas</Text>
                     {volumeHistory && volumeHistory.length > 1 ? (
                         <EvolutionChart history={volumeHistory} title={trainingName} />
                     ) : (
@@ -443,7 +446,7 @@ export default function Summary() {
                 </View>
 
                 <View className="mt-6">
-                    <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white/85 text-lg font-bold mb-2">Desempenho por exercício</Text>
+                    <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white/85 text-sm font-bold mb-2">Desempenho por exercício</Text>
                     <View className="w-full gap-2">
                         {exercisePerformances.map((item) => {
                             const hasPrevious = item.previousVolume !== null && item.previousVolume > 0;
