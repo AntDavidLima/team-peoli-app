@@ -386,7 +386,7 @@ export default function Summary() {
                     <Text style={{ fontFamily: 'Inter-Regular' }} className="text-white/50 text-center mt-1 text-sm">{getSubHeaderText()}</Text>
                 </View>
                 
-                <View className="mt-12 items-center justify-between mb-4 gap-4">
+                <View className="mt-20 items-center justify-between mb-4 gap-4">
                     <View className="flex-row h-16 w-full gap-4">
                         <View className="flex-row items-center bg-lightBackground h-full w-[48%] rounded-lg p-3 gap-2">
                             <View className="justify-center items-center h-10 w-10 bg-[#9362C740] rounded-lg"><TimingIcon width={20} height={20} /></View>
