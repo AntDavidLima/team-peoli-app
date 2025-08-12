@@ -2,7 +2,7 @@ import { api } from "@/lib/api";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { RawDraftContentState } from "draft-js";
-import { useLocalSearchParams } from "expo-router";
+import { router , useLocalSearchParams } from "expo-router";
 import {
 	Pressable,
 	ScrollView,
@@ -295,7 +295,7 @@ export default function Exercise() {
 
 	const { mutate: finishWorkout } = useMutation({
 		mutationFn: stopWorkout,
-		onSuccess: () => {
+		onSuccess: (updatedWorkout) => {
 			queryClient.invalidateQueries({
 				queryKey: ["workout", ...(todayTrainings?.map(({ id }) => id) || [])],
 			});
@@ -308,6 +308,18 @@ export default function Exercise() {
 			if (clock) clearInterval(clock);
 			setClock(null);
 			setTimeAfterStart({ hours: 0, minutes: 0, seconds: 0 });
+			if (updatedWorkout?.id) {
+				router.push({
+					pathname: '/summary',
+					params: { workoutId: updatedWorkout.id }
+				});
+			} else {
+				Toast.show("Não foi possível acessar o sumário do treino!", {
+					backgroundColor: "red",
+					position: Toast.positions.TOP,
+					duration: Toast.durations.LONG,
+				});
+			}
 		},
 	});
 
