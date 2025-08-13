@@ -376,7 +376,7 @@ export default function Summary() {
                 <MaterialCommunityIcons name="arrow-left" size={28} color={tailwindColors.white} />
             </Pressable>
             <ScrollView contentContainerStyle={{ paddingBottom: 40, paddingTop: 60, paddingHorizontal: 16 }}>
-                <View className="items-center relative -mb-8">
+                <View className="items-center relative -mb-10">
                     <View className={`border-4 ${conditionStyles.borderColor} rounded-full`}>
                         <View className="w-32 h-32 rounded-full bg-white items-center justify-center overflow-hidden border-4 border-background">
                             {currentUser?.profilePhotoUrl ? <Image className="w-full h-full" source={{ uri: currentUser.profilePhotoUrl }} resizeMode="cover" /> : <CameraIcon width={40} height={40} fill="#888" />}
