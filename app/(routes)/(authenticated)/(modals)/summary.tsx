@@ -354,8 +354,8 @@ export default function Summary() {
         switch (displayCondition) {
             case 'FIRST_TRAINING': return `Primeiro treino concluído, ${name}!`;
             case 'PR_BATIDO': return `PR Batido, ${name}!`;
-            case 'CONSTANCIA': return "Carga mantida, mas a constância também!";
-            case 'REDUCAO': return "Sem PR hoje? Um treino não diz tudo!";
+            case 'CONSTANCIA': return "Consistência é a chave!";
+            case 'REDUCAO': return "Sem progressão? Um treino não diz tudo!";
             default: return "Você evoluiu hoje!";
         }
     };
@@ -364,7 +364,7 @@ export default function Summary() {
         switch (displayCondition) {
             case 'FIRST_TRAINING': return "Primeiro de muitos! Agora é só evoluir!";
             case 'PR_BATIDO': return "Sua melhor marca neste treino até agora!";
-            case 'CONSTANCIA': return "A constância constrói o que o entusiasmo apenas promete!";
+            case 'CONSTANCIA': return "Cada treino é um passo a mais rumo à sua melhor versão.";
             case 'REDUCAO': return "O progresso vem da soma, não de um único resultado.";
             default: return "Progressão em relação ao último treino!";
         }
@@ -376,7 +376,7 @@ export default function Summary() {
                 <MaterialCommunityIcons name="arrow-left" size={28} color={tailwindColors.white} />
             </Pressable>
             <ScrollView contentContainerStyle={{ paddingBottom: 40, paddingTop: 60, paddingHorizontal: 16 }}>
-                <View className="items-center h-36 relative mb-10">
+                <View className="items-center relative -mb-8">
                     <View className={`border-4 ${conditionStyles.borderColor} rounded-full`}>
                         <View className="w-32 h-32 rounded-full bg-white items-center justify-center overflow-hidden border-4 border-background">
                             {currentUser?.profilePhotoUrl ? <Image className="w-full h-full" source={{ uri: currentUser.profilePhotoUrl }} resizeMode="cover" /> : <CameraIcon width={40} height={40} fill="#888" />}
@@ -411,7 +411,7 @@ export default function Summary() {
                                 <Text style={{ fontFamily: 'Inter-Regular' }} className={`text-sm ${conditionStyles.variationTextColor}`}>Anterior: {formatVolume(previousTotalVolume)} kg → Atual: {formatVolume(totalVolume)} kg</Text>
                                 <Text style={{ fontFamily: 'Inter-ExtraBold' }} className={`text-sm ${conditionStyles.variationTextColor}`}>({formatVolume(totalVolume - previousTotalVolume) + 'kg'})</Text>
                             </View>
-                            {Math.abs(percentageChange) <= 5 && (
+                            {(percentageChange <= 0 && percentageChange >= -5) && (
                                 <Text style={{ fontFamily: 'Inter-Regular ' }} className={`text-sm ${conditionStyles.variationTextColor}`}>Variação: ~{Math.abs(Math.round(percentageChange))}% (oscilação normal)</Text>
                             )}
                         </View>
