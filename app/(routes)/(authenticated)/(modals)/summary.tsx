@@ -411,7 +411,7 @@ export default function Summary() {
                                 <Text style={{ fontFamily: 'Inter-Regular' }} className={`text-sm ${conditionStyles.variationTextColor}`}>Anterior: {formatVolume(previousTotalVolume)} kg → Atual: {formatVolume(totalVolume)} kg</Text>
                                 <Text style={{ fontFamily: 'Inter-ExtraBold' }} className={`text-sm ${conditionStyles.variationTextColor}`}>({formatVolume(totalVolume - previousTotalVolume) + 'kg'})</Text>
                             </View>
-                            {(percentageChange <= 0 && percentageChange >= -5) && (
+                            {(percentageChange < 0 && percentageChange >= -5) && (
                                 <Text style={{ fontFamily: 'Inter-Regular ' }} className={`text-sm ${conditionStyles.variationTextColor}`}>Variação: ~{Math.abs(Math.round(percentageChange))}% (oscilação normal)</Text>
                             )}
                         </View>
