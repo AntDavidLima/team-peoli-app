@@ -372,18 +372,22 @@ export default function Summary() {
 
     return (
         <View className="bg-background flex-1">
-            <Pressable onPress={() => router.back()} className="absolute top-4 left-4 z-10 p-2">
+            <Pressable onPress={() => router.back()} className="absolute top-6 left-4 z-10 p-2">
                 <MaterialCommunityIcons name="arrow-left" size={28} color={tailwindColors.white} />
             </Pressable>
-            <ScrollView contentContainerStyle={{ paddingBottom: 40, paddingTop: 60, paddingHorizontal: 16 }}>
-                <View className="items-center relative -mb-10">
+            <Image
+                style={{left:-10, width: 130, height: 40, marginTop: 30, marginBottom: 30}}
+                className="self-center"
+                source={require("@/assets/images/logo.png")} />
+            <ScrollView contentContainerStyle={{ paddingBottom: 40, paddingTop: 20, paddingHorizontal: 16 }}>
+                <View className="items-center relative -mb-14">
                     <View className={`border-4 ${conditionStyles.borderColor} rounded-full`}>
                         <View className="w-32 h-32 rounded-full bg-white items-center justify-center overflow-hidden border-4 border-background">
                             {currentUser?.profilePhotoUrl ? <Image className="w-full h-full" source={{ uri: currentUser.profilePhotoUrl }} resizeMode="cover" /> : <CameraIcon width={40} height={40} fill="#888" />}
                         </View>
                     </View>
-                    <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white text-center mt-4 text-xl font-bold">{getHeaderText()}</Text>
-                    <Text style={{ fontFamily: 'Inter-Regular' }} className="text-white/50 text-center mt-1 text-sm">{getSubHeaderText()}</Text>
+                    <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white w-[75%] text-center mt-4 text-xl font-bold">{getHeaderText()}</Text>
+                    <Text style={{ fontFamily: 'Inter-Regular' }} className="text-white/70 text-center mt-1 text-sm">{getSubHeaderText()}</Text>
                 </View>
                 
                 <View className="mt-20 items-center justify-between mb-4 gap-4">
@@ -406,7 +410,7 @@ export default function Summary() {
                         </View>
                     </View>
                     {previousTotalVolume !== null && (
-                        <View className="items-center mt-1">
+                        <View className="items-center">
                             <View className="flex-row gap-1">
                                 <Text style={{ fontFamily: 'Inter-Regular' }} className={`text-sm ${conditionStyles.variationTextColor}`}>Anterior: {formatVolume(previousTotalVolume)} kg → Atual: {formatVolume(totalVolume)} kg</Text>
                                 <Text style={{ fontFamily: 'Inter-ExtraBold' }} className={`text-sm ${conditionStyles.variationTextColor}`}>({formatVolume(totalVolume - previousTotalVolume) + 'kg'})</Text>
@@ -416,7 +420,7 @@ export default function Summary() {
                             )}
                         </View>
                     )}
-                    <View className="flex-row h-16 w-full gap-4 mt-1">
+                    <View className="flex-row h-16 w-full gap-4">
                         <View className="flex-row items-center bg-lightBackground h-full w-[48%] rounded-lg p-3 gap-2">
                             <View className="justify-center items-center h-10 w-10 bg-[#64A4EB33] rounded-lg"><StarIcon width={20} height={20} /></View>
                             <View>
