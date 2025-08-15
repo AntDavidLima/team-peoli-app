@@ -475,6 +475,7 @@ export default function Summary() {
                                 if (percentageChange > 5) {
                                     IconComponent = <ArrowUpIcon width={38} height={38} />;
                                     statusColor = 'text-[#4ADE80]';
+                                    borderColor = 'border-[#4ADE80]';
                                 } else if (percentageChange < -5) {
                                     IconComponent = <ArrowDownIcon width={38} height={38} />;
                                     statusColor = 'text-[#EB5151]';
