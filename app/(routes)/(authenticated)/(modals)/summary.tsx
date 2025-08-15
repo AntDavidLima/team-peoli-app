@@ -376,7 +376,7 @@ export default function Summary() {
                 <MaterialCommunityIcons name="arrow-left" size={28} color={tailwindColors.white} />
             </Pressable>
             <Image
-                style={{left:-10, width: 130, height: 40, marginTop: 30, marginBottom: 30}}
+                style={{width: 130, height: 40, marginTop: 30, marginBottom: 30}}
                 className="self-center"
                 source={require("@/assets/images/logo.png")} />
             <ScrollView contentContainerStyle={{ paddingBottom: 40, paddingTop: 20, paddingHorizontal: 16 }}>
