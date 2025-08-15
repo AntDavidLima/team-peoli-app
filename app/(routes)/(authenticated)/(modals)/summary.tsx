@@ -209,7 +209,7 @@ const EvolutionChart = ({ history, title }: { history: VolumeHistoryPoint[], tit
                         <VictoryLabel
                             dy={(props) => (props.datum.y < 0 ? -22 : -10)}
                             textAnchor="middle"
-                            style={{ fill: "white", fontSize: 11, fontFamily: "Inter-Bold" }}
+                            style={{ fill: "white", fontSize: 10, fontFamily: "Inter-Bold" }}
                         />
                     }
                 />
@@ -229,7 +229,7 @@ const EvolutionChart = ({ history, title }: { history: VolumeHistoryPoint[], tit
                         <VictoryLabel
                             dy={(props) => (props.datum.y < 0 ? 10 : 22)}
                             textAnchor="middle"
-                            style={{ fill: "white", fontSize: 11, fontFamily: "Inter-SemiBold" }}
+                            style={{ fill: "white", fontSize: 10, fontFamily: "Inter-SemiBold" }}
                         />
                     }
                 />
@@ -253,7 +253,7 @@ const getConditionStyles = (condition: DisplayCondition) => {
             variationTextColor: 'text-[#4ADE80]'
         }; 
         case 'CONSTANCIA': return {
-            borderColor: 'border-blue-400',
+            borderColor: 'border-main',
             iconContainerBgColor: 'bg-[#2764E433]',
             TrendIconComponent: <TrendIcon width={20} height={20} />,
             variationTextColor: 'text-blue-400'
@@ -463,7 +463,8 @@ export default function Summary() {
                             let IconComponent: JSX.Element | null = null;
                             let statusText = '';
                             let statusSubText = '';
-                            let statusColor = '';
+                            let statusColor = 'text-white';
+                            let borderColor = 'border-main';
 
                             if (hasPrevious) {
                                 const difference = item.currentVolume - item.previousVolume!;
@@ -472,24 +473,26 @@ export default function Summary() {
                                 statusText = `${formatVolume(difference)} kg`;
                                 statusSubText = `(${Math.abs(Math.round(percentageChange))}%)`;
                                 if (percentageChange > 5) {
-                                    IconComponent = <ArrowUpIcon width={42} height={42} />;
-                                    statusColor = '[#4ADE80]';
+                                    IconComponent = <ArrowUpIcon width={38} height={38} />;
+                                    statusColor = 'text-[#4ADE80]';
+                                    borderColor = 'border-[#4ADE80]';
                                 } else if (percentageChange < -5) {
-                                    IconComponent = <ArrowDownIcon width={42} height={42} />;
-                                    statusColor = '[#EB5151]';
+                                    IconComponent = <ArrowDownIcon width={38} height={38} />;
+                                    statusColor = 'text-[#EB5151]';
+                                    borderColor = 'border-[#EB5151]';
                                 } else {
-                                    IconComponent = <ConstantIcon width={42} height={42} />;
+                                    IconComponent = <ConstantIcon width={38} height={38} />;
                                     statusText = 'Constante';
                                     statusSubText = `(~${Math.abs(Math.round(percentageChange))}% oscilação normal)`;
-                                    statusColor = 'main';
+                                    statusColor = 'text-main';
                                 }
                             }
 
                             return (
-                                <View key={item.exerciseId} className={`border-l-4 border-${statusColor} bg-lightBackground rounded-lg p-4 flex-row justify-between items-center`}>
+                                <View key={item.exerciseId} className={`border-l-4 ${borderColor} bg-lightBackground rounded-lg p-4 flex-row justify-between items-center`}>
                                     <View className="ml-2 w=[90%]">
                                         <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white text-sm mb-2">{item.name}</Text>
-                                        <Text style={{ fontFamily: 'Inter-Regular' }} className={`text-${statusColor} text-xs`}>
+                                        <Text style={{ fontFamily: 'Inter-Regular' }} className={`${statusColor} text-xs`}>
                                             { statusText != 'Constante' && (`Anterior: ${hasPrevious ? `${formatVolume(item.previousVolume)} kg` : 'N/A'} → `)}
                                             Atual: {formatVolume(item.currentVolume)} kg <Text style={{ fontFamily: 'Inter-Bold' }}>{statusSubText}</Text>
                                         </Text>
