@@ -276,17 +276,22 @@ const getConditionStyles = (condition: DisplayCondition) => {
 export default function Summary() {
     const { currentUser } = useAuthentication();
     const router = useRouter();
-    const { workoutId } = useLocalSearchParams<{ workoutId: string }>();
+    const { workoutId, trainingId } = useLocalSearchParams<{ workoutId: string, trainingId: string }>();
     const [displayCondition, setDisplayCondition] = useState<DisplayCondition | null>(null);
 
     const { data: summary, isLoading, isError } = useQuery<WorkoutSummary>({
-        queryKey: ['workoutSummary', workoutId],
+        queryKey: ['workoutSummary', workoutId, trainingId],
         queryFn: async () => {
-            if (!workoutId) throw new Error("ID do treino não fornecido.");
-            const { data } = await api.get(`/summary/workout/${workoutId}`);
+            if (!workoutId) throw new Error("ID do workout não fornecido.");
+            if (!trainingId) throw new Error("ID do treino não fornecido.");
+            const { data } = await api.get(`/summary/workout/${workoutId}`, {
+                params: {
+                    trainingId: trainingId
+                }
+            });
             return data;
         },
-        enabled: !!workoutId,
+        enabled: !!workoutId && !!trainingId,
         retry: false,
     });
 
@@ -376,7 +381,7 @@ export default function Summary() {
                 <MaterialCommunityIcons name="arrow-left" size={28} color={tailwindColors.white} />
             </Pressable>
             <Image
-                style={{left:-10, width: 130, height: 40, marginTop: 30, marginBottom: 30}}
+                style={{width: 93, height: 31, marginTop: 30, marginBottom: 30}}
                 className="self-center"
                 source={require("@/assets/images/logo.png")} />
             <ScrollView contentContainerStyle={{ paddingBottom: 40, paddingTop: 20, paddingHorizontal: 16 }}>
@@ -458,51 +463,43 @@ export default function Summary() {
                             let IconComponent: JSX.Element | null = null;
                             let statusText = '';
                             let statusSubText = '';
-                            let statusColor = 'text-secondary/80';
+                            let statusColor = '';
 
                             if (hasPrevious) {
                                 const difference = item.currentVolume - item.previousVolume!;
                                 const percentageChange = (difference / item.previousVolume!) * 100;
 
+                                statusText = `${formatVolume(difference)} kg`;
+                                statusSubText = `(${Math.abs(Math.round(percentageChange))}%)`;
                                 if (percentageChange > 5) {
                                     IconComponent = <ArrowUpIcon width={42} height={42} />;
-                                    statusText = `+${formatVolume(difference)} kg`;
-                                    statusColor = 'text-[#4ADE80]';
+                                    statusColor = '[#4ADE80]';
                                 } else if (percentageChange < -5) {
                                     IconComponent = <ArrowDownIcon width={42} height={42} />;
-                                    statusText = `${formatVolume(difference)} kg`;
-                                    statusColor = 'text-[#EB5151]';
+                                    statusColor = '[#EB5151]';
                                 } else {
                                     IconComponent = <ConstantIcon width={42} height={42} />;
                                     statusText = 'Constante';
-                                    statusSubText = `(oscilação ~${Math.abs(Math.round(percentageChange))}%)`;
-                                    statusColor = 'text-white';
+                                    statusSubText = `(~${Math.abs(Math.round(percentageChange))}% oscilação normal)`;
+                                    statusColor = 'main';
                                 }
                             }
 
                             return (
-                                <View key={item.exerciseId} className="bg-lightBackground rounded-lg p-4 flex-row justify-between items-center">
-                                    <View className="ml-2">
-                                        <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white text-sm">{item.name}</Text>
-                                        <Text style={{ fontFamily: 'Inter-Regular' }} className="text-white/85 text-xs">
-                                            Anterior: {hasPrevious ? `${formatVolume(item.previousVolume)} kg` : 'N/A'}
-                                        </Text>
-                                        <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white text-xs">
-                                            Atual: {formatVolume(item.currentVolume)} kg
+                                <View key={item.exerciseId} className={`border-l-4 border-${statusColor} bg-lightBackground rounded-lg p-4 flex-row justify-between items-center`}>
+                                    <View className="ml-2 w=[90%]">
+                                        <Text style={{ fontFamily: 'Inter-Bold' }} className="text-white text-sm mb-2">{item.name}</Text>
+                                        <Text style={{ fontFamily: 'Inter-Regular' }} className={`text-${statusColor} text-xs`}>
+                                            { statusText != 'Constante' && (`Anterior: ${hasPrevious ? `${formatVolume(item.previousVolume)} kg` : 'N/A'} → `)}
+                                            Atual: {formatVolume(item.currentVolume)} kg <Text style={{ fontFamily: 'Inter-Bold' }}>{statusSubText}</Text>
                                         </Text>
                                     </View>
 
                                     {hasPrevious && (
-                                        <View className="items-center w-28">
+                                        <View className="items-center w-[10%]">
                                             <View className={`h-10 w-10 items-center justify-center`}>
                                                 {IconComponent}
                                             </View>
-                                            <Text style={{ fontFamily: 'Inter-ExtraBold' }} className={`text-sm mt-1 ${statusColor}`}>
-                                                {statusText}
-                                            </Text>
-                                            <Text style={{ fontFamily: 'Inter-Regular' }} className={`text-xs ${statusColor}`}>
-                                                {statusSubText}
-                                            </Text>
                                         </View>
                                     )}
                                 </View>
