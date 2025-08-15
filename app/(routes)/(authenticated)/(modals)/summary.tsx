@@ -276,17 +276,22 @@ const getConditionStyles = (condition: DisplayCondition) => {
 export default function Summary() {
     const { currentUser } = useAuthentication();
     const router = useRouter();
-    const { workoutId } = useLocalSearchParams<{ workoutId: string }>();
+    const { workoutId, trainingId } = useLocalSearchParams<{ workoutId: string, trainingId: string }>();
     const [displayCondition, setDisplayCondition] = useState<DisplayCondition | null>(null);
 
     const { data: summary, isLoading, isError } = useQuery<WorkoutSummary>({
-        queryKey: ['workoutSummary', workoutId],    
+        queryKey: ['workoutSummary', workoutId, trainingId],
         queryFn: async () => {
-            if (!workoutId) throw new Error("ID do treino não fornecido.");
-            const { data } = await api.get(`/summary/workout/${workoutId}`);
+            if (!workoutId) throw new Error("ID do workout não fornecido.");
+            if (!trainingId) throw new Error("ID do treino não fornecido.");
+            const { data } = await api.get(`/summary/workout/${workoutId}`, {
+                params: {
+                    trainingId: trainingId
+                }
+            });
             return data;
         },
-        enabled: !!workoutId,
+        enabled: !!workoutId && !!trainingId,
         retry: false,
     });
 

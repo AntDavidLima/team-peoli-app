@@ -311,7 +311,7 @@ export default function Exercise() {
 			if (updatedWorkout?.id) {
 				router.push({
 					pathname: '/summary',
-					params: { workoutId: updatedWorkout.id }
+					params: { workoutId: updatedWorkout.id, trainingId: trainingId }
 				});
 			} else {
 				Toast.show("Não foi possível acessar o sumário do treino!", {
