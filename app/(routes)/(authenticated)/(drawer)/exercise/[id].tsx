@@ -73,6 +73,23 @@ interface WorkoutExerciseSet {
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
+const postMessageToServiceWorker = (message: object) => {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.ready.then(registration => {
+            if (registration.active) {
+                console.log('Enviando mensagem para o Service Worker:', message);
+                registration.active.postMessage(message);
+            } else {
+                console.error('Service Worker está registrado, mas não está ativo.');
+            }
+        }).catch(error => {
+            console.error('Erro ao obter o Service Worker:', error);
+        });
+    } else {
+        console.warn('Service Worker não é suportado neste navegador.');
+    }
+};
+
 export default function Exercise() {
     const [isPageVisible, setIsPageVisible] = useState(true);
 
@@ -109,8 +126,8 @@ export default function Exercise() {
 		setRemainingRestSeconds(duration);
 		setIsResting(true);
 
-		if (isPageVisible && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({
+		if (!isPageVisible) {
+            postMessageToServiceWorker({
                 type: 'START_REST_TIMER',
                 duration: duration
             });
@@ -128,8 +145,8 @@ export default function Exercise() {
 		setTotalRestDuration((currentDuration) => currentDuration + seconds);
 		setRemainingRestSeconds((currentSeconds) => currentSeconds + seconds);
 
-		if (isPageVisible && navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({
+		if (!isPageVisible) {
+            postMessageToServiceWorker({
                 type: 'START_REST_TIMER',
                 duration: newTotalDuration
             });
@@ -161,11 +178,9 @@ export default function Exercise() {
 		setRestEndTime(null);
 		setRemainingRestSeconds(0);
 
-		if (navigator.serviceWorker.controller) {
-            navigator.serviceWorker.controller.postMessage({
-                type: 'CANCEL_REST_TIMER'
-            });
-        }
+		postMessageToServiceWorker({
+            type: 'CANCEL_REST_TIMER'
+        });
 	};
 
 	const { currentUser } = useAuthentication();

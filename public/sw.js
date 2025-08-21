@@ -1,6 +1,8 @@
 let restTimerId = null;
 
 self.addEventListener('message', event => {
+    console.log('[Service Worker] Mensagem recebida:', event.data);
+    
     if (event.data && event.data.type === 'START_REST_TIMER') {
         if (restTimerId) {
             clearTimeout(restTimerId);
