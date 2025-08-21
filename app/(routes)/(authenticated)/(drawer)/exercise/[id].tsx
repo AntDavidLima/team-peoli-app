@@ -74,6 +74,8 @@ interface WorkoutExerciseSet {
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function Exercise() {
+    const [isPageVisible, setIsPageVisible] = useState(true);
+
 	const [isResting, setIsResting] = useState(false);
 	const [restEndTime, setRestEndTime] = useState<Date | null>(null);
 	const [remainingRestSeconds, setRemainingRestSeconds] = useState(0);
@@ -106,15 +108,32 @@ export default function Exercise() {
 		setTotalRestDuration(duration);
 		setRemainingRestSeconds(duration);
 		setIsResting(true);
+
+		if (isPageVisible && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'START_REST_TIMER',
+                duration: duration
+            });
+        }
 	};
 
 	const addRestTime = (seconds: number) => {
 		if (!restEndTime) return;
 
 		const newEndTime = new Date(restEndTime.getTime() + seconds * 1000);
+
+		const newTotalDuration = totalRestDuration + seconds;
+
 		setRestEndTime(newEndTime);
 		setTotalRestDuration((currentDuration) => currentDuration + seconds);
 		setRemainingRestSeconds((currentSeconds) => currentSeconds + seconds);
+
+		if (isPageVisible && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'START_REST_TIMER',
+                duration: newTotalDuration
+            });
+        }
 	};
 
 	const handleFinishWorkoutAttempt = () => {
@@ -141,6 +160,12 @@ export default function Exercise() {
 		setIsResting(false);
 		setRestEndTime(null);
 		setRemainingRestSeconds(0);
+
+		if (navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'CANCEL_REST_TIMER'
+            });
+        }
 	};
 
 	const { currentUser } = useAuthentication();
@@ -208,6 +233,34 @@ export default function Exercise() {
 				}, 1000)
 			);
 	}, [clock, syncWorkoutTimer]);
+
+	useEffect(() => {
+        if (typeof document === 'undefined') return;
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                setIsPageVisible(true);
+            } else {
+                setIsPageVisible(false);
+            }
+        };
+
+        handleVisibilityChange();
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, []);
+
+	useEffect(() => {
+        if ('Notification' in window && 'serviceWorker' in navigator) {
+            Notification.requestPermission(status => {
+                console.log('Status da permissão de notificação:', status);
+            });
+        }
+    }, []);
 
 	useEffect(() => {
 		if (!isResting || !restEndTime) {
