@@ -39,7 +39,16 @@
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/logo512.png",
-      "serviceworker": "./public/sw.js"
+      "serviceworker": "./public/sw.js",
+      "pwa": {
+        "name": "Team Peoli PWA",
+        "shortName": "Team Peoli",
+        "themeColor": "#2764E4",
+        "backgroundColor": "#1A202C",
+        "startUrl": "/",
+        "display": "standalone",
+        "orientation": "portrait"
+      }
     },
     "plugins": [
       "expo-router",
