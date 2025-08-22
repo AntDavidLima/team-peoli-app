@@ -17,6 +17,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Clean previous builds
+        run: rm -rf dist .expo
+
       - name: Build web application
         run: EXPO_PUBLIC_API_URL=${{ env.EXPO_PUBLIC_API_URL }} npx expo export -p web
         
