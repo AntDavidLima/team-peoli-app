@@ -38,7 +38,8 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/logo512.png"
+      "favicon": "./assets/images/logo512.png",
+      "serviceworker": "./public/sw.js"
     },
     "plugins": [
       "expo-router",
@@ -48,12 +49,6 @@
         "expo-image-picker",
         {
           "photosPermission": "É necessário sua permissão para acessar suas fotos."
-        }
-      ],
-      [
-        "expo-pwa",
-        {
-          "serviceWorker": "./public/sw.js"
         }
       ]
     ],
