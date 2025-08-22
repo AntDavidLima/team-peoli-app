@@ -20,9 +20,6 @@ jobs:
       - name: Build web application
         run: EXPO_PUBLIC_API_URL=${{ env.EXPO_PUBLIC_API_URL }} npx expo export -p web
         
-      - name: Generate service worker config
-        run: npx workbox-cli generateSW workbox-config.js
-        
       - name: Prepare server for new files
         uses: appleboy/ssh-action@v1.0.3
         with:
