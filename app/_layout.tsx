@@ -9,6 +9,7 @@ import { RootSiblingParent } from "react-native-root-siblings";
 import customColors from "@/tailwind.colors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./global.css";
+import { Platform } from 'react-native'
 
 export {
   ErrorBoundary,
@@ -17,6 +18,7 @@ export {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  
   const [loaded, error] = useFonts({
     ...MaterialCommunityIcons.font,
     'Inter-Regular': Inter_400Regular,
@@ -26,6 +28,20 @@ export default function RootLayout() {
     'Inter-Bold': Inter_700Bold,
     'Inter-ExtraBold': Inter_800ExtraBold,
   });
+  useEffect(() => {
+    if (Platform.OS === 'web' && 'serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('/sw.js')
+          .then(registration => {
+            console.log('Service Worker registrado com sucesso! Escopo:', registration.scope);
+          })
+          .catch(error => {
+            console.error('Falha no registro do Service Worker:', error);
+          });
+      });
+    }
+  }, []);
 
   useEffect(() => {
     if (error) throw error;
