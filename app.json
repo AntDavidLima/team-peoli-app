@@ -49,6 +49,12 @@
         {
           "photosPermission": "É necessário sua permissão para acessar suas fotos."
         }
+      ],
+      [
+        "expo-pwa",
+        {
+          "serviceWorker": "./public/sw.js"
+        }
       ]
     ],
     "experiments": {
