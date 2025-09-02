@@ -361,7 +361,7 @@ export default function Exercise() {
 		},
 	});
 
-	const { mutate: finishWorkout } = useMutation({
+	const { mutate: finishWorkout, isPending: isFinishingWorkout } = useMutation({
 		mutationFn: stopWorkout,
 		onSuccess: (updatedWorkout) => {
 			queryClient.invalidateQueries({
@@ -389,6 +389,14 @@ export default function Exercise() {
 				});
 			}
 		},
+		onError: (error) => {
+        console.error("Falha ao finalizar o treino:", error);
+        Toast.show("Não foi possível encerrar o treino. Verifique sua conexão e tente novamente.", {
+            backgroundColor: "red",
+            position: Toast.positions.TOP,
+            duration: Toast.durations.LONG,
+        });
+    },
 	});
 
 	const { mutate: saveNote, isPending: isSavingNote } = useMutation({
@@ -693,9 +701,11 @@ export default function Exercise() {
 							<Pressable
 								className={`${isWorkoutIncomplete ? "bg-white" : "bg-danger"} rounded-md py-3 w-[48%]`}
 								onPress={() => {
+									if (isFinishingWorkout) return;
 									setIsConfirmFinishModalVisible(false);
 									finishWorkout();
 								}}
+								disabled={isFinishingWorkout}
 							>
 								<Text style={{fontFamily: 'Inter-Bold'}} className={`${isWorkoutIncomplete ? "text-danger" : "text-white"} font-bold text-center`}>Encerrar</Text>
 							</Pressable>
