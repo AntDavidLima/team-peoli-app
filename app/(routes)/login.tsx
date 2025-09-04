@@ -3,7 +3,7 @@ import EmailIcon from '@/assets/icons/email.svg';
 import PasswordIcon from '@/assets/icons/password.svg';
 import SeeIcon from "@/assets/icons/see.svg";
 import { Link, Redirect } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Image,
@@ -18,7 +18,7 @@ import * as yup from "yup";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { AxiosError } from "axios";
 import { APIError } from "@/lib/api";
-import Toast from "react-native-root-toast";
+import Toast from "react-native-toast-message";
 import tailwindColors from "tailwindcss/colors";
 
 const loginFormSchema = yup.object({
@@ -162,11 +162,10 @@ export default function Login() {
         console.log(error.message);
 
         if (apiError && typeof apiError.error === "string") {
-          Toast.show(apiError.message, {
-            backgroundColor: "red",
-            opacity: 0.9,
-            position: Toast.positions.TOP,
-          });
+          Toast.show({
+            type: 'error',
+            text1: apiError.message,
+          })
         }
       }
     }

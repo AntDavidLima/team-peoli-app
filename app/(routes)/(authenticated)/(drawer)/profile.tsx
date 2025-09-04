@@ -26,7 +26,7 @@ import { useEffect, useState, useRef } from "react";
 import { phone } from "@/lib/masks";
 import { APIError, api } from "@/lib/api";
 import { AxiosError } from "axios";
-import Toast from "react-native-root-toast";
+import Toast from "react-native-toast-message";
 import EditIcon from "@/assets/icons/edit.svg";
 import * as ImagePicker from "expo-image-picker";
 import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
@@ -167,10 +167,9 @@ export default function Profile() {
 			} else {
 				const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 				if (permissionResult.granted === false) {
-					Toast.show("É necessário permitir o acesso à galeria para escolher uma foto.", {
-						backgroundColor: "orange",
-						position: Toast.positions.TOP,
-						duration: Toast.durations.LONG,
+					Toast.show({
+						type: 'error',
+						text1: 'É necessário permitir o acesso à galeria para escolher uma foto.'
 					});
 					return;
 				}
@@ -186,9 +185,9 @@ export default function Profile() {
 			}
 		} catch (error) {
 			console.error("Erro ao escolher imagem:", error);
-			Toast.show("Ocorreu um erro ao escolher a imagem", {
-				backgroundColor: "red",
-				position: Toast.positions.TOP
+			Toast.show({
+				type: 'error',
+				text1: 'Ocorreu um erro ao escolher a imagem'
 			});
 		}
 	};
@@ -271,29 +270,24 @@ export default function Profile() {
 
 			await updateMe({ authToken: currentUser!.authToken, forceImageRefresh: !!selectedImage });
 
-			Toast.show("Perfil atualizado com sucesso!", {
-				backgroundColor: "green",
-				opacity: 0.9,
-				position: Toast.positions.TOP,
-				duration: Toast.durations.LONG,
+			Toast.show({
+				type: 'success',
+				text1: 'Perfil atualizado com sucesso!'
 			});
 			setChangingPassword(false);
 
 		} catch (error) {
+			
 			if (error instanceof AxiosError) {
 				const apiError = error.response?.data as APIError;
-				if (typeof apiError.error === "string") {
-					Toast.show(apiError.message, {
-						backgroundColor: "red",
-						opacity: 0.9,
-						position: Toast.positions.TOP,
-						duration: Toast.durations.LONG,
+					Toast.show({
+						type: 'error',
+						text1: apiError?.message || 'Erro ao atualizar perfil'
 					});
-				}
 			} else {
-				Toast.show("Erro ao atualizar perfil", {
-					backgroundColor: "red",
-					position: Toast.positions.TOP
+				Toast.show({
+					type: 'error',
+					text1: 'Erro ao atualizar perfil'
 				});
 			}
 		}

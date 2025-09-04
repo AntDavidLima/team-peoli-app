@@ -33,7 +33,7 @@ import TimerIcon from "@/assets/icons/timer2.svg";
 import NoteIcon from "@/assets/icons/note.svg";
 import DeleteIcon from "@/assets/icons/delete.svg";
 import InfoIcon from "@/assets/icons/info2.svg";
-import Toast from "react-native-root-toast";
+import Toast from "react-native-toast-message";
 
 interface Training {
 	exercises: TrainingExercise[];
@@ -73,26 +73,8 @@ interface WorkoutExerciseSet {
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
-const postMessageToServiceWorker = (message: object) => {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.ready.then(registration => {
-            if (registration.active) {
-                console.log('Enviando mensagem para o Service Worker:', message);
-                registration.active.postMessage(message);
-            } else {
-                console.error('Service Worker está registrado, mas não está ativo.');
-            }
-        }).catch(error => {
-            console.error('Erro ao obter o Service Worker:', error);
-        });
-    } else {
-        console.warn('Service Worker não é suportado neste navegador.');
-    }
-};
 
 export default function Exercise() {
-    const [isPageVisible, setIsPageVisible] = useState(true);
-
 	const [isResting, setIsResting] = useState(false);
 	const [restEndTime, setRestEndTime] = useState<Date | null>(null);
 	const [remainingRestSeconds, setRemainingRestSeconds] = useState(0);
@@ -125,13 +107,6 @@ export default function Exercise() {
 		setTotalRestDuration(duration);
 		setRemainingRestSeconds(duration);
 		setIsResting(true);
-
-		if (!isPageVisible) {
-            postMessageToServiceWorker({
-                type: 'START_REST_TIMER',
-                duration: duration
-            });
-        }
 	};
 
 	const addRestTime = (seconds: number) => {
@@ -144,13 +119,6 @@ export default function Exercise() {
 		setRestEndTime(newEndTime);
 		setTotalRestDuration((currentDuration) => currentDuration + seconds);
 		setRemainingRestSeconds((currentSeconds) => currentSeconds + seconds);
-
-		if (!isPageVisible) {
-            postMessageToServiceWorker({
-                type: 'START_REST_TIMER',
-                duration: newTotalDuration
-            });
-        }
 	};
 
 	const handleFinishWorkoutAttempt = () => {
@@ -177,10 +145,6 @@ export default function Exercise() {
 		setIsResting(false);
 		setRestEndTime(null);
 		setRemainingRestSeconds(0);
-
-		postMessageToServiceWorker({
-            type: 'CANCEL_REST_TIMER'
-        });
 	};
 
 	const { currentUser } = useAuthentication();
@@ -248,33 +212,28 @@ export default function Exercise() {
 				}, 1000)
 			);
 	}, [clock, syncWorkoutTimer]);
-
+	
 	useEffect(() => {
-        if (typeof document === 'undefined') return;
+        const setupNotifications = async () => {
+            if ('serviceWorker' in navigator && 'PushManager' in window) {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('Service Worker registrado:', registration);
 
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible') {
-                setIsPageVisible(true);
+                    const permission = await Notification.requestPermission();
+                    if (permission !== 'granted') {
+                        console.warn('Permissão para notificações foi negada.');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Falha na configuração das notificações:', error);
+                }
             } else {
-                setIsPageVisible(false);
+                console.log("Push Notifications não são suportadas neste navegador.");
             }
         };
 
-        handleVisibilityChange();
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, []);
-
-	useEffect(() => {
-        if ('Notification' in window && 'serviceWorker' in navigator) {
-            Notification.requestPermission(status => {
-                console.log('Status da permissão de notificação:', status);
-            });
-        }
+        setupNotifications();
     }, []);
 
 	useEffect(() => {
@@ -382,20 +341,18 @@ export default function Exercise() {
 					params: { workoutId: updatedWorkout.id, trainingId: trainingId }
 				});
 			} else {
-				Toast.show("Não foi possível acessar o sumário do treino!", {
-					backgroundColor: "red",
-					position: Toast.positions.TOP,
-					duration: Toast.durations.LONG,
+				Toast.show({
+					type: 'error',
+					text1: 'Não foi possível acessar o sumário do treino!'
 				});
 			}
 		},
 		onError: (error) => {
         console.error("Falha ao finalizar o treino:", error);
-        Toast.show("Não foi possível encerrar o treino. Verifique sua conexão e tente novamente.", {
-            backgroundColor: "red",
-            position: Toast.positions.TOP,
-            duration: Toast.durations.LONG,
-        });
+        Toast.show({
+			type: 'error',
+			text1: 'Não foi possível encerrar o treino. Verifique sua conexão e tente novamente.'
+		});
     },
 	});
 
@@ -410,10 +367,9 @@ export default function Exercise() {
             setIsNoteModalVisible(false);
         },
         onError: () => {
-			Toast.show("Não foi possível salvar a nota. Tente novamente.", {
-				backgroundColor: "red",
-				position: Toast.positions.TOP,
-				duration: Toast.durations.LONG,
+			Toast.show({
+				type: 'error',
+				text1: 'Não foi possível salvar a nota. Tente novamente.'
 			});
         }
     });

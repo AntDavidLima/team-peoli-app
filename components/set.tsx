@@ -14,7 +14,7 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { api } from "@/lib/api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Fragment, useEffect, useState } from "react";
-import Toast from "react-native-root-toast";
+import Toast from "react-native-toast-message";
 
 interface Set {
   index: number;
@@ -81,10 +81,9 @@ export function Set({
       onStartRest(restTime);
     },
     onError: () => {
-      Toast.show('Não foi possível concluir a série, tente novamente.', {
-        backgroundColor: "red",
-        opacity: 0.9,
-        position: Toast.positions.TOP,
+      Toast.show({
+        type: 'error',
+        text1: 'Não foi possível concluir a série, tente novamente.'
       });
     },
   });
