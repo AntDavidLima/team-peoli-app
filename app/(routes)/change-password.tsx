@@ -16,7 +16,7 @@ import customColors from "@/tailwind.colors";
 import { APIError, api } from "@/lib/api";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { AxiosError } from "axios";
-import Toast from "react-native-root-toast";
+import Toast from "react-native-toast-message";
 import { Redirect, router } from "expo-router";
 
 const passwordFormSchema = yup.object({
@@ -196,10 +196,9 @@ export default function ChangePassword() {
 				console.log(error.message);
 
 				if (typeof apiError.error === "string") {
-					Toast.show(apiError.message, {
-						backgroundColor: "red",
-						opacity: 0.9,
-						position: Toast.positions.TOP,
+					Toast.show({
+						type: 'error',
+						text1: apiError.message
 					});
 				}
 			}

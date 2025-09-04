@@ -5,7 +5,7 @@ import { useFonts, Inter_400Regular, Inter_400Regular_Italic, Inter_500Medium, I
 import { Slot, SplashScreen } from "expo-router";
 import { useEffect } from "react";
 import { DarkTheme, ThemeProvider } from "@react-navigation/native";
-import { RootSiblingParent } from "react-native-root-siblings";
+import Toast from "react-native-toast-message";
 import customColors from "@/tailwind.colors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./global.css";
@@ -64,9 +64,8 @@ function RootLayoutNav() {
     <QueryClientProvider client={queryClient}>
       <AuthenticationProvider>
         <ThemeProvider value={Theme}>
-          <RootSiblingParent>
-            <Slot />
-          </RootSiblingParent>
+          <Slot />
+          <Toast />
         </ThemeProvider>
       </AuthenticationProvider>
     </QueryClientProvider>

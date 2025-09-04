@@ -38,12 +38,7 @@
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/logo512.png",
-      "pwa": {
-        "workbox": {
-          "importScripts": ["/notification-worker.js"]
-        }
-      }
+      "favicon": "./assets/images/logo512.png"
     },
     "plugins": [
       "expo-router",
