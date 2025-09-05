@@ -5,7 +5,9 @@ import {
     View,
     useWindowDimensions,
     Image,
-    ActivityIndicator
+    ActivityIndicator,
+    TouchableOpacity,
+    Modal
 } from "react-native";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { useQuery } from "@tanstack/react-query";
@@ -13,6 +15,7 @@ import { api } from "@/lib/api";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import tailwindColors from "tailwindcss/colors";
+import HomeIcon from "@/assets/icons/home.svg";
 
 import {
     VictoryArea,
@@ -25,6 +28,7 @@ import {
 import { Defs, LinearGradient, Stop } from "react-native-svg";
 import customColors from "@/tailwind.colors";
 import { useEffect, useMemo, useState } from "react";
+import Toast from "react-native-toast-message";
 
 import CameraIcon from "@/assets/icons/camera.svg";
 import TimingIcon from "@/assets/icons/timing.svg";
@@ -278,7 +282,9 @@ export default function Summary() {
     const router = useRouter();
     const { workoutId, trainingId } = useLocalSearchParams<{ workoutId: string, trainingId: string }>();
     const [displayCondition, setDisplayCondition] = useState<DisplayCondition | null>(null);
-
+    const [isConfirmDeleteWorkoutModalVisible, setIsConfirmDeleteWorkoutModalVisible] = useState(false);
+    const [isDeletingWorkout, setIsDeletingWorkout] = useState(false);
+	
     const { data: summary, isLoading, isError } = useQuery<WorkoutSummary>({
         queryKey: ['workoutSummary', workoutId, trainingId],
         queryFn: async () => {
@@ -375,11 +381,26 @@ export default function Summary() {
         }
     };
 
+    const handleDeleteWorkout = async () => {
+        setIsDeletingWorkout(true);
+        try {
+            await api.delete(`/workout/${workoutId}`);
+            router.back();
+            Toast.show({
+                type: 'success',
+                text1: 'Treino descartado com sucesso'
+            })
+        } catch (error) {
+            Toast.show({
+                type: 'error',
+                text1: 'Erro ao descartar treino'
+            })
+        }
+        setIsDeletingWorkout(false);
+    }
+
     return (
         <View className="bg-background flex-1">
-            <Pressable onPress={() => router.back()} className="absolute top-6 left-4 z-10 p-2">
-                <MaterialCommunityIcons name="arrow-left" size={28} color={tailwindColors.white} />
-            </Pressable>
             <Image
                 style={{width: 93, height: 31, marginTop: 30, marginBottom: 30}}
                 className="self-center"
@@ -510,6 +531,65 @@ export default function Summary() {
                         })}
                     </View>
                 </View>
+                <TouchableOpacity
+                    className="mt-4 border-2 border-danger rounded-xl h-12 items-center justify-center w-full"
+                    onPress={() => {setIsConfirmDeleteWorkoutModalVisible(true)}}
+                >
+                    <View className="flex-row items-center">
+                        <MaterialCommunityIcons name="delete" size={24} color={customColors.danger} />
+                        <Text style={{ fontFamily: 'Inter-Bold' }} className="text-danger text-sm font-semibold ml-2">
+                            Descartar Treino
+                        </Text>
+                    </View>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    className="mt-4 bg-main rounded-xl h-12 items-center justify-center w-full"
+                    onPress={() => router.push({pathname: '/'})}
+                >
+                    <View className="flex-row items-center">
+                        <HomeIcon width={18} height={18}/>
+                        <Text style={{ fontFamily: 'Inter-SemiBold' }} className="text-white text-sm font-semibold ml-2">
+                            Voltar ao Início
+                        </Text>
+                    </View>
+                </TouchableOpacity>
+                <Modal
+                    visible={isConfirmDeleteWorkoutModalVisible}
+                    transparent
+                    animationType="fade"
+                    onRequestClose={() => setIsConfirmDeleteWorkoutModalVisible(false)}
+                >
+                    <View
+                        className="flex-1 justify-center items-center px-4"
+                        style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+                    >
+                        <View className="bg-danger w-full rounded-2xl p-6 items-center">
+                            <Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold text-xl text-center">
+                                Tem certeza?
+                            </Text>
+    
+                            <Text style={{fontFamily: 'Inter-Regular'}} className="text-white text-center mt-3 mb-6">
+                                <Text style={{fontFamily: 'Inter-Bold'}}>Todos</Text> os registros deste treino <Text style={{fontFamily: 'Inter-Bold'}}>(carga e repetições)</Text> serão apagados e não poderão ser <Text style={{fontFamily: 'Inter-Bold'}}>recuperados</Text>.
+                            </Text>
+    
+                            <View className="flex-row w-full justify-between">
+                                <Pressable
+                                    className="bg-black/35 rounded-md py-3 w-[48%]"                                   onPress={() => setIsConfirmDeleteWorkoutModalVisible(false)}
+                                >
+                                    <Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold text-center">Voltar</Text>
+                                </Pressable>
+    
+                                <Pressable
+                                    className="bg-white rounded-md py-3 w-[48%]"
+                                    onPress={() => {handleDeleteWorkout()}}
+                                    disabled={isDeletingWorkout}
+                                >
+                                    <Text style={{fontFamily: 'Inter-Bold'}} className="text-danger font-bold text-center">Descartar</Text>
+                                </Pressable>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
             </ScrollView>
         </View>
     );
