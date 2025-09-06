@@ -532,7 +532,7 @@ export default function Summary() {
                     </View>
                 </View>
                 <TouchableOpacity
-                    className="mt-4 border-2 border-danger rounded-xl h-12 items-center justify-center w-full"
+                    className="mt-7 border-2 border-danger rounded-xl h-12 items-center justify-center w-full"
                     onPress={() => {setIsConfirmDeleteWorkoutModalVisible(true)}}
                 >
                     <View className="flex-row items-center">
@@ -543,7 +543,7 @@ export default function Summary() {
                     </View>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    className="mt-4 bg-main rounded-xl h-12 items-center justify-center w-full"
+                    className="mt-3 bg-main rounded-xl h-12 items-center justify-center w-full"
                     onPress={() => router.push({pathname: '/'})}
                 >
                     <View className="flex-row items-center">
