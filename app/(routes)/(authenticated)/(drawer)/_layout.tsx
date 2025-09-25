@@ -23,6 +23,8 @@ export default function DrawerLayout() {
   const { logout, currentUser } = useAuthentication();
   const [professorPhone, setProfessorPhone] = useState<string | null>(null);
 
+  const isUser13 = currentUser?.id === 13;
+
   useEffect(() => {
     async function fetchProfessorPhone() {
       try {
@@ -110,9 +112,36 @@ export default function DrawerLayout() {
             <Text className="text-white font-bold text-xl mt-3">
               {currentUser?.name}
             </Text>
+            {isUser13 && (
+              <Text className="text-yellow-400 text-xs mt-1">
+                🔧 Modo Desenvolvedor
+              </Text>
+            )}
           </View>
           <DrawerContentScrollView {...props}>
             <DrawerItemList {...props} />
+            {isUser13 && (
+              <DrawerItem
+                style={{
+                  marginHorizontal: 0,
+                  borderRadius: 0,
+                  height: 44,
+                  paddingLeft: 16,
+                  justifyContent: "center",
+                  backgroundColor: 'rgba(255, 193, 7, 0.1)', // Fundo amarelo suave
+                }}
+                label={"🧪 Testar Notificações"}
+                labelStyle={{ 
+                  fontSize: 14,
+                  color: '#FFD700',
+                  fontWeight: 'bold'
+                }}
+                onPress={() => {
+                  props.navigation.navigate("notificationTest");
+                }}
+              />
+            )}
+            
             {professorPhone && (
               <DrawerItem
                 style={{
@@ -160,6 +189,14 @@ export default function DrawerLayout() {
           drawerIcon: () => (
             <UserIcon width={20} height={20} color={customColors.background} />
           ),
+        }}
+      />
+      
+      <Drawer.Screen
+        name="notificationTest"
+        options={{
+          title: "Teste de Notificações",
+          drawerItemStyle: { display: "none" },
         }}
       />
     </Drawer>
