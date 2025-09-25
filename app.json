@@ -49,7 +49,8 @@
         {
           "photosPermission": "É necessário sua permissão para acessar suas fotos."
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "experiments": {
       "typedRoutes": true
