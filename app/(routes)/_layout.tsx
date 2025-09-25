@@ -27,6 +27,13 @@ export default function RoutesLayout() {
 				}}
 			/>
 			<Stack.Screen
+				name="notificationTest"
+				options={{
+					headerShown: true,
+					statusBarTranslucent: true,
+				}}
+			/>
+			<Stack.Screen
 				name="(authenticated)"
 				options={{
 					headerShown: false,

@@ -9,7 +9,6 @@ import Toast from "react-native-toast-message";
 import customColors from "@/tailwind.colors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./global.css";
-import { Platform } from 'react-native'
 
 export {
   ErrorBoundary,
