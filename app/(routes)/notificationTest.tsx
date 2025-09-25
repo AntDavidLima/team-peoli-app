@@ -10,77 +10,125 @@ import Toast from "react-native-toast-message";
 
 const scheduledTimers: NodeJS.Timeout[] = [];
 
-async function testNotification(options?: { 
-  delay?: number; 
-  title?: string; 
-  body?: string;
+function isStandalonePWA(): boolean {
+  if (Platform.OS !== 'web') return false;
+  return window.matchMedia('(display-mode: standalone)').matches || 
+         (window.navigator as any).standalone === true;
+}
+
+async function showNotification(options: { 
+  title: string; 
+  body: string;
   requireInteraction?: boolean;
 }) {
   if (Platform.OS !== 'web') {
     Toast.show({
       type: 'error',
-      text1: 'Este recurso só funciona em PWA/Web',
+      text1: 'Este recurso só funciona em navegadores',
     });
     return;
   }
 
-  if (!('Notification' in window)) {
-    Toast.show({
-      type: 'error',
-      text1: 'Seu navegador não suporta notificações',
+  console.log('Tentando mostrar notificação...', { isPWA: isStandalonePWA() });
+
+  if (isStandalonePWA() || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+    return showNotificationViaServiceWorker(options);
+  } else {
+    return showNotificationDirect(options);
+  }
+}
+
+async function showNotificationViaServiceWorker(options: { title: string; body: string; requireInteraction?: boolean }) {
+  try {
+    if (!('serviceWorker' in navigator) || !('Notification' in window)) {
+      throw new Error('Service Worker ou Notifications não suportados');
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+    
+    if (Notification.permission !== 'granted') {
+      const permission = await Notification.requestPermission();
+      if (permission !== 'granted') {
+        throw new Error('Permissão negada para notificações');
+      }
+    }
+
+    registration.active?.postMessage({
+      type: 'SHOW_NOTIFICATION',
+      title: options.title,
+      body: options.body,
+      requireInteraction: options.requireInteraction || false,
+      timestamp: new Date().toISOString()
     });
-    return;
+
+    console.log('Notificação enviada para Service Worker');
+    return true;
+
+  } catch (error) {
+    console.error('Erro com Service Worker, tentando método direto:', error);
+    return showNotificationDirect(options);
+  }
+}
+
+async function showNotificationDirect(options: { title: string; body: string; requireInteraction?: boolean }) {
+  if (!('Notification' in window)) {
+    throw new Error('Notifications não suportados neste navegador');
   }
 
   if (Notification.permission !== 'granted') {
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') {
-      throw new Error('Permissão para notificações não concedida');
+      throw new Error('Permissão negada para notificações');
     }
   }
 
-  const sendNotification = () => {
-    try {
-      const notification = new Notification(
-        options?.title || '🔔 Notificação de Teste', 
-        {
-          body: options?.body || `Enviada em: ${new Date().toLocaleTimeString()}`,
-          tag: 'test-notification',
-          requireInteraction: options?.requireInteraction || false,
-          data: {
-            url: window.location.href,
-            timestamp: new Date().toISOString(),
-            type: options?.delay ? 'scheduled' : 'immediate'
-          }
-        }
-      );
+  if (typeof Notification !== 'undefined') {
+    const notification = new Notification(options.title, {
+      body: options.body,
+      icon: '/icon.png',
+      badge: '/badge.png',
+      requireInteraction: options.requireInteraction || false,
+      tag: 'app-notification'
+    });
 
-      notification.onclick = () => {
-        console.log('Notificação clicada');
-        window.focus();
-        notification.close();
-      };
+    notification.onclick = () => {
+      window.focus();
+      notification.close();
+    };
 
-      if (!options?.requireInteraction) {
-        setTimeout(() => {
-          notification.close();
-        }, 8000);
-      }
-
-      console.log('Notificação criada com sucesso');
-      return notification;
-    } catch (error) {
-      console.error('Erro ao criar notificação:', error);
-      throw error;
+    if (!options.requireInteraction) {
+      setTimeout(() => notification.close(), 8000);
     }
+
+    return notification;
+  } else {
+    throw new Error('Notification API não disponível');
+  }
+}
+
+async function testNotification(options?: { 
+  delay?: number; 
+  title?: string; 
+  body?: string;
+}) {
+  if (Platform.OS !== 'web') {
+    throw new Error('Apenas para ambiente web');
+  }
+
+  const sendNotification = async () => {
+    await showNotification({
+      title: options?.title || '🔔 Notificação de Teste',
+      body: options?.body || `Enviada em: ${new Date().toLocaleTimeString()}`,
+      requireInteraction: true
+    });
   };
 
   if (options?.delay && options.delay > 0) {
     return new Promise((resolve, reject) => {
-      const timer = setTimeout(() => {
+      const timer = setTimeout(async () => {
         try {
-          const notification = sendNotification();
-          resolve(notification);
+          await sendNotification();
+          resolve(true);
         } catch (error) {
           reject(error);
         }
@@ -93,7 +141,6 @@ async function testNotification(options?: {
   }
 }
 
-// Função simplificada para agendar notificação em background
 async function scheduleBackgroundNotification(delayMinutes: number) {
   if (Platform.OS !== 'web') {
     throw new Error('Apenas para ambiente web');
@@ -104,8 +151,7 @@ async function scheduleBackgroundNotification(delayMinutes: number) {
       try {
         await testNotification({
           title: '📅 Notificação Agendada',
-          body: `Esta notificação foi programada há ${delayMinutes} minuto(s) atrás!\nHora: ${new Date().toLocaleTimeString()}`,
-          requireInteraction: true
+          body: `Programada há ${delayMinutes} minuto(s) atrás!\nHora: ${new Date().toLocaleTimeString()}`
         });
         resolve(true);
       } catch (error) {
@@ -131,8 +177,10 @@ function checkNotificationSupport() {
   
   console.log('Suporte a notificações:', supportsNotifications);
   console.log('Suporte a Service Worker:', supportsServiceWorker);
+  console.log('É PWA standalone?', isStandalonePWA());
+  console.log('User Agent:', navigator.userAgent);
   
-  return supportsNotifications;
+  return supportsNotifications || supportsServiceWorker;
 }
 
 async function requestNotificationPermission() {
@@ -140,38 +188,57 @@ async function requestNotificationPermission() {
     return 'granted';
   }
 
-  if (!('Notification' in window)) {
-    return 'denied';
-  }
-
-  if (Notification.permission !== 'default') {
-    return Notification.permission;
-  }
-
   try {
-    const permission = await Notification.requestPermission();
-    return permission;
+    if ('Notification' in window) {
+      if (Notification.permission === 'default') {
+        const permission = await Notification.requestPermission();
+        return permission;
+      }
+      return Notification.permission;
+    }
+    return 'denied';
   } catch (error) {
     console.error('Erro ao solicitar permissão:', error);
     return 'denied';
   }
 }
 
-export default function NotificationTest() {
+export default function notificationTest() {
 
   const [notificationPermission, setNotificationPermission] = useState<string>('default');
   const [isSupported, setIsSupported] = useState(true);
   const [isTesting, setIsTesting] = useState(false);
   const [scheduledCount, setScheduledCount] = useState(0);
   const [delayMinutes, setDelayMinutes] = useState(1);
+  const [isPWA, setIsPWA] = useState(false);
 
   useEffect(() => {
-    const supported = checkNotificationSupport();
-    setIsSupported(supported);
+    const init = async () => {
+      if (Platform.OS !== 'web') {
+        setIsSupported(false);
+        return;
+      }
 
-    if (supported) {
-      setNotificationPermission(Notification.permission);
-    }
+      const supported = checkNotificationSupport();
+      setIsSupported(supported);
+      setIsPWA(isStandalonePWA());
+
+      if (supported) {
+        const permission = await requestNotificationPermission();
+        setNotificationPermission(permission);
+        
+        if (isStandalonePWA()) {
+          try {
+            await navigator.serviceWorker.register('/service-worker.js');
+            console.log('Service Worker registrado para PWA');
+          } catch (error) {
+            console.error('Erro ao registrar Service Worker:', error);
+          }
+        }
+      }
+    };
+
+    init();
 
     return () => {
       cancelAllScheduledNotifications();
@@ -182,14 +249,14 @@ export default function NotificationTest() {
     setIsTesting(true);
     try {
       await testNotification({
-        title: '🚀 Notificação Imediata',
-        body: 'Esta notificação foi enviada instantaneamente!\nO navegador pode estar minimizado.'
+        title: '🚀 Teste de Notificação',
+        body: `Modo: ${isPWA ? 'PWA' : 'Navegador'}\nHora: ${new Date().toLocaleTimeString()}`
       });
       
       Toast.show({
         type: 'success',
         text1: 'Notificação enviada!',
-        text2: 'Verifique sua área de notificações'
+        text2: `Modo: ${isPWA ? 'PWA (Service Worker)' : 'Navegador'}`
       });
     } catch (error: any) {
       console.error('Erro no teste:', error);
@@ -227,7 +294,7 @@ export default function NotificationTest() {
       Toast.show({
         type: 'success',
         text1: 'Notificação agendada!',
-        text2: `Chegará em ${delayMinutes} minuto(s) - minimize o navegador para testar`
+        text2: `Chegará em ${delayMinutes} minuto(s) - minimize o app para testar`
       });
 
     } catch (error: any) {
@@ -298,8 +365,12 @@ export default function NotificationTest() {
                     notificationPermission === 'denied' ? '❌ Negado' : '⏳ Pendente'}
           </Text>
           
+          <Text style={{ color: isPWA ? '#64ffda' : '#ffcc80', fontSize: 12 }}>
+            Modo: {isPWA ? '📱 PWA Instalado' : '🌐 Navegador'}
+          </Text>
+          
           {scheduledCount > 0 && (
-            <Text style={{ color: '#64ffda', fontSize: 12, textAlign: 'center' }}>
+            <Text style={{ color: '#64ffda', fontSize: 12, marginTop: 5 }}>
               ⏰ {scheduledCount} notificação(ões) agendada(s)
             </Text>
           )}
@@ -343,7 +414,7 @@ export default function NotificationTest() {
               onPress={handleRequestPermission}
             >
               <Text style={{ color: 'white', fontWeight: 'bold' }}>
-                📢 Solicitar Permissão de Notificações
+                📢 Solicitar Permissão
               </Text>
             </TouchableOpacity>
           ) : (
@@ -396,7 +467,7 @@ export default function NotificationTest() {
                     setScheduledCount(0);
                     Toast.show({
                       type: 'info',
-                      text1: 'Todos os agendamentos foram cancelados'
+                      text1: 'Agendamentos cancelados'
                     });
                   }}
                 >
@@ -409,10 +480,10 @@ export default function NotificationTest() {
 
         <View style={{ marginTop: 15, padding: 10, backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: 5 }}>
           <Text style={{ color: '#ffcc80', fontSize: 11, textAlign: 'center' }}>
-            💡 Para testar em background:{'\n'}
-            1. Agende uma notificação{'\n'}
-            2. Minimize o navegador{'\n'}
-            3. Aguarde o tempo configurado
+            {isPWA 
+              ? '💡 Você está no modo PWA. Notificações usarão Service Worker.'
+              : '💡 Para testar em background: agende, minimize e aguarde.'
+            }
           </Text>
         </View>
       </View>
@@ -424,5 +495,5 @@ export default function NotificationTest() {
         <NotificationDebugInfo />
       </View>
   );
-
+  
 }
