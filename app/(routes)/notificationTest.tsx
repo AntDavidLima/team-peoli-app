@@ -229,7 +229,7 @@ export default function notificationTest() {
         
         if (isStandalonePWA()) {
           try {
-            await navigator.serviceWorker.register('/service-worker.js');
+            await navigator.serviceWorker.register('/sw.js');
             console.log('Service Worker registrado para PWA');
           } catch (error) {
             console.error('Erro ao registrar Service Worker:', error);
