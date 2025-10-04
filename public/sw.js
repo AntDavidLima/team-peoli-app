@@ -1,36 +1,88 @@
+const urlB64ToUint8Array = (base64String) => {
+  const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+};
+
 self.addEventListener('install', (event) => {
-  console.log('Service Worker instalado');
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  console.log('Service Worker ativado');
-  self.clients.claim();
+  event.waitUntil(self.clients.claim());
 });
 
-self.addEventListener('message', (event) => {
+self.addEventListener('push', (event) => {
+  let pushData = {
+    title: 'Notificação',
+    body: 'Algo novo aconteceu!',
+  };
+
+  if (event.data) {
+    try {
+      pushData = event.data.json();
+    } catch (e) {
+      console.error('O dado do push não era um JSON, usando texto.', e);
+      pushData = { title: 'Notificação', body: event.data.text() };
+    }
+  }
+
+  const title = pushData.title;
+  const options = {
+    body: pushData.body,
+    icon: '/logo192.png',
+  };
+
+  const notificationPromise = self.clients.matchAll({
+    type: 'window',
+    includeUncontrolled: true,
+  }).then((clientList) => {const isPageVisible = clientList.some(client => client.visibilityState === 'visible');
+
+   return self.registration.showNotification(title, options);
+  });
+
+  event.waitUntil(notificationPromise);
+});
+
+async function registerPush(publicKey) {
+  try {
+    if (!publicKey) {
+      throw new Error('VAPID Public Key não foi fornecida.');
+    }
+    const applicationServerKey = urlB64ToUint8Array(publicKey);
+    
+    const options = { 
+      applicationServerKey, 
+      userVisibleOnly: true 
+    };
+    
+    const subscription = await self.registration.pushManager.subscribe(options);
+    return subscription;
+  } catch (err) {
+    console.error('[SW] Erro dentro de registerPush:', err);
+    throw err;
+  }
+}
+
+self.addEventListener('message', async (event) => {
+  if (event.data && event.data.type === 'REGISTER_PUSH') {
+    try {
+      const subscription = await registerPush(event.data.publicKey);
+      event.ports[0].postMessage({ success: true, subscription: subscription.toJSON() });
+    } catch (error) {
+      event.ports[0].postMessage({ success: false, error: error.message });
+    }
+  }
+  
   if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
     showNotification(event.data);
   }
 });
-
-function showNotification(data) {
-  const title = data.title || 'Notificação do App';
-  const options = {
-    body: data.body || 'Nova mensagem',
-    icon: '/icon.png',
-    badge: '/badge.png',
-    vibrate: [100, 50, 100],
-    data: data.data || {},
-    requireInteraction: data.requireInteraction || false,
-    tag: data.tag || 'app-notification',
-    timestamp: data.timestamp ? new Date(data.timestamp).getTime() : Date.now()
-  };
-
-  self.registration.showNotification(title, options)
-    .then(() => console.log('Notificação exibida via Service Worker'))
-    .catch(error => console.error('Erro ao exibir notificação:', error));
-}
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
@@ -48,8 +100,4 @@ self.addEventListener('notificationclick', (event) => {
       }
     })
   );
-});
-
-self.addEventListener('notificationclose', (event) => {
-  console.log('Notificação fechada:', event.notification.tag);
 });

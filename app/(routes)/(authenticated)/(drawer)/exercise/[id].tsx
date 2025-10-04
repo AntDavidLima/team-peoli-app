@@ -75,6 +75,9 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 
 export default function Exercise() {
+	const [scheduledNotificationId, setScheduledNotificationId] = useState<number | null>(null);
+	const notificationIdRef = useRef<number | null>(null); 
+
 	const [isResting, setIsResting] = useState(false);
 	const [restEndTime, setRestEndTime] = useState<Date | null>(null);
 	const [remainingRestSeconds, setRemainingRestSeconds] = useState(0);
@@ -107,15 +110,21 @@ export default function Exercise() {
 		setTotalRestDuration(duration);
 		setRemainingRestSeconds(duration);
 		setIsResting(true);
+
+		scheduleNotification(duration);
 	};
 
 	const addRestTime = (seconds: number) => {
 		if (!restEndTime) return;
+		
+		if (notificationIdRef.current) {
+			cancelNotification(notificationIdRef.current);
+		}
+
+		const newRemainingTime = remainingRestSeconds + seconds;
+        scheduleNotification(newRemainingTime);
 
 		const newEndTime = new Date(restEndTime.getTime() + seconds * 1000);
-
-		const newTotalDuration = totalRestDuration + seconds;
-
 		setRestEndTime(newEndTime);
 		setTotalRestDuration((currentDuration) => currentDuration + seconds);
 		setRemainingRestSeconds((currentSeconds) => currentSeconds + seconds);
@@ -142,10 +151,23 @@ export default function Exercise() {
 	};
 
 	const handleStopRest = () => {
+		if (scheduledNotificationId) {
+            cancelNotification(scheduledNotificationId);
+        }
+
 		setIsResting(false);
 		setRestEndTime(null);
 		setRemainingRestSeconds(0);
 	};
+
+	useEffect(() => {
+        return () => {
+            if (notificationIdRef.current) {
+				api.post('/notifications/cancel', { notificationId: notificationIdRef.current });
+            }
+        };
+    }, []);
+
 
 	const { currentUser } = useAuthentication();
 
@@ -212,29 +234,6 @@ export default function Exercise() {
 				}, 1000)
 			);
 	}, [clock, syncWorkoutTimer]);
-	
-	useEffect(() => {
-        const setupNotifications = async () => {
-            if ('serviceWorker' in navigator && 'PushManager' in window) {
-                try {
-                    const registration = await navigator.serviceWorker.register('/sw.js');
-                    console.log('Service Worker registrado:', registration);
-
-                    const permission = await Notification.requestPermission();
-                    if (permission !== 'granted') {
-                        console.warn('Permissão para notificações foi negada.');
-                        return;
-                    }
-                } catch (error) {
-                    console.error('Falha na configuração das notificações:', error);
-                }
-            } else {
-                console.log("Push Notifications não são suportadas neste navegador.");
-            }
-        };
-
-        setupNotifications();
-    }, []);
 
 	useEffect(() => {
 		if (!isResting || !restEndTime) {
@@ -310,6 +309,33 @@ export default function Exercise() {
 
 	const currentExerciseId =
 		training?.exercises[currentExerciseIndex]?.exercise.id;
+
+	const { mutate: scheduleNotification } = useMutation({
+        mutationFn: (durationInSeconds: number) => 
+            api.post('/notifications/schedule/rest', { durationInSeconds }),
+        onSuccess: (response: any) => {
+            const newId = response.data.notificationId;
+            if (newId) {
+                setScheduledNotificationId(response.data.notificationId);
+				notificationIdRef.current = newId;
+            }
+        },
+        onError: (error) => {
+            console.error("Failed to schedule notification:", error);
+        }
+    });
+
+	const { mutate: cancelNotification } = useMutation({
+        mutationFn: (notificationId: number) => 
+            api.post('/notifications/cancel', { notificationId }),
+        onSuccess: () => {
+            setScheduledNotificationId(null);
+			notificationIdRef.current = null;
+        },
+        onError: (error) => {
+            console.error("Failed to cancel notification:", error);
+        }
+    });
 
 	const { mutate: startWorkout } = useMutation({
 		mutationFn: createWorkout,
