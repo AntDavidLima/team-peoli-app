@@ -34,6 +34,7 @@ import NoteIcon from "@/assets/icons/note.svg";
 import DeleteIcon from "@/assets/icons/delete.svg";
 import InfoIcon from "@/assets/icons/info2.svg";
 import Toast from "react-native-toast-message";
+import { useIsFocused } from '@react-navigation/native';
 
 interface Training {
 	exercises: TrainingExercise[];
@@ -76,6 +77,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 
 export default function Exercise() {
+	const isFocused = useIsFocused();
 	const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
 	const [isAnotherWorkoutActiveModalVisible, setIsAnotherWorkoutActiveModalVisible] = useState(false);
 	const [isConfirmedActivePage, setIsConfirmedActivePage] = useState(false);
@@ -197,6 +199,10 @@ export default function Exercise() {
 	});
 
 	useEffect(() => {
+		if (!isFocused) {
+			return;
+		}
+		
 		if (loadingWorkout) {
 			return;
 		}
