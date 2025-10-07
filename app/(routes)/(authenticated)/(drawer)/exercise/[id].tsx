@@ -116,8 +116,14 @@ export default function Exercise() {
 
     const isInitialized = useRef(false);
 
-	const handleStartRest = (duration: number) => {
+	const handleStartRest = async (duration: number) => {
 		if (duration <= 0) return;
+
+		try {
+			await api.post('/notifications/cancel-all');
+		} catch (error) {
+			console.error("Falha ao cancelar notificações pendentes antes de agendar uma nova:", error);
+		}
 
 		const endTime = new Date(Date.now() + duration * 1000);
 		setRestEndTime(endTime);
@@ -140,33 +146,35 @@ export default function Exercise() {
 		});
 	};
 
-	const addRestTime = (seconds: number) => {
-    if (!restEndTime) return;
-    
-    if (notificationIdRef.current) {
-        cancelNotification(notificationIdRef.current);
-    }
+	const addRestTime = async (seconds: number) => {
+		if (!restEndTime) return;
+		
+		try {
+			await api.post('/notifications/cancel-all');
+		} catch (error) {
+			console.error("Falha ao cancelar notificações pendentes antes de reagendar:", error);
+		}
 
-    if (!id || !trainingId || !day) {
-        console.error("Não foi possível reagendar notificação: parâmetros da URL ausentes.");
-        return;
-    }
-    
-    const newRemainingTime = remainingRestSeconds + seconds;
-    const notificationUrl = `/exercise/${id}?trainingId=${trainingId}&day=${day}`;
-    
-    scheduleNotification({
-        durationInSeconds: newRemainingTime,
-        data: {
-            url: notificationUrl
-        }
-    });
+		if (!id || !trainingId || !day) {
+			console.error("Não foi possível reagendar notificação: parâmetros da URL ausentes.");
+			return;
+		}
+		
+		const newRemainingTime = remainingRestSeconds + seconds;
+		const notificationUrl = `/exercise/${id}?trainingId=${trainingId}&day=${day}`;
+		
+		scheduleNotification({
+			durationInSeconds: newRemainingTime,
+			data: {
+				url: notificationUrl
+			}
+		});
 
-    const newEndTime = new Date(restEndTime.getTime() + seconds * 1000);
-    setRestEndTime(newEndTime);
-    setTotalRestDuration((currentDuration) => currentDuration + seconds);
-    setRemainingRestSeconds((currentSeconds) => currentSeconds + seconds);
-};
+		const newEndTime = new Date(restEndTime.getTime() + seconds * 1000);
+		setRestEndTime(newEndTime);
+		setTotalRestDuration((currentDuration) => currentDuration + seconds);
+		setRemainingRestSeconds((currentSeconds) => currentSeconds + seconds);
+	};
 
 	const handleFinishWorkoutAttempt = () => {
 		if (!training || !workout || !workout.exercises) {
@@ -188,10 +196,12 @@ export default function Exercise() {
 		setIsConfirmFinishModalVisible(true);
 	};
 
-	const handleStopRest = () => {
-		if (scheduledNotificationId) {
-            cancelNotification(scheduledNotificationId);
-        }
+	const handleStopRest = async () => {
+		try {
+			await api.post('/notifications/cancel-all');
+		} catch (error) {
+			console.error("Falha ao cancelar notificações ao pular o descanso:", error);
+		}
 
 		setIsResting(false);
 		setRestEndTime(null);
@@ -397,18 +407,6 @@ export default function Exercise() {
     }
 });
 
-	const { mutate: cancelNotification } = useMutation({
-        mutationFn: (notificationId: number) => 
-            api.post('/notifications/cancel', { notificationId }),
-        onSuccess: () => {
-            setScheduledNotificationId(null);
-			notificationIdRef.current = null;
-        },
-        onError: (error) => {
-            console.error("Failed to cancel notification:", error);
-        }
-    });
-
 	const { mutate: startWorkout } = useMutation({
 		mutationFn: createWorkout,
 		onSuccess: () => {
@@ -420,7 +418,13 @@ export default function Exercise() {
 
 	const { mutate: finishWorkout, isPending: isFinishingWorkout } = useMutation({
 		mutationFn: stopWorkout,
-		onSuccess: (updatedWorkout) => {
+		onSuccess: async (updatedWorkout) => {
+			try {
+				await api.post('/notifications/cancel-all');
+			} catch (error) {
+				console.error("Falha ao cancelar notificações pendentes:", error);
+			}
+
 			queryClient.invalidateQueries({
 				queryKey: ["workout", ...(todayTrainings?.map(({ id }) => id) || [])],
 			});
@@ -446,12 +450,12 @@ export default function Exercise() {
 			}
 		},
 		onError: (error) => {
-        console.error("Falha ao finalizar o treino:", error);
-        Toast.show({
-			type: 'error',
-			text1: 'Não foi possível encerrar o treino. Verifique sua conexão e tente novamente.'
-		});
-    },
+			console.error("Falha ao finalizar o treino:", error);
+			Toast.show({
+				type: 'error',
+				text1: 'Não foi possível encerrar o treino. Verifique sua conexão e tente novamente.'
+			});
+		},
 	});
 
 	const { mutate: saveNote, isPending: isSavingNote } = useMutation({
