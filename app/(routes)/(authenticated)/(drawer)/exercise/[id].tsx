@@ -58,6 +58,7 @@ interface Workout {
 	id: number;
 	startTime: Date;
 	exercises: WorkoutExercise[];
+	trainings: { id: number }[];
 }
 
 interface WorkoutExercise {
@@ -75,6 +76,10 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 
 export default function Exercise() {
+	const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
+	const [isAnotherWorkoutActiveModalVisible, setIsAnotherWorkoutActiveModalVisible] = useState(false);
+	const [isConfirmedActivePage, setIsConfirmedActivePage] = useState(false);
+
 	const [scheduledNotificationId, setScheduledNotificationId] = useState<number | null>(null);
 	const notificationIdRef = useRef<number | null>(null); 
 
@@ -186,10 +191,38 @@ export default function Exercise() {
 		queryKey: ["todayTrainings", day, currentUser?.id],
 	});
 
-	const { data: workout } = useQuery({
+	const { data: workout, isLoading: loadingWorkout } = useQuery({
 		queryFn: fetchWorkoutInProgress,
 		queryKey: ["workout", ...(todayTrainings?.map(({ id }) => id) || [])],
 	});
+
+	useEffect(() => {
+		if (loadingWorkout) {
+			return;
+		}
+
+		if (workout) {
+			return;
+		}
+
+		const checkForAnotherActiveWorkout = async () => {
+			try {
+				const { data: otherWorkout } = await api.get<Workout | null>('/workout/in-progress');
+
+				if (otherWorkout) {
+					setActiveWorkout(otherWorkout);
+					setIsAnotherWorkoutActiveModalVisible(true);
+				}
+			} catch (error) {
+				console.error("Falha ao verificar outro treino ativo:", error);
+			}
+		};
+
+		if (trainingId) {
+			checkForAnotherActiveWorkout();
+		}
+
+	}, [trainingId, workout, loadingWorkout]);
 
 	const syncWorkoutTimer = useCallback(() => {
 		if (!workout) return;
@@ -270,8 +303,10 @@ export default function Exercise() {
 
 	useEffect(() => {
 		if (workout) {
+        	setIsConfirmedActivePage(true);
 			startClock();
 		} else {
+        	setIsConfirmedActivePage(false);
 			if(clock) clearInterval(clock);
 			setClock(null);
 		}
@@ -647,6 +682,53 @@ export default function Exercise() {
 					</Pressable>
 				)}
 			</View>
+			<Modal
+				visible={isAnotherWorkoutActiveModalVisible && !isConfirmedActivePage}
+				transparent
+				animationType="fade"
+				onRequestClose={() => setIsAnotherWorkoutActiveModalVisible(false)}
+			>
+				<View
+					className="flex-1 justify-center items-center px-4"
+					style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+				>
+					<View className="bg-danger w-full rounded-2xl p-6 items-center">
+						<Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold text-xl text-center">
+							Há um treino em andamento
+						</Text>
+
+						<Text style={{fontFamily: 'Inter-Regular'}} className="text-white text-center mt-3 mb-6">
+							Antes de iniciar outro, finalize o treino em aberto para manter seus dados de treino corretos no sistema.
+						</Text>
+
+						<View className="flex-row w-full justify-between">
+							<Pressable
+								className="bg-white rounded-md py-3 w-full"
+								onPress={() => {
+									if (activeWorkout && activeWorkout.trainings.length > 0 && activeWorkout.exercises.length > 0) {
+										
+										router.push({
+											pathname: '/exercise/[id]',
+											params: {
+												id: activeWorkout.exercises[0].exerciseId,
+												trainingId: activeWorkout.trainings[0].id,
+												day: new Date(activeWorkout.startTime).toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase(),
+											},
+										});
+									} else {
+										Toast.show({
+											type: 'error',
+											text1: 'Não foi possível acessar o treino! Tente procurar manualmente o treino ativo'
+										});
+									}
+								}}
+							>
+								<Text style={{fontFamily: 'Inter-Bold'}} className="text-danger font-bold text-center">Abrir treino ativo</Text>
+							</Pressable>
+						</View>
+					</View>
+				</View>
+			</Modal>
 			<Modal
 				visible={isConfirmFinishModalVisible}
 				transparent
