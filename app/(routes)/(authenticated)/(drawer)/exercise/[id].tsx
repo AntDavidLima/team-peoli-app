@@ -73,6 +73,13 @@ interface WorkoutExerciseSet {
 	reps: number;
 }
 
+interface ScheduleNotificationParams {
+  durationInSeconds: number;
+  data: {
+    url: string;
+  };
+}
+
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 
@@ -118,24 +125,48 @@ export default function Exercise() {
 		setRemainingRestSeconds(duration);
 		setIsResting(true);
 
-		scheduleNotification(duration);
+		if (!id || !trainingId || !day) {
+			console.error("Não foi possível agendar notificação: parâmetros da URL ausentes.");
+			return;
+		}
+		
+		const notificationUrl = `/exercise/${id}?trainingId=${trainingId}&day=${day}`;
+		
+		scheduleNotification({
+			durationInSeconds: duration,
+			data: {
+				url: notificationUrl
+			}
+		});
 	};
 
 	const addRestTime = (seconds: number) => {
-		if (!restEndTime) return;
-		
-		if (notificationIdRef.current) {
-			cancelNotification(notificationIdRef.current);
-		}
+    if (!restEndTime) return;
+    
+    if (notificationIdRef.current) {
+        cancelNotification(notificationIdRef.current);
+    }
 
-		const newRemainingTime = remainingRestSeconds + seconds;
-        scheduleNotification(newRemainingTime);
+    if (!id || !trainingId || !day) {
+        console.error("Não foi possível reagendar notificação: parâmetros da URL ausentes.");
+        return;
+    }
+    
+    const newRemainingTime = remainingRestSeconds + seconds;
+    const notificationUrl = `/exercise/${id}?trainingId=${trainingId}&day=${day}`;
+    
+    scheduleNotification({
+        durationInSeconds: newRemainingTime,
+        data: {
+            url: notificationUrl
+        }
+    });
 
-		const newEndTime = new Date(restEndTime.getTime() + seconds * 1000);
-		setRestEndTime(newEndTime);
-		setTotalRestDuration((currentDuration) => currentDuration + seconds);
-		setRemainingRestSeconds((currentSeconds) => currentSeconds + seconds);
-	};
+    const newEndTime = new Date(restEndTime.getTime() + seconds * 1000);
+    setRestEndTime(newEndTime);
+    setTotalRestDuration((currentDuration) => currentDuration + seconds);
+    setRemainingRestSeconds((currentSeconds) => currentSeconds + seconds);
+};
 
 	const handleFinishWorkoutAttempt = () => {
 		if (!training || !workout || !workout.exercises) {
@@ -352,19 +383,19 @@ export default function Exercise() {
 		training?.exercises[currentExerciseIndex]?.exercise.id;
 
 	const { mutate: scheduleNotification } = useMutation({
-        mutationFn: (durationInSeconds: number) => 
-            api.post('/notifications/schedule/rest', { durationInSeconds }),
-        onSuccess: (response: any) => {
-            const newId = response.data.notificationId;
-            if (newId) {
-                setScheduledNotificationId(response.data.notificationId);
-				notificationIdRef.current = newId;
-            }
-        },
-        onError: (error) => {
-            console.error("Failed to schedule notification:", error);
+    mutationFn: ({ durationInSeconds, data }: ScheduleNotificationParams) => 
+        api.post('/notifications/schedule/rest', { durationInSeconds, data }),
+    onSuccess: (response: any) => {
+        const newId = response.data.notificationId;
+        if (newId) {
+            setScheduledNotificationId(response.data.notificationId);
+            notificationIdRef.current = newId;
         }
-    });
+    },
+    onError: (error) => {
+        console.error("Failed to schedule notification:", error);
+    }
+});
 
 	const { mutate: cancelNotification } = useMutation({
         mutationFn: (notificationId: number) => 
@@ -712,7 +743,7 @@ export default function Exercise() {
 								className="bg-white rounded-md py-3 w-full"
 								onPress={() => {
 									if (activeWorkout && activeWorkout.trainings.length > 0 && activeWorkout.exercises.length > 0) {
-										
+
 										router.push({
 											pathname: '/exercise/[id]',
 											params: {
@@ -724,8 +755,11 @@ export default function Exercise() {
 									} else {
 										Toast.show({
 											type: 'error',
-											text1: 'Não foi possível acessar o treino! Tente procurar manualmente o treino ativo'
+											text1: 'Não foi possível acessar o treino!',
+											text2: 'Verifique sua conexão ou procure o treino manualmente.'
 										});
+
+										setIsAnotherWorkoutActiveModalVisible(false);
 									}
 								}}
 							>

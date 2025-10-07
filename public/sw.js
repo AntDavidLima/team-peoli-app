@@ -21,6 +21,7 @@ self.addEventListener('push', (event) => {
   let pushData = {
     title: 'Notificação',
     body: 'Algo novo aconteceu!',
+    data: { url: '/' }
   };
 
   if (event.data) {
@@ -28,7 +29,7 @@ self.addEventListener('push', (event) => {
       pushData = event.data.json();
     } catch (e) {
       console.error('O dado do push não era um JSON, usando texto.', e);
-      pushData = { title: 'Notificação', body: event.data.text() };
+      pushData = { title: 'Notificação', body: event.data.text(), data: { url: '/' } };
     }
   }
 
@@ -36,16 +37,10 @@ self.addEventListener('push', (event) => {
   const options = {
     body: pushData.body,
     icon: '/logo192.png',
+    data: pushData.data
   };
 
-  const notificationPromise = self.clients.matchAll({
-    type: 'window',
-    includeUncontrolled: true,
-  }).then((clientList) => {const isPageVisible = clientList.some(client => client.visibilityState === 'visible');
-
-   return self.registration.showNotification(title, options);
-  });
-
+  const notificationPromise = self.registration.showNotification(title, options);
   event.waitUntil(notificationPromise);
 });
 
@@ -55,12 +50,12 @@ async function registerPush(publicKey) {
       throw new Error('VAPID Public Key não foi fornecida.');
     }
     const applicationServerKey = urlB64ToUint8Array(publicKey);
-    
-    const options = { 
-      applicationServerKey, 
-      userVisibleOnly: true 
+
+    const options = {
+      applicationServerKey,
+      userVisibleOnly: true
     };
-    
+
     const subscription = await self.registration.pushManager.subscribe(options);
     return subscription;
   } catch (err) {
@@ -78,25 +73,23 @@ self.addEventListener('message', async (event) => {
       event.ports[0].postMessage({ success: false, error: error.message });
     }
   }
-  
-  if (event.data && event.data.type === 'SHOW_NOTIFICATION') {
-    showNotification(event.data);
-  }
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  
+
+  const targetUrl = event.notification.data?.url || '/';
+
   event.waitUntil(
-    self.clients.matchAll({ type: 'window' }).then((clientList) => {
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
-        if (client.url === self.registration.scope && 'focus' in client) {
+        if (client.url.endsWith(targetUrl) && 'focus' in client) {
           return client.focus();
         }
       }
       
       if (self.clients.openWindow) {
-        return self.clients.openWindow(self.registration.scope);
+        return self.clients.openWindow(targetUrl);
       }
     })
   );
