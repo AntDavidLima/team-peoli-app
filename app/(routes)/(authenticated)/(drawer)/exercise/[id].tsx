@@ -120,7 +120,7 @@ export default function Exercise() {
 		if (duration <= 0) return;
 
 		try {
-			await api.post('/notifications/cancel-all');
+			await api.post('/notifications/cancel-rest');
 		} catch (error) {
 			console.error("Falha ao cancelar notificações pendentes antes de agendar uma nova:", error);
 		}
@@ -150,7 +150,7 @@ export default function Exercise() {
 		if (!restEndTime) return;
 		
 		try {
-			await api.post('/notifications/cancel-all');
+			await api.post('/notifications/cancel-rest');
 		} catch (error) {
 			console.error("Falha ao cancelar notificações pendentes antes de reagendar:", error);
 		}
@@ -198,7 +198,7 @@ export default function Exercise() {
 
 	const handleStopRest = async () => {
 		try {
-			await api.post('/notifications/cancel-all');
+			await api.post('/notifications/cancel-rest');
 		} catch (error) {
 			console.error("Falha ao cancelar notificações ao pular o descanso:", error);
 		}
@@ -409,10 +409,26 @@ export default function Exercise() {
 
 	const { mutate: startWorkout } = useMutation({
 		mutationFn: createWorkout,
-		onSuccess: () => {
+		onSuccess: async () => {
 			queryClient.invalidateQueries({
 				queryKey: ["workout", ...(todayTrainings?.map(({ id }) => id) || [])],
 			});
+
+			try {
+				if (!id || !trainingId || !day) {
+					console.error("Parâmetros da URL ausentes, não foi possível agendar o lembrete de finalização.");
+					return;
+				}
+
+				const reminderUrl = `/exercise/${id}?trainingId=${trainingId}&day=${day}`;
+
+				await api.post('/notifications/schedule/finish-reminder', {
+					data: { url: reminderUrl },
+				});
+				
+			} catch (error) {
+				console.error("Falha ao agendar o lembrete de finalização de treino:", error);
+			}
 		},
 	});
 
