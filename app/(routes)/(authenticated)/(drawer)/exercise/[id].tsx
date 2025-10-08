@@ -34,6 +34,7 @@ import NoteIcon from "@/assets/icons/note.svg";
 import DeleteIcon from "@/assets/icons/delete.svg";
 import InfoIcon from "@/assets/icons/info2.svg";
 import Toast from "react-native-toast-message";
+import { useIsFocused } from '@react-navigation/native';
 
 interface Training {
 	exercises: TrainingExercise[];
@@ -58,6 +59,7 @@ interface Workout {
 	id: number;
 	startTime: Date;
 	exercises: WorkoutExercise[];
+	trainings: { id: number }[];
 }
 
 interface WorkoutExercise {
@@ -71,10 +73,25 @@ interface WorkoutExerciseSet {
 	reps: number;
 }
 
+interface ScheduleNotificationParams {
+  durationInSeconds: number;
+  data: {
+    url: string;
+  };
+}
+
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 
 export default function Exercise() {
+	const isFocused = useIsFocused();
+	const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
+	const [isAnotherWorkoutActiveModalVisible, setIsAnotherWorkoutActiveModalVisible] = useState(false);
+	const [isConfirmedActivePage, setIsConfirmedActivePage] = useState(false);
+
+	const [scheduledNotificationId, setScheduledNotificationId] = useState<number | null>(null);
+	const notificationIdRef = useRef<number | null>(null); 
+
 	const [isResting, setIsResting] = useState(false);
 	const [restEndTime, setRestEndTime] = useState<Date | null>(null);
 	const [remainingRestSeconds, setRemainingRestSeconds] = useState(0);
@@ -99,23 +116,61 @@ export default function Exercise() {
 
     const isInitialized = useRef(false);
 
-	const handleStartRest = (duration: number) => {
+	const handleStartRest = async (duration: number) => {
 		if (duration <= 0) return;
+
+		try {
+			await api.post('/notifications/cancel-rest');
+		} catch (error) {
+			console.error("Falha ao cancelar notificações pendentes antes de agendar uma nova:", error);
+		}
 
 		const endTime = new Date(Date.now() + duration * 1000);
 		setRestEndTime(endTime);
 		setTotalRestDuration(duration);
 		setRemainingRestSeconds(duration);
 		setIsResting(true);
+
+		if (!id || !trainingId || !day) {
+			console.error("Não foi possível agendar notificação: parâmetros da URL ausentes.");
+			return;
+		}
+		
+		const notificationUrl = `/exercise/${id}?trainingId=${trainingId}&day=${day}`;
+		
+		scheduleNotification({
+			durationInSeconds: duration,
+			data: {
+				url: notificationUrl
+			}
+		});
 	};
 
-	const addRestTime = (seconds: number) => {
+	const addRestTime = async (seconds: number) => {
 		if (!restEndTime) return;
+		
+		try {
+			await api.post('/notifications/cancel-rest');
+		} catch (error) {
+			console.error("Falha ao cancelar notificações pendentes antes de reagendar:", error);
+		}
+
+		if (!id || !trainingId || !day) {
+			console.error("Não foi possível reagendar notificação: parâmetros da URL ausentes.");
+			return;
+		}
+		
+		const newRemainingTime = remainingRestSeconds + seconds;
+		const notificationUrl = `/exercise/${id}?trainingId=${trainingId}&day=${day}`;
+		
+		scheduleNotification({
+			durationInSeconds: newRemainingTime,
+			data: {
+				url: notificationUrl
+			}
+		});
 
 		const newEndTime = new Date(restEndTime.getTime() + seconds * 1000);
-
-		const newTotalDuration = totalRestDuration + seconds;
-
 		setRestEndTime(newEndTime);
 		setTotalRestDuration((currentDuration) => currentDuration + seconds);
 		setRemainingRestSeconds((currentSeconds) => currentSeconds + seconds);
@@ -141,11 +196,26 @@ export default function Exercise() {
 		setIsConfirmFinishModalVisible(true);
 	};
 
-	const handleStopRest = () => {
+	const handleStopRest = async () => {
+		try {
+			await api.post('/notifications/cancel-rest');
+		} catch (error) {
+			console.error("Falha ao cancelar notificações ao pular o descanso:", error);
+		}
+
 		setIsResting(false);
 		setRestEndTime(null);
 		setRemainingRestSeconds(0);
 	};
+
+	useEffect(() => {
+        return () => {
+            if (notificationIdRef.current) {
+				api.post('/notifications/cancel', { notificationId: notificationIdRef.current });
+            }
+        };
+    }, []);
+
 
 	const { currentUser } = useAuthentication();
 
@@ -164,10 +234,42 @@ export default function Exercise() {
 		queryKey: ["todayTrainings", day, currentUser?.id],
 	});
 
-	const { data: workout } = useQuery({
+	const { data: workout, isLoading: loadingWorkout } = useQuery({
 		queryFn: fetchWorkoutInProgress,
 		queryKey: ["workout", ...(todayTrainings?.map(({ id }) => id) || [])],
 	});
+
+	useEffect(() => {
+		if (!isFocused) {
+			return;
+		}
+		
+		if (loadingWorkout) {
+			return;
+		}
+
+		if (workout) {
+			return;
+		}
+
+		const checkForAnotherActiveWorkout = async () => {
+			try {
+				const { data: otherWorkout } = await api.get<Workout | null>('/workout/in-progress');
+
+				if (otherWorkout) {
+					setActiveWorkout(otherWorkout);
+					setIsAnotherWorkoutActiveModalVisible(true);
+				}
+			} catch (error) {
+				console.error("Falha ao verificar outro treino ativo:", error);
+			}
+		};
+
+		if (trainingId) {
+			checkForAnotherActiveWorkout();
+		}
+
+	}, [trainingId, workout, loadingWorkout]);
 
 	const syncWorkoutTimer = useCallback(() => {
 		if (!workout) return;
@@ -212,29 +314,6 @@ export default function Exercise() {
 				}, 1000)
 			);
 	}, [clock, syncWorkoutTimer]);
-	
-	useEffect(() => {
-        const setupNotifications = async () => {
-            if ('serviceWorker' in navigator && 'PushManager' in window) {
-                try {
-                    const registration = await navigator.serviceWorker.register('/sw.js');
-                    console.log('Service Worker registrado:', registration);
-
-                    const permission = await Notification.requestPermission();
-                    if (permission !== 'granted') {
-                        console.warn('Permissão para notificações foi negada.');
-                        return;
-                    }
-                } catch (error) {
-                    console.error('Falha na configuração das notificações:', error);
-                }
-            } else {
-                console.log("Push Notifications não são suportadas neste navegador.");
-            }
-        };
-
-        setupNotifications();
-    }, []);
 
 	useEffect(() => {
 		if (!isResting || !restEndTime) {
@@ -271,8 +350,10 @@ export default function Exercise() {
 
 	useEffect(() => {
 		if (workout) {
+        	setIsConfirmedActivePage(true);
 			startClock();
 		} else {
+        	setIsConfirmedActivePage(false);
 			if(clock) clearInterval(clock);
 			setClock(null);
 		}
@@ -311,18 +392,55 @@ export default function Exercise() {
 	const currentExerciseId =
 		training?.exercises[currentExerciseIndex]?.exercise.id;
 
+	const { mutate: scheduleNotification } = useMutation({
+    mutationFn: ({ durationInSeconds, data }: ScheduleNotificationParams) => 
+        api.post('/notifications/schedule/rest', { durationInSeconds, data }),
+    onSuccess: (response: any) => {
+        const newId = response.data.notificationId;
+        if (newId) {
+            setScheduledNotificationId(response.data.notificationId);
+            notificationIdRef.current = newId;
+        }
+    },
+    onError: (error) => {
+        console.error("Failed to schedule notification:", error);
+    }
+});
+
 	const { mutate: startWorkout } = useMutation({
 		mutationFn: createWorkout,
-		onSuccess: () => {
+		onSuccess: async () => {
 			queryClient.invalidateQueries({
 				queryKey: ["workout", ...(todayTrainings?.map(({ id }) => id) || [])],
 			});
+
+			try {
+				if (!id || !trainingId || !day) {
+					console.error("Parâmetros da URL ausentes, não foi possível agendar o lembrete de finalização.");
+					return;
+				}
+
+				const reminderUrl = `/exercise/${id}?trainingId=${trainingId}&day=${day}`;
+
+				await api.post('/notifications/schedule/finish-reminder', {
+					data: { url: reminderUrl },
+				});
+				
+			} catch (error) {
+				console.error("Falha ao agendar o lembrete de finalização de treino:", error);
+			}
 		},
 	});
 
 	const { mutate: finishWorkout, isPending: isFinishingWorkout } = useMutation({
 		mutationFn: stopWorkout,
-		onSuccess: (updatedWorkout) => {
+		onSuccess: async (updatedWorkout) => {
+			try {
+				await api.post('/notifications/cancel-all');
+			} catch (error) {
+				console.error("Falha ao cancelar notificações pendentes:", error);
+			}
+
 			queryClient.invalidateQueries({
 				queryKey: ["workout", ...(todayTrainings?.map(({ id }) => id) || [])],
 			});
@@ -348,12 +466,12 @@ export default function Exercise() {
 			}
 		},
 		onError: (error) => {
-        console.error("Falha ao finalizar o treino:", error);
-        Toast.show({
-			type: 'error',
-			text1: 'Não foi possível encerrar o treino. Verifique sua conexão e tente novamente.'
-		});
-    },
+			console.error("Falha ao finalizar o treino:", error);
+			Toast.show({
+				type: 'error',
+				text1: 'Não foi possível encerrar o treino. Verifique sua conexão e tente novamente.'
+			});
+		},
 	});
 
 	const { mutate: saveNote, isPending: isSavingNote } = useMutation({
@@ -621,6 +739,56 @@ export default function Exercise() {
 					</Pressable>
 				)}
 			</View>
+			<Modal
+				visible={isAnotherWorkoutActiveModalVisible && !isConfirmedActivePage}
+				transparent
+				animationType="fade"
+				onRequestClose={() => setIsAnotherWorkoutActiveModalVisible(false)}
+			>
+				<View
+					className="flex-1 justify-center items-center px-4"
+					style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
+				>
+					<View className="bg-danger w-full rounded-2xl p-6 items-center">
+						<Text style={{fontFamily: 'Inter-Bold'}} className="text-white font-bold text-xl text-center">
+							Há um treino em andamento
+						</Text>
+
+						<Text style={{fontFamily: 'Inter-Regular'}} className="text-white text-center mt-3 mb-6">
+							Antes de iniciar outro, finalize o treino em aberto para manter seus dados de treino corretos no sistema.
+						</Text>
+
+						<View className="flex-row w-full justify-between">
+							<Pressable
+								className="bg-white rounded-md py-3 w-full"
+								onPress={() => {
+									if (activeWorkout && activeWorkout.trainings.length > 0 && activeWorkout.exercises.length > 0) {
+
+										router.push({
+											pathname: '/exercise/[id]',
+											params: {
+												id: activeWorkout.exercises[0].exerciseId,
+												trainingId: activeWorkout.trainings[0].id,
+												day: new Date(activeWorkout.startTime).toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase(),
+											},
+										});
+									} else {
+										Toast.show({
+											type: 'error',
+											text1: 'Não foi possível acessar o treino!',
+											text2: 'Verifique sua conexão ou procure o treino manualmente.'
+										});
+
+										setIsAnotherWorkoutActiveModalVisible(false);
+									}
+								}}
+							>
+								<Text style={{fontFamily: 'Inter-Bold'}} className="text-danger font-bold text-center">Abrir treino ativo</Text>
+							</Pressable>
+						</View>
+					</View>
+				</View>
+			</Modal>
 			<Modal
 				visible={isConfirmFinishModalVisible}
 				transparent

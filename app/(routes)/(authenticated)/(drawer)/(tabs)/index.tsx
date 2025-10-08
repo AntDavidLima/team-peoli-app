@@ -4,6 +4,7 @@ import {
   Text,
   View,
   useWindowDimensions,
+  Animated
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -12,7 +13,7 @@ import { ExerciseWithWorkouts } from "./progress";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Link } from "expo-router";
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 
 import {
   VictoryArea,
@@ -30,6 +31,13 @@ import { Routine } from "@/components/trainings";
 import FireIcon from "@/assets/icons/fire.svg";
 import MoonIcon from "@/assets/icons/moon.svg";
 
+interface ActiveWorkout {
+  id: number;
+  startTime: Date;
+  trainings: { id: number }[];
+  exercises: { exerciseId: number }[];
+}
+
 export default function Home() {
   const { currentUser } = useAuthentication();
   const { width } = useWindowDimensions();
@@ -45,6 +53,36 @@ export default function Home() {
     queryFn: fetchTrainings,
   });
 
+  const { data: activeWorkout } = useQuery<ActiveWorkout>({
+    queryKey: ['activeWorkout', currentUser?.id],
+    queryFn: async () => {
+      const { data } = await api.get('/workout/in-progress');
+      return data;
+    },
+    enabled: !!currentUser?.id,
+    refetchInterval: 30000,
+  });
+
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (activeWorkout) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, {
+            toValue: 1.15,
+            duration: 700,
+            useNativeDriver: true,
+          }),
+          Animated.timing(pulseAnim, {
+            toValue: 1,
+            duration: 700,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    }
+  }, [activeWorkout, pulseAnim]);
 
   const { totalDaysOfMonth, firstDayOfWeek } = useMemo(() => {
     const firstDayOfWeek = new Date().getDate() - new Date().getDay()
@@ -178,7 +216,42 @@ export default function Home() {
   return (
     <ScrollView>
       <View className="px-4 py-2">
-        {routines && routines[0]?.trainings[0] ? (
+        {activeWorkout && activeWorkout.trainings.length > 0 && activeWorkout.exercises.length > 0 ? (
+          <Link
+            href={{
+              pathname: "/(routes)/(authenticated)/exercise/[id]",
+              params: {
+                id: activeWorkout.exercises[0].exerciseId,
+                trainingId: activeWorkout.trainings[0].id,
+                day: new Date(activeWorkout.startTime).toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase(),
+              },
+            }}
+            asChild
+          >
+            <Pressable className="bg-lightBackground rounded-2xl p-2">
+              <View className="flex-row px-3 py-3 justify-between items-center">
+                <View>
+                  <Text style={{fontFamily: 'Inter-ExtraBold'}} className="text-white text-xl font-extrabold">
+                    Treino em Andamento
+                  </Text>
+                  <Text style={{fontFamily: 'Inter-Regular'}} className="text-disabled text-sm">
+                    Continue de onde parou!
+                  </Text>
+                  {routines && routines[0]?.trainings[0] && (
+                    <Text style={{fontFamily: 'Inter-Bold'}} className="text-secondary text-lg mt-1 font-bold">
+                      {routines[0]?.trainings[0].name}
+                    </Text>
+                  )}
+                </View>
+                <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
+                  <View className="bg-main rounded-full items-center justify-center h-14 w-14">
+                    <FireIcon width={32} height={32} />
+                  </View>
+                </Animated.View>
+              </View>
+            </Pressable>
+          </Link>
+        ) : routines && routines[0]?.trainings[0] ? (
           <Link
             href={{
               pathname: "/(routes)/(authenticated)/exercise/[id]",
@@ -219,9 +292,7 @@ export default function Home() {
                 <Text style={{fontFamily: 'Inter-Regular'}} className="text-subtitle mt-1 text-sm">
                   Sem treinos programados.
                 </Text>
-                <Text 
-                  style={{width: 200}}
-                className="text-subtitle text-xs mt-1">
+                <Text style={{width: 200}} className="text-subtitle text-xs mt-1">
                   Utilize o dia para recuperação ou análise do seu progresso!
                 </Text>
               </View>

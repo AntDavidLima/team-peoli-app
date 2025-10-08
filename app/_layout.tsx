@@ -9,6 +9,7 @@ import Toast from "react-native-toast-message";
 import customColors from "@/tailwind.colors";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./global.css";
+import { notification }  from "@/lib/notification";
 
 export {
   ErrorBoundary,
@@ -34,10 +35,10 @@ export default function RootLayout() {
 
   useEffect(() => {
     if (loaded) {
-      console.log("Fontes carregadas com sucesso!");
-      SplashScreen.hideAsync();
-    } else if (!loaded && !error) {
-      console.log("Carregando fontes...");
+      notification.setupNotification()
+        .then()
+        .catch(err => console.warn('Configuração de notificações falhou:', err))
+        .finally(() => SplashScreen.hideAsync());
     }
   }, [loaded]);
 
