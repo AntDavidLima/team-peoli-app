@@ -21,7 +21,10 @@ jobs:
         run: rm -rf dist .expo
 
       - name: Build web application
-        run: EXPO_PUBLIC_API_URL=${{ env.EXPO_PUBLIC_API_URL }} npx expo export -p web
+        run: |
+          EXPO_PUBLIC_API_URL=${{ env.EXPO_PUBLIC_API_URL }} \
+          EXPO_PUBLIC_VAPID_PUBLIC_KEY=${{ secrets.EXPO_PUBLIC_VAPID_PUBLIC_KEY }} \
+          npx expo export -p web
         
       - name: Prepare server for new files
         uses: appleboy/ssh-action@v1.0.3
