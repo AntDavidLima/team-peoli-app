@@ -208,15 +208,6 @@ export default function Exercise() {
 		setRemainingRestSeconds(0);
 	};
 
-	useEffect(() => {
-        return () => {
-            if (notificationIdRef.current) {
-				api.post('/notifications/cancel', { notificationId: notificationIdRef.current });
-            }
-        };
-    }, []);
-
-
 	const { currentUser } = useAuthentication();
 
 	const { id, trainingId, day } = useLocalSearchParams();
@@ -324,7 +315,9 @@ export default function Exercise() {
 			const remaining = differenceInSeconds(restEndTime, new Date());
 
 			if (remaining <= 0) {
-				handleStopRest();
+				setIsResting(false);
+				setRestEndTime(null);
+				setRemainingRestSeconds(0);
 			} else {
 				setRemainingRestSeconds(remaining);
 			}
