@@ -91,6 +91,7 @@ export default function Exercise() {
 
 	const [scheduledNotificationId, setScheduledNotificationId] = useState<number | null>(null);
 	const notificationIdRef = useRef<number | null>(null); 
+    const [canCheckForActiveWorkout, setCanCheckForActiveWorkout] = useState(true);
 
 	const [isResting, setIsResting] = useState(false);
 	const [restEndTime, setRestEndTime] = useState<Date | null>(null);
@@ -231,6 +232,10 @@ export default function Exercise() {
 	});
 
 	useEffect(() => {
+		if (!canCheckForActiveWorkout) {
+			return;
+		}
+
 		if (!isFocused) {
 			return;
 		}
@@ -260,7 +265,7 @@ export default function Exercise() {
 			checkForAnotherActiveWorkout();
 		}
 
-	}, [trainingId, workout, loadingWorkout]);
+	}, [trainingId, workout, loadingWorkout, isFocused, canCheckForActiveWorkout]);
 
 	const syncWorkoutTimer = useCallback(() => {
 		if (!workout) return;
@@ -433,6 +438,8 @@ export default function Exercise() {
 			} catch (error) {
 				console.error("Falha ao cancelar notificações pendentes:", error);
 			}
+
+			setCanCheckForActiveWorkout(false);
 
 			queryClient.invalidateQueries({
 				queryKey: ["workout", ...(todayTrainings?.map(({ id }) => id) || [])],
