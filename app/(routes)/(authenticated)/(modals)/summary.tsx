@@ -316,7 +316,7 @@ export default function Summary() {
             const hasPreviousVolume = previousTotalVolume !== null && previousTotalVolume > 0;
             if (hasPreviousVolume) {
                 const percentageChange = ((totalVolume - previousTotalVolume) / previousTotalVolume) * 100;
-                if (percentageChange > 5) {
+                if (percentageChange > 0) {
                     setDisplayCondition('AUMENTO');
                 }
                 else if (percentageChange < -5) {
@@ -493,7 +493,7 @@ export default function Summary() {
 
                                 statusText = `${formatVolume(difference)} kg`;
                                 statusSubText = `(${Math.abs(Math.round(percentageChange))}%)`;
-                                if (percentageChange > 5) {
+                                if (percentageChange > 0) {
                                     IconComponent = <ArrowUpIcon width={38} height={38} />;
                                     statusColor = 'text-[#4ADE80]';
                                     borderColor = 'border-[#4ADE80]';
