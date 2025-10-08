@@ -120,27 +120,6 @@ export default function DrawerLayout() {
           </View>
           <DrawerContentScrollView {...props}>
             <DrawerItemList {...props} />
-            {isUser13 && (
-              <DrawerItem
-                style={{
-                  marginHorizontal: 0,
-                  borderRadius: 0,
-                  height: 44,
-                  paddingLeft: 16,
-                  justifyContent: "center",
-                  backgroundColor: 'rgba(255, 193, 7, 0.1)', // Fundo amarelo suave
-                }}
-                label={"🧪 Testar Notificações"}
-                labelStyle={{ 
-                  fontSize: 14,
-                  color: '#FFD700',
-                  fontWeight: 'bold'
-                }}
-                onPress={() => {
-                  props.navigation.navigate("notificationTest");
-                }}
-              />
-            )}
             
             {professorPhone && (
               <DrawerItem
@@ -189,14 +168,6 @@ export default function DrawerLayout() {
           drawerIcon: () => (
             <UserIcon width={20} height={20} color={customColors.background} />
           ),
-        }}
-      />
-      
-      <Drawer.Screen
-        name="notificationTest"
-        options={{
-          title: "Teste de Notificações",
-          drawerItemStyle: { display: "none" },
         }}
       />
     </Drawer>
