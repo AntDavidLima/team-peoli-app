@@ -319,7 +319,7 @@ export default function Summary() {
                 if (percentageChange > 0) {
                     setDisplayCondition('AUMENTO');
                 }
-                else if (percentageChange < -5) {
+                else if (percentageChange < -3) {
                     setDisplayCondition('REDUCAO');
                 }
                 else {
@@ -441,7 +441,7 @@ export default function Summary() {
                                 <Text style={{ fontFamily: 'Inter-Regular' }} className={`text-sm ${conditionStyles.variationTextColor}`}>Anterior: {formatVolume(previousTotalVolume)} kg → Atual: {formatVolume(totalVolume)} kg</Text>
                                 <Text style={{ fontFamily: 'Inter-ExtraBold' }} className={`text-sm ${conditionStyles.variationTextColor}`}>({formatVolume(totalVolume - previousTotalVolume) + 'kg'})</Text>
                             </View>
-                            {(percentageChange < 0 && percentageChange >= -5) && (
+                            {(percentageChange < 0 && percentageChange >= -3) && (
                                 <Text style={{ fontFamily: 'Inter-Regular ' }} className={`text-sm ${conditionStyles.variationTextColor}`}>Variação: ~{Math.abs(Math.round(percentageChange))}% (oscilação normal)</Text>
                             )}
                         </View>
@@ -497,7 +497,7 @@ export default function Summary() {
                                     IconComponent = <ArrowUpIcon width={38} height={38} />;
                                     statusColor = 'text-[#4ADE80]';
                                     borderColor = 'border-[#4ADE80]';
-                                } else if (percentageChange < -5) {
+                                } else if (percentageChange < -3) {
                                     IconComponent = <ArrowDownIcon width={38} height={38} />;
                                     statusColor = 'text-[#EB5151]';
                                     borderColor = 'border-[#EB5151]';
