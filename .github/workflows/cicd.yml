@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Clean previous builds
+      - name: Clean previous build
         run: rm -rf dist .expo
 
       - name: Build web application
