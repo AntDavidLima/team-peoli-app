@@ -832,6 +832,7 @@ export default function Exercise() {
 								className={`${isWorkoutIncomplete ? "bg-white" : "bg-danger"} rounded-md py-3 w-[48%]`}
 								onPress={() => {
 									if (isFinishingWorkout) return;
+                        			setCanCheckForActiveWorkout(false);
 									setIsConfirmFinishModalVisible(false);
 									finishWorkout();
 								}}
