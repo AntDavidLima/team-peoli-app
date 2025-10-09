@@ -243,12 +243,7 @@ export default function Exercise() {
 			return;
 		}
 
-		if(isFocused){
-			setCanCheckForActiveWorkout(true);
-		}
-
 		if (!isFocused) {
-			setCanCheckForActiveWorkout(false);
 			return;
 		}
 		
@@ -452,6 +447,8 @@ export default function Exercise() {
 			}
 
 			setCanCheckForActiveWorkout(false);
+
+       		await queryClient.resetQueries({ queryKey: ['activeWorkout'] });
 
 			queryClient.invalidateQueries({
 				queryKey: ["workout", ...(todayTrainings?.map(({ id }) => id) || [])],
@@ -752,7 +749,7 @@ export default function Exercise() {
 				)}
 			</View>
 			<Modal
-				visible={isAnotherWorkoutActiveModalVisible && !isConfirmedActivePage}
+				visible={isAnotherWorkoutActiveModalVisible && !isConfirmedActivePage && canCheckForActiveWorkout}
 				transparent
 				animationType="fade"
 				onRequestClose={() => setIsAnotherWorkoutActiveModalVisible(false)}
