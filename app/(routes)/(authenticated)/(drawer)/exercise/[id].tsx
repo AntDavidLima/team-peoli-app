@@ -243,7 +243,12 @@ export default function Exercise() {
 			return;
 		}
 
+		if(isFocused){
+			setCanCheckForActiveWorkout(true);
+		}
+
 		if (!isFocused) {
+			setCanCheckForActiveWorkout(false);
 			return;
 		}
 		
