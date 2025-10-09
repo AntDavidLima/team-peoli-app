@@ -32,10 +32,10 @@ import FireIcon from "@/assets/icons/fire.svg";
 import MoonIcon from "@/assets/icons/moon.svg";
 
 interface ActiveWorkout {
-  id: number;
-  startTime: Date;
-  trainings: { id: number }[];
-  exercises: { exerciseId: number }[];
+  workoutId: number;
+  trainingId: number;
+  initialExerciseId: number;
+  day: string;
 }
 
 export default function Home() {
@@ -56,7 +56,7 @@ export default function Home() {
   const { data: activeWorkout } = useQuery<ActiveWorkout>({
     queryKey: ['activeWorkout', currentUser?.id],
     queryFn: async () => {
-      const { data } = await api.get('/workout/in-progress');
+      const { data } = await api.get('/workout/active');
       return data;
     },
     enabled: !!currentUser?.id,
@@ -216,14 +216,14 @@ export default function Home() {
   return (
     <ScrollView>
       <View className="px-4 py-2">
-        {activeWorkout && activeWorkout.trainings.length > 0 && activeWorkout.exercises.length > 0 ? (
+        {activeWorkout ? (
           <Link
             href={{
               pathname: "/(routes)/(authenticated)/exercise/[id]",
               params: {
-                id: activeWorkout.exercises[0].exerciseId,
-                trainingId: activeWorkout.trainings[0].id,
-                day: new Date(activeWorkout.startTime).toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase(),
+                id: activeWorkout.initialExerciseId,
+                trainingId: activeWorkout.trainingId,
+                day: activeWorkout.day,
               },
             }}
             asChild
