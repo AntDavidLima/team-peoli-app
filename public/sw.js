@@ -36,9 +36,11 @@ self.addEventListener('push', (event) => {
   const title = pushData.title;
   const options = {
     body: pushData.body,
-    icon: '/logo192.png',
-    data: pushData.data
+    data: pushData.data,
+    vibrate: [200, 100, 200],
+    requireInteraction: true 
   };
+  
 
   const notificationPromise = self.registration.showNotification(title, options);
   event.waitUntil(notificationPromise);

@@ -62,6 +62,13 @@ interface Workout {
 	trainings: { id: number }[];
 }
 
+interface ActiveWorkout {
+  workoutId: number;
+  trainingId: number;
+  initialExerciseId: number;
+  day: string;
+}
+
 interface WorkoutExercise {
 	WorkoutExerciseSets: WorkoutExerciseSet[];
 	exerciseId: number;
@@ -85,7 +92,7 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 export default function Exercise() {
 	const isFocused = useIsFocused();
-	const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
+	const [activeWorkout, setActiveWorkout] = useState<ActiveWorkout | null>(null);
 	const [isAnotherWorkoutActiveModalVisible, setIsAnotherWorkoutActiveModalVisible] = useState(false);
 	const [isConfirmedActivePage, setIsConfirmedActivePage] = useState(false);
 
@@ -250,7 +257,7 @@ export default function Exercise() {
 
 		const checkForAnotherActiveWorkout = async () => {
 			try {
-				const { data: otherWorkout } = await api.get<Workout | null>('/workout/in-progress');
+				const { data: otherWorkout } = await api.get<ActiveWorkout | null>('/workout/active');
 
 				if (otherWorkout) {
 					setActiveWorkout(otherWorkout);
@@ -762,21 +769,20 @@ export default function Exercise() {
 							<Pressable
 								className="bg-white rounded-md py-3 w-full"
 								onPress={() => {
-									if (activeWorkout && activeWorkout.trainings.length > 0 && activeWorkout.exercises.length > 0) {
+									if (activeWorkout) {
 
 										router.push({
 											pathname: '/exercise/[id]',
-											params: {
-												id: activeWorkout.exercises[0].exerciseId,
-												trainingId: activeWorkout.trainings[0].id,
-												day: new Date(activeWorkout.startTime).toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase(),
+											params: {                								
+												id: activeWorkout.initialExerciseId,
+												trainingId: activeWorkout.trainingId,
+												day: activeWorkout.day,
 											},
 										});
 									} else {
 										Toast.show({
 											type: 'error',
-											text1: 'Não foi possível acessar o treino!',
-											text2: 'Verifique sua conexão ou procure o treino manualmente.'
+											text1: 'Não foi possível acessar o treino!'
 										});
 
 										setIsAnotherWorkoutActiveModalVisible(false);
@@ -936,6 +942,9 @@ export default function Exercise() {
 		try {
 			const { data: workout } = await api.post("/workout", {
 				trainingIds: todayTrainings?.map(({ id }) => id),
+				currentTrainingId: Number(trainingId),
+				day: day as string, 
+            	initialExerciseId: Number(id),
 			});
 
 			return workout;
