@@ -900,7 +900,6 @@ export default function Exercise() {
                             >
                                 <Text style={{fontFamily: 'Inter-Regular'}}  className="text-white text-center">Cancelar</Text>
                             </Pressable>
-
                             <Pressable
                                 className="bg-main rounded-lg py-3 w-[48%] items-center justify-center"
                                 disabled={isSavingNote}
