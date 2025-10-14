@@ -102,6 +102,38 @@ export const notification = {
             console.error("Erro ao salvar subscription no backend:", error);
         }
     },
+
+    async unsubscribeFromNotifications(): Promise<void> {
+        if (!('serviceWorker' in navigator && 'PushManager' in window)) {
+            console.warn("Push notifications não são suportadas neste navegador.");
+            return;
+        }
+
+        try {
+            const registration = await navigator.serviceWorker.ready;
+            const subscription = await registration.pushManager.getSubscription();
+
+            if (!subscription) {
+                console.log("Nenhuma inscrição de push encontrada para cancelar.");
+                return;
+            }
+
+            await api.delete("/push-subscription", {
+                data: { endpoint: subscription.endpoint }
+            });
+
+            const unsubscribed = await subscription.unsubscribe();
+            if (!unsubscribed) {
+                throw new Error("Falha ao cancelar a inscrição no navegador.");
+            }
+            
+            console.log("Inscrição de push cancelada com sucesso.");
+
+        } catch (error) {
+            console.error("Erro ao cancelar a inscrição de push:", error);
+            throw error;
+        }
+    },
     
     async isPushSupported(): Promise<boolean> {
         return 'serviceWorker' in navigator && 'PushManager' in window;
