@@ -16,6 +16,7 @@ import {
 	View,
 	Image,
 	Platform,
+	Switch
 } from "react-native";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { Controller, useForm } from "react-hook-form";
@@ -32,6 +33,7 @@ import * as ImagePicker from "expo-image-picker";
 import ReactCrop, { Crop, PixelCrop, centerCrop, makeAspectCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import { canvasPreview } from '@/lib/canvasPreview';
+import { notification } from "@/lib/notification";
 
 interface ReactNativeFile {
 	uri: string;
@@ -105,6 +107,9 @@ function centerAspectCrop(
 
 export default function Profile() {
 	const { currentUser, updateMe } = useAuthentication();
+	const [isPushSubscribed, setIsPushSubscribed] = useState(false);
+    const [isSubscriptionLoading, setIsSubscriptionLoading] = useState(true);
+    const [isPushSupported, setIsPushSupported] = useState(false);
 
 	const [selectedImage, setSelectedImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
 	const [changingPassword, setChangingPassword] = useState(false);
@@ -134,6 +139,56 @@ export default function Profile() {
 			});
 		}
 	}, [currentUser, reset]);
+
+	useEffect(() => {
+        const initializePushState = async () => {
+            if (Platform.OS !== 'web') {
+                setIsSubscriptionLoading(false);
+                return;
+            }
+
+            const supported = await notification.isPushSupported();
+            setIsPushSupported(supported);
+            if (!supported) {
+                setIsSubscriptionLoading(false);
+                return;
+            }
+            
+            try {
+                const subscription = await notification.getCurrentSubscription();
+                setIsPushSubscribed(!!subscription);
+            } catch (error) {
+                console.error("Erro ao verificar inscrição de push:", error);
+            } finally {
+                setIsSubscriptionLoading(false);
+            }
+        };
+
+        initializePushState();
+    }, []);
+
+    const handleSubscriptionChange = async () => {
+        setIsSubscriptionLoading(true);
+
+        try {
+            if (isPushSubscribed) {
+                await notification.unsubscribeFromNotifications();
+                setIsPushSubscribed(false);
+                Toast.show({ type: 'info', text1: 'Notificações desativadas neste dispositivo.' });
+            } else {
+                const subscription = await notification.setupNotification();
+                if (subscription) {
+                    setIsPushSubscribed(true);
+                    Toast.show({ type: 'success', text1: 'Notificações ativadas neste dispositivo!' });
+                }
+            }
+        } catch (error) {
+            console.error("Falha ao alterar a inscrição de notificações:", error);
+            Toast.show({ type: 'error', text1: 'Ocorreu um erro ao gerenciar as notificações.' });
+        } finally {
+            setIsSubscriptionLoading(false);
+        }
+    };
 
 	const pickImage = async () => {
 		try {
@@ -441,8 +496,8 @@ export default function Profile() {
 							</Text>
 						)}
 					</View>
-
-					<View className={changingPassword ? "bg-opacity-0" : "bg-secondary/40 rounded mt-8"}>
+					
+					<View className={changingPassword ? "bg-opacity-0" : "bg-secondary/40 rounded mt-2"}>
 						<Pressable
 							onPress={() => setChangingPassword(true)}
 							className="h-12 px-10 w-full items-center justify-center flex-row space-x-1"
@@ -577,7 +632,7 @@ export default function Profile() {
 					</View>
 
 					<TouchableOpacity
-						className="bg-main rounded h-12 items-center justify-center w-full"
+						className="bg-main rounded h-12 items-center justify-center w-full -mt-2"
 						onPress={handleSubmit(onSubmit)}
 					>
 						<View className="flex-row items-center">
@@ -587,6 +642,27 @@ export default function Profile() {
 							</Text>
 						</View>
 					</TouchableOpacity>
+
+					{isPushSupported && (
+						<View className="bg-gray-700/80 rounded-lg p-4 mt-6">
+							<View className="flex-row justify-between items-center">
+								<View className="flex-1 pr-2">
+									<Text style={{ fontFamily: 'Inter-Medium' }} className="text-white text-sm">Receber Notificações</Text>
+									<Text style={{ fontFamily: 'Inter-Regular' }} className="text-gray-400 text-xs mt-1">
+										Receber alertas de descanso e lembretes neste dispositivo.
+									</Text>
+								</View>
+								<Switch
+									trackColor={{ false: "#767577", true: customColors.main }}
+									thumbColor={"#f4f3f4"}
+									ios_backgroundColor="#3e3e3e"
+									onValueChange={handleSubscriptionChange}
+									value={isPushSubscribed}
+									disabled={isSubscriptionLoading}
+								/>
+							</View>
+						</View>
+					)}
 				</KeyboardAvoidingView>
 			</ScrollView>
 		</View>

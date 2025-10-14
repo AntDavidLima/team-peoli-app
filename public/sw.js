@@ -37,8 +37,10 @@ self.addEventListener('push', (event) => {
   const options = {
     body: pushData.body,
     data: pushData.data,
-    vibrate: [200, 100, 200],
-    requireInteraction: true 
+    vibrate: [200, 100, 200, 100, 200],
+    requireInteraction: true,
+    icon: 'logo512.png',
+    badge: 'badge72.png'
   };
   
 
