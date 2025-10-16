@@ -2,8 +2,8 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import EmailIcon from '@/assets/icons/email.svg';
 import PasswordIcon from '@/assets/icons/password.svg';
 import SeeIcon from "@/assets/icons/see.svg";
-import { Link, Redirect } from "expo-router";
-import { useEffect, useState } from "react";
+import { Redirect } from "expo-router";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import {
   Image,
@@ -17,7 +17,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { useAuthentication } from "@/contexts/AuthenticationContext";
 import { AxiosError } from "axios";
-import { APIError } from "@/lib/api";
+import { APIError, api } from "@/lib/api";
 import Toast from "react-native-toast-message";
 import tailwindColors from "tailwindcss/colors";
 
@@ -33,6 +33,7 @@ export default function Login() {
     control,
     formState: { errors },
     handleSubmit,
+    getValues,
   } = useForm<LoginForm>({
     resolver: yupResolver(loginFormSchema),
     defaultValues: {
@@ -42,11 +43,59 @@ export default function Login() {
   });
 
   const [passwordVisible, setPasswordVisible] = useState(false);
-
+  const [isResettingPassword, setIsResettingPassword] = useState(false);
   const { login, isAuthenticated, isLoggingIn } = useAuthentication();
 
   if (isAuthenticated) {
     return <Redirect href="/" />;
+  }
+
+  async function handlePasswordReset() {
+    const email = getValues("email");
+
+    if (!email) {
+      Toast.show({
+        type: 'info',
+        text1: 'Por favor, digite seu e-mail no campo acima antes de solicitar uma nova senha.'
+      });
+      return;
+    }
+
+    setIsResettingPassword(true);
+    try {
+      await api.post('/password-reset', { email });
+
+      Toast.show({
+        type: 'success',
+        text1: 'E-mail enviado!',
+        text2: 'Verifique sua caixa de entrada com a nova senha.'
+      });
+
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 400) {
+          Toast.show({
+            type: 'error',
+            text1: 'Usuário não encontrado',
+            text2: 'Verifique o e-mail digitado e tente novamente.'
+          });
+        } else {
+          Toast.show({
+            type: 'error',
+            text1: 'Erro ao redefinir a senha',
+            text2: 'Ocorreu um problema. Tente novamente mais tarde.'
+          });
+        }
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Ocorreu um erro inesperado',
+          text2: 'Por favor, tente novamente.'
+        });
+      }
+    } finally {
+      setIsResettingPassword(false);
+    }
   }
 
   return (
@@ -125,15 +174,30 @@ export default function Login() {
                 {errors.password?.message}
               </Text>
             )}
-            <Link href="/" asChild>
-              <Text className="text-[#64A4EB] mt-2 font-medium text-right text-sm">
-                Esqueceu a senha?
-              </Text>
-            </Link>
+            <TouchableOpacity
+              onPress={handlePasswordReset}
+              disabled={isResettingPassword}
+              className="items-end mt-2"
+            >
+              <View className="flex-row items-center">
+                {isResettingPassword && (
+                  <MaterialCommunityIcons
+                    name="loading"
+                    size={14}
+                    color="#64A4EB"
+                    className="animate-spin mr-1"
+                  />
+                )}
+                <Text className="text-[#64A4EB] font-medium text-sm">
+                  Esqueceu a senha?
+                </Text>
+              </View>
+            </TouchableOpacity>
           </View>            
           <TouchableOpacity
             className="bg-main rounded h-12 items-center justify-center w-full px-10 mt-2"
             onPress={handleSubmit(onSubmit)}
+            disabled={isLoggingIn}
           >
             {isLoggingIn ? (
               <MaterialCommunityIcons
