@@ -120,6 +120,7 @@ export default function Profile() {
 	const [showCropModal, setShowCropModal] = useState(false);
 	const imgRef = useRef<HTMLImageElement>(null);
 	const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+	const [isSaving, setIsSaving] = useState(false);
 
 	const {
 		control,
@@ -305,6 +306,7 @@ export default function Profile() {
 
 	async function onSubmit({ newPassword, currentPassword, phone, email, name }: ProfileForm) {
 		try {
+			setIsSaving(true);
 			const formData = new FormData();
 			formData.append("name", name);
 			formData.append("email", email);
@@ -332,7 +334,6 @@ export default function Profile() {
 			setChangingPassword(false);
 
 		} catch (error) {
-			
 			if (error instanceof AxiosError) {
 				const apiError = error.response?.data as APIError;
 					Toast.show({
@@ -346,6 +347,7 @@ export default function Profile() {
 				});
 			}
 		}
+		setIsSaving(false);
 	}
 
 	return (
@@ -634,12 +636,21 @@ export default function Profile() {
 					<TouchableOpacity
 						className="bg-main rounded h-12 items-center justify-center w-full -mt-2"
 						onPress={handleSubmit(onSubmit)}
+						disabled={isSaving}
 					>
 						<View className="flex-row items-center">
 							<SaveIcon width={18} height={18} />
 							<Text style={{ fontFamily: 'Inter-SemiBold' }} className="text-white text-sm font-semibold ml-2">
 								Salvar Alterações
 							</Text>
+							{isSaving && (
+								<MaterialCommunityIcons
+									name="loading"
+									size={24}
+									color="white"
+									className="animate-spin ml-1"
+								/>
+							)}
 						</View>
 					</TouchableOpacity>
 
